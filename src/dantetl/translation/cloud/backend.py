@@ -19,7 +19,6 @@ from dantetl.translation.backend import BatchResult, RequestRejected, Source
 from dantetl.translation.cloud.auth_work import AuthInterrupted, AuthWork
 from dantetl.translation.cloud.credentials import valid_credential
 from dantetl.translation.cloud.protocol import (
-    PROMPT_VERSION,
     account_error,
     decoding_identity,
     parse_answer,
@@ -28,7 +27,6 @@ from dantetl.translation.cloud.protocol import (
     request_headers,
     request_url,
     response_usage,
-    translation_instruction,
 )
 from dantetl.translation.cloud.responses import PlanUnavailable, ResponseStream
 from dantetl.translation.cloud.values import CloudProfile, CloudUsage
@@ -39,6 +37,7 @@ from dantetl.translation.dialogue.classifier import (
     parse_classification,
 )
 from dantetl.translation.dialogue.context import DialogueTurn
+from dantetl.translation.prompt import translation_instruction
 
 
 class CloudAllowance:
@@ -159,7 +158,6 @@ class CloudBackend:
                     [
                         request_url(profile),
                         profile.model,
-                        PROMPT_VERSION,
                         translation_instruction(language),
                         self._game,
                         language.code,

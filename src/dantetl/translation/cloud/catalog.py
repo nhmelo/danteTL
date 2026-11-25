@@ -14,9 +14,9 @@ import httpx2
 
 from dantetl.i18n import tr
 from dantetl.translation.cloud.credentials import valid_credential
-from dantetl.translation.cloud.http_request import ResponseTooLarge, read_response
 from dantetl.translation.cloud.protocol import request_headers
 from dantetl.translation.cloud.values import CatalogModel, CloudProfile, recommended
+from dantetl.translation.http_request import ResponseTooLarge, read_response
 
 URLS = {
     "openai": "https://api.openai.com/v1/models",

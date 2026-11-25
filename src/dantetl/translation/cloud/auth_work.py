@@ -7,7 +7,7 @@ import time
 import httpx2
 
 from dantetl.i18n import tr
-from dantetl.translation.cloud.http_request import ResponseTooLarge, read_response
+from dantetl.translation.http_request import ResponseTooLarge, read_response
 
 AUTH_RESPONSE_LIMIT = 128 * 1024
 

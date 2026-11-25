@@ -10,14 +10,13 @@ from dantetl.translation.backend import RequestRejected
 from dantetl.translation.cloud.backend import CloudBackend
 from dantetl.translation.cloud.protocol import (
     CLAUDE_VERSION,
-    PROMPT_VERSION,
     parse_answer,
     request_body,
     response_usage,
-    translation_instruction,
 )
 from dantetl.translation.cloud.values import ENDPOINTS, MODELS, CloudProfile
 from dantetl.translation.dialogue.context import DialogueTurn
+from dantetl.translation.prompt import translation_instruction
 
 
 def answer(provider, text="Critical Rate", *, reason=None, parts=None):
@@ -244,7 +243,6 @@ def test_existing_cache_identities_survive_protocol_extraction_and_new_models_ar
                     old = [
                         ENDPOINTS[provider],
                         model,
-                        PROMPT_VERSION,
                         translation_instruction(DEFAULT_SOURCE),
                         "Game",
                         "ja",

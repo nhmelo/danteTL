@@ -1,4 +1,4 @@
-"""Deadline and cancellation for decoded HTTP responses on cloud setup workers."""
+"""Deadline and cancellation for decoded HTTP responses."""
 
 import asyncio
 import threading
@@ -20,6 +20,7 @@ async def read_response(
     max_bytes: int,
     transport: httpx2.AsyncBaseTransport | None,
     skip_error_body: bool = False,
+    read_timeout: float = 8.0,
     **kwargs,
 ) -> tuple[int, bytes]:
     def check() -> None:
@@ -42,7 +43,10 @@ async def read_response(
         async with asyncio.timeout(max(0, deadline - time.monotonic())):
             async with (
                 httpx2.AsyncClient(
-                    timeout=8, follow_redirects=False, trust_env=False, transport=transport
+                    timeout=read_timeout,
+                    follow_redirects=False,
+                    trust_env=False,
+                    transport=transport,
                 ) as client,
                 client.stream(method, url, **kwargs) as response,
             ):
