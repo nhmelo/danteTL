@@ -1359,6 +1359,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>ダウンロードしました。CPUで実行可能です。翻訳は遅くなる場合があります。GPUアクセラレーションはオプションです。使用前に整合性を確認します。</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>更新ファイルをダウンロード中…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>{filename}をダウンロード中</translation>
     </message>
@@ -2659,12 +2663,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>翻訳モデルを準備中。キャプチャは継続できます。</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>再起動の準備中…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>このPC用の翻訳モデルを準備中…</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>更新を準備しています… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>更新の準備中…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>再起動がタイムアウトしました。現在のランタイムが選択されたままです。セットアップを再試行してください。</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>DanteTL を再起動中…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>翻訳モデルのアンロード中…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>更新ファイルを展開中…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>認識できないChatGPTの取り消しエンドポイント</translation>
     </message>
@@ -3963,6 +3979,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Verify / repair runtime</source>
       <translation>ランタイム検証/修復</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>更新ファイルを検証中…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

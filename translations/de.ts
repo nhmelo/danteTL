@@ -1359,6 +1359,10 @@ Details finden Sie in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Heruntergeladen. Laufzeit auf CPU verfügbar; Übersetzungen können langsamer sein. GPU-Beschleunigung ist optional. Integrität wird vor der Verwendung geprüft.</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>Update wird heruntergeladen…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>{filename} wird heruntergeladen</translation>
     </message>
@@ -2659,12 +2663,16 @@ Details finden Sie in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Das Übersetzungsmodell wird vorbereitet. Die Aufnahme kann weiterlaufen.</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>Neustart wird vorbereitet…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>Übersetzungsmodell für diesen PC wird vorbereitet…</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>Update wird vorbereitet… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>Update wird vorbereitet…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Modell-Downloads: bis zu {size:.2f} GB; vorhandene Dateien werden geprüft und w
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>Zeitüberschreitung beim Neustart. Deine aktuelle Laufzeit ist weiterhin ausgewählt; versuche die Einrichtung erneut.</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>DanteTL wird neu gestartet…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Modell-Downloads: bis zu {size:.2f} GB; vorhandene Dateien werden geprüft und w
       <translation>Übersetzungsmodell wird entladen…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>Update wird entpackt…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>Unbekannter ChatGPT-Widerrufsendpunkt.</translation>
     </message>
@@ -3963,6 +3979,10 @@ Modell-Downloads: bis zu {size:.2f} GB; vorhandene Dateien werden geprüft und w
     <message>
       <source>Verify / repair runtime</source>
       <translation>Runtime überprüfen / reparieren</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>Update wird überprüft…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

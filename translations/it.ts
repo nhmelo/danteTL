@@ -1359,6 +1359,10 @@ I dettagli sono in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Scaricato. Runtime disponibile su CPU; le traduzioni potrebbero essere più lente. L'accelerazione GPU è opzionale. L'integrità viene verificata prima dell'uso.</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>Download dell’aggiornamento…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>Download di {filename}</translation>
     </message>
@@ -2659,12 +2663,16 @@ I dettagli sono in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Preparazione del modello di traduzione. La cattura può continuare.</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>Preparazione del riavvio…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>Preparazione del modello di traduzione per questo PC…</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>Preparazione aggiornamento… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>Preparazione dell’aggiornamento…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Download dei modelli: fino a {size:.2f} GB; i file esistenti vengono verificati 
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>Riavvio scaduto. Il runtime attuale è ancora selezionato; riprova la configurazione.</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>Riavvio di DanteTL…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Download dei modelli: fino a {size:.2f} GB; i file esistenti vengono verificati 
       <translation>Scaricamento del modello di traduzione…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>Estrazione dell’aggiornamento…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>Endpoint di revoca ChatGPT non riconosciuto.</translation>
     </message>
@@ -3963,6 +3979,10 @@ Download dei modelli: fino a {size:.2f} GB; i file esistenti vengono verificati 
     <message>
       <source>Verify / repair runtime</source>
       <translation>Verifica / ripara runtime</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>Verifica dell’aggiornamento…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

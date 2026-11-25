@@ -13,7 +13,7 @@ from typing import Literal
 from packaging.version import Version
 
 from dantetl.file_lock import file_lock
-from dantetl.runtime.release_values import Release
+from dantetl.runtime.release_values import Release, UpdateProgress
 
 Decision = Literal["yes", "later", "no"]
 Phase = Literal[
@@ -27,7 +27,7 @@ class UpdateView:
     phase: Phase = "idle"
     release: Release | None = None
     prompt: bool = False
-    percent: int = 0
+    progress: UpdateProgress | None = None
     error: str = ""
 
 
@@ -46,7 +46,8 @@ class Updates:
         state: Path,
         *,
         fetch: Callable[[threading.Event], Release | None],
-        install: Callable[[Release, threading.Event, Callable[[int, int], None]], None] | None,
+        install: Callable[[Release, threading.Event, Callable[[UpdateProgress], None]], None]
+        | None,
         clock: Callable[[], float] = time.time,
     ) -> None:
         self.installed = installed
@@ -81,7 +82,7 @@ class Updates:
                 self._view = self._job.result()
             except Exception as error:
                 logging.getLogger(__name__).warning("Release update failed: %s", error)
-                self._view = replace(self._view, phase="error", prompt=False, error=str(error))
+                self._view = UpdateView("error", self._view.release, error=str(error))
             self._job = None
         with self._lock:
             return self._view
@@ -140,7 +141,11 @@ class Updates:
         ):
             return
         self._cancel.clear()
-        self._view = UpdateView("installing" if choice == "yes" else "saving", release)
+        self._view = (
+            UpdateView("installing", release, progress=UpdateProgress("preparing"))
+            if choice == "yes"
+            else UpdateView("saving", release)
+        )
 
         def run() -> UpdateView:
             def record(history: _History) -> None:
@@ -157,9 +162,9 @@ class Updates:
 
         self._job = self._pool.submit(run)
 
-    def _progress(self, received: int, total: int) -> None:
+    def _progress(self, progress: UpdateProgress) -> None:
         with self._lock:
-            self._view = replace(self._view, percent=100 * received // total if total else 0)
+            self._view = replace(self._view, progress=progress)
 
     def cancel(self) -> None:
         self._cancel.set()

@@ -16,15 +16,26 @@ from packaging.version import Version
 
 from dantetl.runtime.download_transport import download_file
 from dantetl.runtime.package import PORTABLE_FILES, bundled_application, check_portable_folder
-from dantetl.runtime.release_values import ARCHIVE, MANIFEST, SIGNATURE, Release
+from dantetl.runtime.release_values import ARCHIVE, MANIFEST, SIGNATURE, Release, UpdateProgress
 from dantetl.runtime.verified_file import check_cancel, matches
 
 
-def extract_bundle(archive: Path, directory: Path, cancel: threading.Event) -> None:
+def extract_bundle(
+    archive: Path,
+    directory: Path,
+    cancel: threading.Event,
+    progress: Callable[[UpdateProgress], None],
+) -> None:
+    progress(UpdateProgress("unpacking"))
     with ZipFile(archive) as package:
         entries = package.infolist()
-        if len(entries) > 20_000 or sum(entry.file_size for entry in entries) > 4 * 2**30:
+        total = sum(entry.file_size for entry in entries)
+        if len(entries) > 20_000 or total > 4 * 2**30:
             raise ValueError("Release exceeds extraction limits.")
+        written = 0
+        percent = 0
+        if total:
+            progress(UpdateProgress("unpacking", percent))
         for entry in entries:
             check_cancel(cancel)
             parts = entry.filename.replace("\\", "/").rstrip("/").split("/")
@@ -51,6 +62,10 @@ def extract_bundle(archive: Path, directory: Path, cancel: threading.Event) -> N
                 while chunk := source.read(1024 * 1024):
                     check_cancel(cancel)
                     output.write(chunk)
+                    written += len(chunk)
+                    if (updated := 100 * written // total) != percent:
+                        percent = updated
+                        progress(UpdateProgress("unpacking", percent))
 
 
 def stage_release(
@@ -58,7 +73,7 @@ def stage_release(
     install: Path,
     key: Ed25519PublicKey,
     cancel: threading.Event,
-    progress: Callable[[int, int], None],
+    progress: Callable[[UpdateProgress], None],
     *,
     receive=download_file,
 ) -> Path:
@@ -91,11 +106,25 @@ def stage_release(
         ):
             raise ValueError("Signed manifest does not match the offered release.")
         archive = work / ARCHIVE
-        receive(release.asset(ARCHIVE), archive, release.archive_size, progress, cancel)
-        if not matches(archive, digest, release.archive_size, cancel):
+        size = release.archive_size
+        progress(UpdateProgress("downloading", 0))
+
+        def downloaded(received: int, total: int) -> None:
+            progress(UpdateProgress("downloading", 100 * received // size))
+
+        receive(release.asset(ARCHIVE), archive, size, downloaded, cancel)
+        progress(UpdateProgress("verifying", 0))
+        if not matches(
+            archive,
+            digest,
+            size,
+            cancel,
+            progress=lambda checked: progress(UpdateProgress("verifying", 100 * checked // size)),
+        ):
             raise ValueError("Release checksum mismatch.")
         candidate = work / "new"
-        extract_bundle(archive, candidate, cancel)
+        extract_bundle(archive, candidate, cancel, progress)
+        progress(UpdateProgress("preparing_restart"))
         check_portable_folder(candidate)
         if bundled_application(candidate / "_internal/app").version != release.version:
             raise ValueError("Staged application version mismatch.")

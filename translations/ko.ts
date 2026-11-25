@@ -1359,6 +1359,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>다운로드되었습니다. CPU에서 런타임을 사용할 수 있으며 번역이 느려질 수 있습니다. GPU 가속은 선택 사항입니다. 사용 전에 무결성을 검사합니다.</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>업데이트 다운로드 중…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>{filename} 다운로드 중</translation>
     </message>
@@ -2659,12 +2663,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>번역 모델을 준비하는 중입니다. 캡처는 계속할 수 있습니다.</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>다시 시작할 준비 중…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>이 PC용 번역 모델 준비 중…</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>업데이트 준비 중… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>업데이트 준비 중…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>재시작 시간이 초과되었습니다. 현재 런타임이 여전히 선택되어 있습니다. 설정을 다시 시도하세요.</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>DanteTL 다시 시작 중…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>번역 모델 언로드 중…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>업데이트 압축 해제 중…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>인식되지 않는 ChatGPT 해지 엔드포인트입니다.</translation>
     </message>
@@ -3963,6 +3979,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Verify / repair runtime</source>
       <translation>런타임 검증 / 복구</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>업데이트 검증 중…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

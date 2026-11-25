@@ -1359,6 +1359,10 @@ Os detalhes estão em %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Baixado. Runtime disponível na CPU; traduções podem ser mais lentas. A aceleração por GPU é opcional. A integridade é verificada antes do uso.</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>Baixando a atualização…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>Baixando {filename}</translation>
     </message>
@@ -2659,12 +2663,16 @@ Os detalhes estão em %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Preparando o modelo de tradução. A captura pode continuar.</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>Preparando a reinicialização…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>Preparando o modelo de tradução para este PC…</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>Preparando a atualização… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>Preparando a atualização…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Downloads de modelos: até {size:.2f} GB; arquivos existentes são verificados e
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>Tempo limite de reinicialização esgotado. Seu runtime atual ainda está selecionado; tente a configuração novamente.</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>Reiniciando o DanteTL…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Downloads de modelos: até {size:.2f} GB; arquivos existentes são verificados e
       <translation>Descarregando modelo de tradução…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>Extraindo a atualização…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>Endpoint de revogação do ChatGPT não reconhecido.</translation>
     </message>
@@ -3963,6 +3979,10 @@ Downloads de modelos: até {size:.2f} GB; arquivos existentes são verificados e
     <message>
       <source>Verify / repair runtime</source>
       <translation>Verificar / reparar runtime</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>Verificando a atualização…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

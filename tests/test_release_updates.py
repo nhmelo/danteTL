@@ -4,6 +4,7 @@ import json
 import threading
 import time
 from dataclasses import replace
+from queue import Queue
 from unittest.mock import Mock
 from zipfile import ZipFile
 
@@ -13,7 +14,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from dantetl.application.updates import WEEK, Updates
 from dantetl.runtime.package import PORTABLE_FILES, bundled_application
 from dantetl.runtime.release_feed import parse_release
-from dantetl.runtime.release_values import ARCHIVE, MANIFEST, SIGNATURE, Release
+from dantetl.runtime.release_values import ARCHIVE, MANIFEST, SIGNATURE, Release, UpdateProgress
 from dantetl.runtime.update_install import stage_release
 from dantetl.runtime.update_swap import bundle_lease, swap
 
@@ -142,6 +143,60 @@ def test_failed_check_can_retry_and_never_offers_an_older_version(tmp_path):
         service.finish()
 
 
+def test_about_tracks_measured_and_busy_update_stages(app, tmp_path):
+    from PySide6.QtWidgets import QWidget
+
+    from dantetl.ui.about import AboutDialog
+
+    release = Release("1.2.0", 100, 90, 64)
+    steps = Queue()
+    published = threading.Event()
+
+    def install(candidate, cancel, progress):
+        while (step := steps.get(timeout=5)) is not None:
+            progress(step)
+            published.set()
+        raise OSError("fixture error")
+
+    service = Updates("1.1.0", tmp_path, fetch=lambda _: release, install=install)
+    window = QWidget()
+    dialog = AboutDialog("1.1.0", service, window)
+    dialog.open_about()
+    try:
+        dialog.check.click()
+        dialog.show_update(settled(service))
+        dialog.update_button.click()
+        dialog.show_update(service.snapshot())
+        assert dialog.status.text() == "Preparing update…"
+        assert dialog.progress.isVisible() and dialog.progress.maximum() == 0
+        for step, label in (
+            (UpdateProgress("downloading", 43), "Downloading update…"),
+            (UpdateProgress("downloading", 100), "Downloading update…"),
+            (UpdateProgress("verifying", 0), "Verifying update…"),
+            (UpdateProgress("unpacking", 36), "Unpacking update…"),
+            (UpdateProgress("preparing_restart"), "Preparing to restart…"),
+        ):
+            steps.put(step)
+            assert published.wait(5)
+            published.clear()
+            dialog.show_update(service.snapshot())
+            assert dialog.status.text() == label
+            assert dialog.progress.isVisible()
+            if step.percent is None:
+                assert dialog.progress.maximum() == 0 and dialog.progress.text() == ""
+            else:
+                assert dialog.progress.maximum() == 100 and dialog.progress.value() == step.percent
+                assert dialog.progress.text() == f"{step.percent}%"
+        steps.put(None)
+        dialog.show_update(settled(service))
+        assert dialog.progress.isHidden() and dialog.update_button.isEnabled()
+        assert "fixture error" in dialog.status.text()
+    finally:
+        steps.put(None)
+        service.finish()
+        window.close()
+
+
 @pytest.mark.parametrize(
     "installer,signature_size,primary",
     [(True, 64, "Yes"), (False, 64, "Release notes"), (True, 0, "Release notes")],
@@ -251,10 +306,14 @@ def test_portable_transaction(tmp_path, case):
             raise OSError("connection interrupted")
         destination.write_bytes(files[destination.name])
         assert destination.stat().st_size == size
+        progress(size // 2, 0)  # A response without Content-Length still has a signed ZIP size.
+        progress(size, 0)
+
+    reports = []
 
     def stage():
         return stage_release(
-            release, old, key.public_key(), cancel, lambda *_: None, receive=receive
+            release, old, key.public_key(), cancel, reports.append, receive=receive
         )
 
     if case in ("signature", "digest", "path", "interrupt"):
@@ -263,6 +322,18 @@ def test_portable_transaction(tmp_path, case):
         assert not list(tmp_path.glob(".dantetl-update-*"))
     else:
         work = stage()
+        assert list(dict.fromkeys(r.stage for r in reports)) == [
+            "downloading",
+            "verifying",
+            "unpacking",
+            "preparing_restart",
+        ]
+        for stage_name in ("downloading", "verifying", "unpacking"):
+            values = [r.percent for r in reports if r.stage == stage_name and r.percent is not None]
+            assert values == sorted(values) and values[0] == 0 and values[-1] == 100
+            if stage_name != "verifying":
+                assert any(0 < value < 100 for value in values)
+        assert reports[-1] == UpdateProgress("preparing_restart")
 
         def launch(path, data, expected):
             assert installed(path) == expected == "1.1.0"

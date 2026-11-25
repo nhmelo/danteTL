@@ -1359,6 +1359,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>ডাউনলোড সম্পন্ন। CPU-তে রানটাইম উপলব্ধ; অনুবাদ ধীর হতে পারে। GPU ত্বরণ ঐচ্ছিক। ব্যবহারের আগে অখণ্ডতা যাচাই করা হয়।</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>আপডেট ডাউনলোড করা হচ্ছে…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>{filename} ডাউনলোড করা হচ্ছে</translation>
     </message>
@@ -2659,12 +2663,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>অনুবাদ মডেল প্রস্তুত করা হচ্ছে। ক্যাপচার চালু থাকতে পারে।</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>পুনরায় চালুর প্রস্তুতি চলছে…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>এই PC-র জন্য অনুবাদ মডেল প্রস্তুত করা হচ্ছে…</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>আপডেট প্রস্তুত হচ্ছে… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>আপডেট প্রস্তুত করা হচ্ছে…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>পুনরায় চালু সময় শেষ। আপনার বর্তমান রানটাইম এখনও নির্বাচিত; সেটআপ আবার চেষ্টা করুন।</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>DanteTL পুনরায় চালু হচ্ছে…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>অনুবাদ মডেল আনলোড করা হচ্ছে…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>আপডেটের ফাইলগুলো বের করা হচ্ছে…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>অচেনা ChatGPT প্রত্যাহার এন্ডপয়েন্ট।</translation>
     </message>
@@ -3963,6 +3979,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Verify / repair runtime</source>
       <translation>রানটাইম যাচাই / মেরামত</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>আপডেট যাচাই করা হচ্ছে…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

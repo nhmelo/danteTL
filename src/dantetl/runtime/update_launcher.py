@@ -11,7 +11,7 @@ from pathlib import Path
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
 from dantetl.runtime.owned_process import OwnedProcess
-from dantetl.runtime.release_values import Release
+from dantetl.runtime.release_values import Release, UpdateProgress
 from dantetl.runtime.setup_process import clean_runtime_environment
 from dantetl.runtime.update_install import stage_release
 from dantetl.runtime.verified_file import check_cancel
@@ -20,7 +20,7 @@ from dantetl.runtime.verified_file import check_cancel
 def install_release(
     release: Release,
     cancel: threading.Event,
-    progress: Callable[[int, int], None],
+    progress: Callable[[UpdateProgress], None],
     *,
     project: Path,
     state: Path,

@@ -1359,6 +1359,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>已下載。執行環境可在 CPU 上使用；翻譯可能較慢。GPU 加速為選用功能。使用前會檢查完整性。</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>正在下載更新…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>正在下載 {filename}</translation>
     </message>
@@ -2659,12 +2663,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>正在準備翻譯模型。擷取可繼續進行。</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>正在準備重新啟動…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>正在為此電腦準備翻譯模型…</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>正在準備更新… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>正在準備更新…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>重新啟動逾時。目前執行環境仍為選取狀態；請重試設定。</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>正在重新啟動 DanteTL…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>正在卸載翻譯模型…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>正在解壓縮更新…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>無法辨識的 ChatGPT 撤銷端點。</translation>
     </message>
@@ -3963,6 +3979,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Verify / repair runtime</source>
       <translation>驗證 / 修復執行階段</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>正在驗證更新…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

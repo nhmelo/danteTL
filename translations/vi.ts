@@ -1359,6 +1359,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Đã tải xuống. Môi trường chạy khả dụng trên CPU; bản dịch có thể chậm hơn. Tăng tốc GPU là tùy chọn. Tính toàn vẹn được kiểm tra trước khi sử dụng.</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>Đang tải bản cập nhật…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>Đang tải {filename}</translation>
     </message>
@@ -2659,12 +2663,16 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Đang chuẩn bị mô hình dịch. Quá trình chụp có thể tiếp tục.</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>Đang chuẩn bị khởi động lại…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>Đang chuẩn bị mô hình dịch cho PC này…</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>Đang chuẩn bị cập nhật… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>Đang chuẩn bị bản cập nhật…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>Khởi động lại quá thời gian. Môi trường chạy hiện tại của bạn vẫn được chọn; hãy thử lại thiết lập.</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>Đang khởi động lại DanteTL…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
       <translation>Đang gỡ mô hình dịch…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>Đang giải nén bản cập nhật…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>Điểm cuối thu hồi ChatGPT không được nhận diện.</translation>
     </message>
@@ -3963,6 +3979,10 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
     <message>
       <source>Verify / repair runtime</source>
       <translation>Xác minh / sửa chữa runtime</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>Đang xác minh bản cập nhật…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

@@ -1359,6 +1359,10 @@ Os detalhes estão em %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Transferido. Runtime disponível na CPU; as traduções podem ser mais lentas. A aceleração por GPU é opcional. A integridade é verificada antes da utilização.</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>A transferir a atualização…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>A transferir {filename}</translation>
     </message>
@@ -2659,12 +2663,16 @@ Os detalhes estão em %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>A preparar o modelo de tradução. A captura pode continuar.</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>A preparar o reinício…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>A preparar o modelo de tradução para este PC…</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>A preparar a atualização… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>A preparar a atualização…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Transferências de modelos: até {size:.2f} GB; os ficheiros existentes são ver
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>O reinício excedeu o tempo limite. O teu runtime atual continua selecionado; repete a configuração.</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>A reiniciar o DanteTL…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Transferências de modelos: até {size:.2f} GB; os ficheiros existentes são ver
       <translation>A descarregar o modelo de tradução…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>A descomprimir a atualização…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>Endpoint de revogação do ChatGPT não reconhecido.</translation>
     </message>
@@ -3963,6 +3979,10 @@ Transferências de modelos: até {size:.2f} GB; os ficheiros existentes são ver
     <message>
       <source>Verify / repair runtime</source>
       <translation>Verificar / reparar runtime</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>A verificar a atualização…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

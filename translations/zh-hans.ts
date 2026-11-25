@@ -1359,6 +1359,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>已下载。运行时在 CPU 上可用；翻译可能较慢。GPU 加速为可选。使用前会检查完整性。</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>正在下载更新…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>正在下载 {filename}</translation>
     </message>
@@ -2659,12 +2663,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>正在准备翻译模型。截取可以继续。</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>正在准备重启…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>正在为此 PC 准备翻译模型……</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>正在准备更新… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>正在准备更新…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>重启超时。您当前的运行时仍处于选中状态；请重试设置。</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>正在重启 DanteTL…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>正在卸载翻译模型…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>正在解压更新…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>无法识别的 ChatGPT 吊销端点。</translation>
     </message>
@@ -3963,6 +3979,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Verify / repair runtime</source>
       <translation>验证 / 修复运行时</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>正在验证更新…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

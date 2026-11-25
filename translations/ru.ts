@@ -1359,6 +1359,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>Загружено. Среда выполнения доступна на CPU; переводы могут быть медленнее. Ускорение на GPU необязательно. Перед использованием проверяется целостность.</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>Скачивание обновления…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>Загрузка {filename}</translation>
     </message>
@@ -2659,12 +2663,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>Подготовка модели перевода. Захват может продолжаться.</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>Подготовка к перезапуску…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>Подготовка модели перевода для этого ПК…</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>Подготовка обновления… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>Подготовка обновления…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>Перезапуск не завершился вовремя. Текущая среда выполнения по-прежнему выбрана; повторите настройку.</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>Перезапуск DanteTL…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>Выгрузка модели перевода…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>Распаковка обновления…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>Нераспознанная конечная точка отзыва ChatGPT.</translation>
     </message>
@@ -3963,6 +3979,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Verify / repair runtime</source>
       <translation>Проверить / восстановить runtime</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>Проверка обновления…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

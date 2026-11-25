@@ -1,12 +1,19 @@
 """Portable release identity and assets shared with update presentation."""
 
 from dataclasses import dataclass
+from typing import Literal
 
 REPOSITORY = "https://github.com/nhmelo/dantejp"
 ISSUES_URL = "https://github.com/nhmelo/danteTL/issues"
 ARCHIVE = "DanteTL-windows-x64.zip"
 MANIFEST = "DanteTL-update.json"
 SIGNATURE = MANIFEST + ".sig"
+
+
+@dataclass(frozen=True, slots=True)
+class UpdateProgress:
+    stage: Literal["preparing", "downloading", "verifying", "unpacking", "preparing_restart"]
+    percent: int | None = None
 
 
 @dataclass(frozen=True)

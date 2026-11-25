@@ -1359,6 +1359,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Terunduh. Runtime tersedia di CPU; terjemahan mungkin lebih lambat. Akselerasi GPU bersifat opsional. Integritas diperiksa sebelum digunakan.</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>Mengunduh pembaruan…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>Mengunduh {filename}</translation>
     </message>
@@ -2659,12 +2663,16 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Menyiapkan model terjemahan. Pengambilan dapat dilanjutkan.</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>Bersiap untuk memulai ulang…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>Menyiapkan model terjemahan untuk PC ini…</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>Menyiapkan pembaruan… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>Menyiapkan pembaruan…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>Mulai ulang habis waktu. Runtime Anda saat ini masih dipilih; coba lagi penyiapan.</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>Memulai ulang DanteTL…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
       <translation>Membongkar model terjemahan…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>Mengekstrak pembaruan…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>Endpoint pencabutan ChatGPT tidak dikenal.</translation>
     </message>
@@ -3963,6 +3979,10 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
     <message>
       <source>Verify / repair runtime</source>
       <translation>Verifikasi / perbaiki runtime</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>Memverifikasi pembaruan…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

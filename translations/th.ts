@@ -1359,6 +1359,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>ดาวน์โหลดแล้ว รันไทม์ใช้งานได้บน CPU; การแปลอาจช้าลง การเร่งความเร็วด้วย GPU เป็นตัวเลือกเสริม มีการตรวจสอบความสมบูรณ์ก่อนใช้งาน</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>กำลังดาวน์โหลดการอัปเดต…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>กำลังดาวน์โหลด {filename}</translation>
     </message>
@@ -2659,12 +2663,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>กำลังเตรียมโมเดลการแปล การจับภาพสามารถดำเนินต่อได้</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>กำลังเตรียมเริ่มการทำงานใหม่…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>กำลังเตรียมโมเดลการแปลสำหรับพีซีเครื่องนี้…</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>กำลังเตรียมการอัปเดต… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>กำลังเตรียมการอัปเดต…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>การรีสตาร์ทหมดเวลา รันไทม์ปัจจุบันของคุณยังถูกเลือกอยู่ ลองตั้งค่าใหม่</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>กำลังเริ่ม DanteTL ใหม่…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>กำลังยกเลิกการโหลดโมเดลแปล…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>กำลังแตกไฟล์อัปเดต…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>ปลายทางการเพิกถอน ChatGPT ที่ไม่รู้จัก</translation>
     </message>
@@ -3963,6 +3979,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Verify / repair runtime</source>
       <translation>ตรวจสอบ / ซ่อมแซม runtime</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>กำลังตรวจสอบไฟล์อัปเดต…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

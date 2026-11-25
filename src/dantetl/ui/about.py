@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMessageBox,
+    QProgressBar,
     QPushButton,
     QVBoxLayout,
     QWidget,
@@ -51,6 +52,8 @@ class AboutDialog(QDialog):
         self.status = QLabel()
         self.status.setWordWrap(True)
         layout.addWidget(self.status)
+        self.progress = QProgressBar()
+        layout.addWidget(self.progress)
         actions = QHBoxLayout()
         self.check = localized(QPushButton(), text=mark("Check for updates"))
         self.check.clicked.connect(self._check)
@@ -93,14 +96,25 @@ class AboutDialog(QDialog):
             "checking": tr("Checking for updates…"),
             "current": tr("DanteTL is up to date."),
             "error": tr("Update failed: {detail}", detail=view.error),
-            "installing": tr("Preparing update… {percent}%", percent=view.percent),
+            "preparing": tr("Preparing update…"),
+            "downloading": tr("Downloading update…"),
+            "verifying": tr("Verifying update…"),
+            "unpacking": tr("Unpacking update…"),
+            "preparing_restart": tr("Preparing to restart…"),
+            "restart": tr("Restarting DanteTL…"),
         }
-        status = messages.get(view.phase, "")
+        status = messages.get(view.progress.stage if view.progress else view.phase, "")
         if release and view.phase == "available":
             status = tr("DanteTL {version} is available.", version=release.version)
         self.status.setTextFormat(Qt.TextFormat.PlainText)
         self.status.setText(status)
         self.status.setVisible(bool(status))
+        percent = view.progress.percent if view.progress else None
+        self.progress.setRange(0, 100 if percent is not None else 0)
+        if percent is not None:
+            self.progress.setValue(percent)
+        self.progress.setVisible(view.phase in ("checking", "installing", "restart"))
+        self.progress.setAccessibleName(status)
         available = bool(release and self.updates and self.updates.can_install(release))
         self.update_button.setVisible(available)
         if release:

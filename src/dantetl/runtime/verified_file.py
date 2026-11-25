@@ -16,7 +16,14 @@ def check_cancel(cancel: threading.Event) -> None:
         raise Cancelled()
 
 
-def matches(path: Path, digest: str, size: int, cancel: threading.Event) -> bool:
+def matches(
+    path: Path,
+    digest: str,
+    size: int,
+    cancel: threading.Event,
+    *,
+    progress: Callable[[int], None] | None = None,
+) -> bool:
     if not path.is_file() or (size and path.stat().st_size != size):
         return False
     checksum = hashlib.sha256()
@@ -24,6 +31,8 @@ def matches(path: Path, digest: str, size: int, cancel: threading.Event) -> bool
         while chunk := stream.read(1024 * 1024):
             check_cancel(cancel)
             checksum.update(chunk)
+            if progress is not None:
+                progress(stream.tell())
     return checksum.hexdigest() == digest
 
 

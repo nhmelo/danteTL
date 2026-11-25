@@ -1359,6 +1359,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>تم التنزيل. بيئة التشغيل متاحة على CPU؛ قد تكون الترجمات أبطأ. تسريع GPU اختياري. يتم التحقق من السلامة قبل الاستخدام.</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>جارٍ تنزيل التحديث…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>جارٍ تنزيل {filename}</translation>
     </message>
@@ -2659,12 +2663,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>جارٍ تحضير نموذج الترجمة. يمكن متابعة الالتقاط.</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>جارٍ التحضير لإعادة التشغيل…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>جارٍ تحضير نموذج الترجمة لهذا الكمبيوتر…</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>جارٍ تجهيز التحديث… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>جارٍ تحضير التحديث…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>انتهت مهلة إعادة التشغيل. لا تزال بيئة التشغيل الحالية محددة؛ أعد محاولة الإعداد.</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>جارٍ إعادة تشغيل DanteTL…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>جارٍ إلغاء تحميل نموذج الترجمة…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>جارٍ فك ضغط التحديث…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>نقطة نهاية إبطال ChatGPT غير معروفة.</translation>
     </message>
@@ -3963,6 +3979,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Verify / repair runtime</source>
       <translation>تحقق / إصلاح وقت التشغيل</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>جارٍ التحقق من التحديث…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

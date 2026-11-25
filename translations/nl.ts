@@ -1359,6 +1359,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Gedownload. Runtime beschikbaar op CPU; vertalingen kunnen langzamer zijn. GPU-versnelling is optioneel. Integriteit wordt gecontroleerd voor gebruik.</translation>
     </message>
     <message>
+      <source>Downloading update…</source>
+      <translation>Update downloaden…</translation>
+    </message>
+    <message>
       <source>Downloading {filename}</source>
       <translation>{filename} downloaden</translation>
     </message>
@@ -2659,12 +2663,16 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Het vertaalmodel wordt voorbereid. Vastleggen kan doorgaan.</translation>
     </message>
     <message>
+      <source>Preparing to restart…</source>
+      <translation>Herstart voorbereiden…</translation>
+    </message>
+    <message>
       <source>Preparing translation model for this PC…</source>
       <translation>Vertaalmodel voor deze pc voorbereiden…</translation>
     </message>
     <message>
-      <source>Preparing update… {percent}%</source>
-      <translation>Update voorbereiden… {percent}%</translation>
+      <source>Preparing update…</source>
+      <translation>Update voorbereiden…</translation>
     </message>
     <message>
       <source>Preview zoom</source>
@@ -2947,6 +2955,10 @@ Modeldownloads: tot {size:.2f} GB; bestaande bestanden worden geverifieerd en he
     <message>
       <source>Restart timed out. Your current runtime is still selected; retry setup.</source>
       <translation>Herstarten verlopen. Je huidige runtime is nog steeds geselecteerd; probeer de installatie opnieuw.</translation>
+    </message>
+    <message>
+      <source>Restarting DanteTL…</source>
+      <translation>DanteTL opnieuw starten…</translation>
     </message>
     <message>
       <source>Restoring {filename}</source>
@@ -3841,6 +3853,10 @@ Modeldownloads: tot {size:.2f} GB; bestaande bestanden worden geverifieerd en he
       <translation>Vertaalmodel wordt verwijderd…</translation>
     </message>
     <message>
+      <source>Unpacking update…</source>
+      <translation>Update uitpakken…</translation>
+    </message>
+    <message>
       <source>Unrecognized ChatGPT revocation endpoint.</source>
       <translation>Onbekend ChatGPT-intrekkings-eindpunt.</translation>
     </message>
@@ -3963,6 +3979,10 @@ Modeldownloads: tot {size:.2f} GB; bestaande bestanden worden geverifieerd en he
     <message>
       <source>Verify / repair runtime</source>
       <translation>Runtime verifiëren / repareren</translation>
+    </message>
+    <message>
+      <source>Verifying update…</source>
+      <translation>Update verifiëren…</translation>
     </message>
     <message>
       <source>Vietnamese</source>

@@ -679,7 +679,9 @@ Manual checks show the prompt for any newer stable release, including a skipped 
 Source checkouts support manual discovery. When the running copy lacks the publisher key or the
 release lacks signed assets, the prompt opens the release page for a manual download.
 Only an explicit update downloads the signed manifest and ZIP. The updater verifies them with
-the installed publisher key, bounds extraction and stages a sibling folder. A separate helper
+the installed publisher key, bounds extraction and stages a sibling folder. About shows separate
+byte-based percentages for download, checksum verification and unpacking, and animates the bar
+while checking for an update or preparing the update or restart. A separate helper
 waits for shutdown, validates the old revision and swaps a dedicated installation. It restores
 the previous folder if the replacement GUI fails to acknowledge its version. Settings, runtime
 receipts and models stay in per-user state. See [release signing](building.md#github-actions-and-releases).
