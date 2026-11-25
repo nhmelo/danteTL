@@ -1419,6 +1419,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>APIキーを入力するか保存された接続を選択</translation>
     </message>
     <message>
+      <source>Enter the HTTP or HTTPS address of your Ollama server.</source>
+      <translation>Ollama サーバーの HTTP または HTTPS アドレスを入力してください。</translation>
+    </message>
+    <message>
       <source>Estonian</source>
       <translation>エストニア語</translation>
     </message>
@@ -1809,6 +1813,18 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Invalid ChatGPT connection record.</source>
       <translation>ChatGPT接続記録が無効です。</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama answer.</source>
+      <translation>Ollama の応答が無効です。</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model list.</source>
+      <translation>Ollama のモデル一覧が無効です。</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model.</source>
+      <translation>無効な Ollama モデルです。</translation>
     </message>
     <message>
       <source>Invalid app wheel checksum.</source>
@@ -2415,6 +2431,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>最新の有効な翻訳: {value:.1f}秒</translation>
     </message>
     <message>
+      <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
+      <translation>{server} への Ollama リクエストが失敗しました。設定でアドレスとモデルを確認してください。</translation>
+    </message>
+    <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
       <translation>このエントリポイントからはDanteTLモジュールのみを起動できます。</translation>
     </message>
@@ -2775,6 +2795,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Refresh models to configure this model's request settings.</source>
       <translation>このモデルのリクエスト設定を構成するためにモデルを更新します。</translation>
+    </message>
+    <message>
+      <source>Refresh the Ollama model list for {server}.</source>
+      <translation>{server} の Ollama モデル一覧を更新してください。</translation>
     </message>
     <message>
       <source>Refreshing provider models…</source>
@@ -4121,6 +4145,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>{last_inference_ms:.0f} ms</source>
       <translation>{last_inference_ms:.0f} ms</translation>
+    </message>
+    <message>
+      <source>{model} is not a server-hosted text generation model.</source>
+      <translation>{model} はサーバーで実行されるテキスト生成モデルではありません。</translation>
     </message>
     <message>
       <source>{name}

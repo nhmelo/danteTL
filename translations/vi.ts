@@ -1419,6 +1419,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Nhập khóa API hoặc chọn kết nối đã lưu.</translation>
     </message>
     <message>
+      <source>Enter the HTTP or HTTPS address of your Ollama server.</source>
+      <translation>Nhập địa chỉ HTTP hoặc HTTPS của máy chủ Ollama.</translation>
+    </message>
+    <message>
       <source>Estonian</source>
       <translation>Tiếng Estonia</translation>
     </message>
@@ -1809,6 +1813,18 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Invalid ChatGPT connection record.</source>
       <translation>Bản ghi kết nối ChatGPT không hợp lệ.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama answer.</source>
+      <translation>Phản hồi từ Ollama không hợp lệ.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model list.</source>
+      <translation>Danh sách mô hình Ollama không hợp lệ.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model.</source>
+      <translation>Mô hình Ollama không hợp lệ.</translation>
     </message>
     <message>
       <source>Invalid app wheel checksum.</source>
@@ -2415,6 +2431,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Bản dịch đang hoạt động lâu nhất: {value:.1f}s</translation>
     </message>
     <message>
+      <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
+      <translation>Yêu cầu Ollama tại {server} thất bại. Hãy kiểm tra địa chỉ và mô hình trong phần Cài đặt.</translation>
+    </message>
+    <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
       <translation>Điểm vào này chỉ có thể khởi chạy các mô-đun DanteTL.</translation>
     </message>
@@ -2775,6 +2795,10 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
     <message>
       <source>Refresh models to configure this model's request settings.</source>
       <translation>Làm mới mô hình để cấu hình cài đặt yêu cầu của mô hình này.</translation>
+    </message>
+    <message>
+      <source>Refresh the Ollama model list for {server}.</source>
+      <translation>Làm mới danh sách mô hình Ollama cho {server}.</translation>
     </message>
     <message>
       <source>Refreshing provider models…</source>
@@ -4121,6 +4145,10 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
     <message>
       <source>{last_inference_ms:.0f} ms</source>
       <translation>{last_inference_ms:.0f} ms</translation>
+    </message>
+    <message>
+      <source>{model} is not a server-hosted text generation model.</source>
+      <translation>{model} không phải là mô hình tạo văn bản chạy trên máy chủ.</translation>
     </message>
     <message>
       <source>{name}

@@ -1419,6 +1419,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>输入 API 密钥或选择已保存的连接。</translation>
     </message>
     <message>
+      <source>Enter the HTTP or HTTPS address of your Ollama server.</source>
+      <translation>请输入 Ollama 服务器的 HTTP 或 HTTPS 地址。</translation>
+    </message>
+    <message>
       <source>Estonian</source>
       <translation>爱沙尼亚语</translation>
     </message>
@@ -1809,6 +1813,18 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Invalid ChatGPT connection record.</source>
       <translation>无效的 ChatGPT 连接记录。</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama answer.</source>
+      <translation>Ollama 返回的回答无效。</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model list.</source>
+      <translation>Ollama 模型列表无效。</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model.</source>
+      <translation>Ollama 模型无效。</translation>
     </message>
     <message>
       <source>Invalid app wheel checksum.</source>
@@ -2415,6 +2431,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>最长的活动翻译：{value:.1f}s</translation>
     </message>
     <message>
+      <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
+      <translation>向 {server} 发出的 Ollama 请求失败。请在设置中检查地址和模型。</translation>
+    </message>
+    <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
       <translation>此入口点只能启动 DanteTL 模块。</translation>
     </message>
@@ -2775,6 +2795,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Refresh models to configure this model's request settings.</source>
       <translation>刷新模型以配置此模型的请求设置。</translation>
+    </message>
+    <message>
+      <source>Refresh the Ollama model list for {server}.</source>
+      <translation>请刷新 {server} 的 Ollama 模型列表。</translation>
     </message>
     <message>
       <source>Refreshing provider models…</source>
@@ -4121,6 +4145,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>{last_inference_ms:.0f} ms</source>
       <translation>{last_inference_ms:.0f} 毫秒</translation>
+    </message>
+    <message>
+      <source>{model} is not a server-hosted text generation model.</source>
+      <translation>{model} 不是在此服务器上运行的文本生成模型。</translation>
     </message>
     <message>
       <source>{name}

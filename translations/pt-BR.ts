@@ -1419,6 +1419,10 @@ Os detalhes estão em %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Insira uma chave de API ou escolha uma conexão salva.</translation>
     </message>
     <message>
+      <source>Enter the HTTP or HTTPS address of your Ollama server.</source>
+      <translation>Digite o endereço HTTP ou HTTPS do servidor Ollama.</translation>
+    </message>
+    <message>
       <source>Estonian</source>
       <translation>Estoniano</translation>
     </message>
@@ -1809,6 +1813,18 @@ Os detalhes estão em %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Invalid ChatGPT connection record.</source>
       <translation>Registro de conexão do ChatGPT inválido.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama answer.</source>
+      <translation>Resposta inválida do Ollama.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model list.</source>
+      <translation>Lista de modelos do Ollama inválida.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model.</source>
+      <translation>Modelo do Ollama inválido.</translation>
     </message>
     <message>
       <source>Invalid app wheel checksum.</source>
@@ -2415,6 +2431,10 @@ Os detalhes estão em %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Tradução ativa mais antiga: {value:.1f}s</translation>
     </message>
     <message>
+      <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
+      <translation>Falha na solicitação ao Ollama em {server}. Confira o endereço e o modelo nas configurações.</translation>
+    </message>
+    <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
       <translation>Somente módulos do DanteTL podem ser iniciados por este ponto de entrada.</translation>
     </message>
@@ -2775,6 +2795,10 @@ Downloads de modelos: até {size:.2f} GB; arquivos existentes são verificados e
     <message>
       <source>Refresh models to configure this model's request settings.</source>
       <translation>Atualize os modelos para configurar as opções de requisição deste modelo.</translation>
+    </message>
+    <message>
+      <source>Refresh the Ollama model list for {server}.</source>
+      <translation>Atualize a lista de modelos do Ollama de {server}.</translation>
     </message>
     <message>
       <source>Refreshing provider models…</source>
@@ -4121,6 +4145,10 @@ Downloads de modelos: até {size:.2f} GB; arquivos existentes são verificados e
     <message>
       <source>{last_inference_ms:.0f} ms</source>
       <translation>{last_inference_ms:.0f} ms</translation>
+    </message>
+    <message>
+      <source>{model} is not a server-hosted text generation model.</source>
+      <translation>{model} não é um modelo de geração de texto hospedado no servidor.</translation>
     </message>
     <message>
       <source>{name}

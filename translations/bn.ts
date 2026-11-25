@@ -1419,6 +1419,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>একটি API কী লিখুন বা একটি সংরক্ষিত সংযোগ বেছে নিন।</translation>
     </message>
     <message>
+      <source>Enter the HTTP or HTTPS address of your Ollama server.</source>
+      <translation>আপনার Ollama সার্ভারের HTTP বা HTTPS ঠিকানা লিখুন।</translation>
+    </message>
+    <message>
       <source>Estonian</source>
       <translation>এস্তোনীয়</translation>
     </message>
@@ -1809,6 +1813,18 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Invalid ChatGPT connection record.</source>
       <translation>অবৈধ ChatGPT সংযোগ রেকর্ড।</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama answer.</source>
+      <translation>Ollama-এর উত্তর বৈধ নয়।</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model list.</source>
+      <translation>Ollama-এর মডেল তালিকা বৈধ নয়।</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model.</source>
+      <translation>Ollama মডেলটি বৈধ নয়।</translation>
     </message>
     <message>
       <source>Invalid app wheel checksum.</source>
@@ -2415,6 +2431,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>প্রাচীনতম সক্রিয় অনুবাদ: {value:.1f}s</translation>
     </message>
     <message>
+      <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
+      <translation>{server}-এ Ollama অনুরোধ ব্যর্থ হয়েছে। সেটিংসে ঠিকানা ও মডেল পরীক্ষা করুন।</translation>
+    </message>
+    <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
       <translation>এই এন্ট্রি পয়েন্ট দিয়ে কেবল DanteTL মডিউল চালু করা যাবে।</translation>
     </message>
@@ -2775,6 +2795,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Refresh models to configure this model's request settings.</source>
       <translation>এই মডেলের অনুরোধ সেটিংস কনফিগার করতে মডেল রিফ্রেশ করুন।</translation>
+    </message>
+    <message>
+      <source>Refresh the Ollama model list for {server}.</source>
+      <translation>{server}-এর Ollama মডেল তালিকা রিফ্রেশ করুন।</translation>
     </message>
     <message>
       <source>Refreshing provider models…</source>
@@ -4121,6 +4145,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>{last_inference_ms:.0f} ms</source>
       <translation>{last_inference_ms:.0f} ms</translation>
+    </message>
+    <message>
+      <source>{model} is not a server-hosted text generation model.</source>
+      <translation>{model} সার্ভারে চলা কোনো লেখা তৈরির মডেল নয়।</translation>
     </message>
     <message>
       <source>{name}

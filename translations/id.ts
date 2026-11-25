@@ -1419,6 +1419,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Masukkan kunci API atau pilih koneksi tersimpan.</translation>
     </message>
     <message>
+      <source>Enter the HTTP or HTTPS address of your Ollama server.</source>
+      <translation>Masukkan alamat HTTP atau HTTPS server Ollama Anda.</translation>
+    </message>
+    <message>
       <source>Estonian</source>
       <translation>Estonia</translation>
     </message>
@@ -1809,6 +1813,18 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Invalid ChatGPT connection record.</source>
       <translation>Catatan koneksi ChatGPT tidak valid.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama answer.</source>
+      <translation>Jawaban Ollama tidak valid.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model list.</source>
+      <translation>Daftar model Ollama tidak valid.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model.</source>
+      <translation>Model Ollama tidak valid.</translation>
     </message>
     <message>
       <source>Invalid app wheel checksum.</source>
@@ -2415,6 +2431,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Terjemahan aktif tertua: {value:.1f}s</translation>
     </message>
     <message>
+      <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
+      <translation>Permintaan Ollama ke {server} gagal. Periksa alamat dan model di Pengaturan.</translation>
+    </message>
+    <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
       <translation>Hanya modul DanteTL yang dapat diluncurkan oleh titik masuk ini.</translation>
     </message>
@@ -2775,6 +2795,10 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
     <message>
       <source>Refresh models to configure this model's request settings.</source>
       <translation>Segarkan model untuk mengonfigurasi pengaturan permintaan model ini.</translation>
+    </message>
+    <message>
+      <source>Refresh the Ollama model list for {server}.</source>
+      <translation>Muat ulang daftar model Ollama untuk {server}.</translation>
     </message>
     <message>
       <source>Refreshing provider models…</source>
@@ -4121,6 +4145,10 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
     <message>
       <source>{last_inference_ms:.0f} ms</source>
       <translation>{last_inference_ms:.0f} ms</translation>
+    </message>
+    <message>
+      <source>{model} is not a server-hosted text generation model.</source>
+      <translation>{model} bukan model pembuat teks yang dijalankan di server.</translation>
     </message>
     <message>
       <source>{name}

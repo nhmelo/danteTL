@@ -1419,6 +1419,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>ป้อนคีย์ API หรือเลือกการเชื่อมต่อที่บันทึกไว้</translation>
     </message>
     <message>
+      <source>Enter the HTTP or HTTPS address of your Ollama server.</source>
+      <translation>ป้อนที่อยู่ HTTP หรือ HTTPS ของเซิร์ฟเวอร์ Ollama</translation>
+    </message>
+    <message>
       <source>Estonian</source>
       <translation>เอสโตเนีย</translation>
     </message>
@@ -1809,6 +1813,18 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Invalid ChatGPT connection record.</source>
       <translation>ระเบียนการเชื่อมต่อ ChatGPT ไม่ถูกต้อง</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama answer.</source>
+      <translation>คำตอบจาก Ollama ไม่ถูกต้อง</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model list.</source>
+      <translation>รายการโมเดล Ollama ไม่ถูกต้อง</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model.</source>
+      <translation>โมเดล Ollama ไม่ถูกต้อง</translation>
     </message>
     <message>
       <source>Invalid app wheel checksum.</source>
@@ -2415,6 +2431,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>การแปลที่ใช้งานอยู่นานที่สุด: {value:.1f} วินาที</translation>
     </message>
     <message>
+      <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
+      <translation>คำขอ Ollama ที่ {server} ล้มเหลว ตรวจสอบที่อยู่และโมเดลในการตั้งค่า</translation>
+    </message>
+    <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
       <translation>จุดเริ่มต้นนี้เปิดได้เฉพาะโมดูล DanteTL เท่านั้น</translation>
     </message>
@@ -2775,6 +2795,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Refresh models to configure this model's request settings.</source>
       <translation>รีเฟรชโมเดลเพื่อกำหนดค่าการร้องขอของโมเดลนี้</translation>
+    </message>
+    <message>
+      <source>Refresh the Ollama model list for {server}.</source>
+      <translation>รีเฟรชรายการโมเดล Ollama ของ {server}</translation>
     </message>
     <message>
       <source>Refreshing provider models…</source>
@@ -4121,6 +4145,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>{last_inference_ms:.0f} ms</source>
       <translation>{last_inference_ms:.0f} ms</translation>
+    </message>
+    <message>
+      <source>{model} is not a server-hosted text generation model.</source>
+      <translation>{model} ไม่ใช่โมเดลสร้างข้อความที่ทำงานบนเซิร์ฟเวอร์</translation>
     </message>
     <message>
       <source>{name}

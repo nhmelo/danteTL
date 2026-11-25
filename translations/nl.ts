@@ -1419,6 +1419,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Voer een API-sleutel in of kies een opgeslagen verbinding.</translation>
     </message>
     <message>
+      <source>Enter the HTTP or HTTPS address of your Ollama server.</source>
+      <translation>Voer het HTTP- of HTTPS-adres van je Ollama-server in.</translation>
+    </message>
+    <message>
       <source>Estonian</source>
       <translation>Estisch</translation>
     </message>
@@ -1809,6 +1813,18 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Invalid ChatGPT connection record.</source>
       <translation>Ongeldig ChatGPT-verbindingsrecord.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama answer.</source>
+      <translation>Ongeldig antwoord van Ollama.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model list.</source>
+      <translation>Ongeldige Ollama-modellijst.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model.</source>
+      <translation>Ongeldig Ollama-model.</translation>
     </message>
     <message>
       <source>Invalid app wheel checksum.</source>
@@ -2415,6 +2431,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Oudste actieve vertaling: {value:.1f}s</translation>
     </message>
     <message>
+      <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
+      <translation>Het Ollama-verzoek aan {server} is mislukt. Controleer het adres en het model in de instellingen.</translation>
+    </message>
+    <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
       <translation>Alleen DanteTL-modules mogen via dit toegangspunt worden gestart.</translation>
     </message>
@@ -2775,6 +2795,10 @@ Modeldownloads: tot {size:.2f} GB; bestaande bestanden worden geverifieerd en he
     <message>
       <source>Refresh models to configure this model's request settings.</source>
       <translation>Modellen vernieuwen om de aanvraaginstellingen van dit model te configureren.</translation>
+    </message>
+    <message>
+      <source>Refresh the Ollama model list for {server}.</source>
+      <translation>Vernieuw de Ollama-modellijst voor {server}.</translation>
     </message>
     <message>
       <source>Refreshing provider models…</source>
@@ -4121,6 +4145,10 @@ Modeldownloads: tot {size:.2f} GB; bestaande bestanden worden geverifieerd en he
     <message>
       <source>{last_inference_ms:.0f} ms</source>
       <translation>{last_inference_ms:.0f} ms</translation>
+    </message>
+    <message>
+      <source>{model} is not a server-hosted text generation model.</source>
+      <translation>{model} is geen tekstgeneratiemodel dat op de server draait.</translation>
     </message>
     <message>
       <source>{name}

@@ -1419,6 +1419,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>أدخل مفتاح API أو اختر اتصالًا محفوظًا.</translation>
     </message>
     <message>
+      <source>Enter the HTTP or HTTPS address of your Ollama server.</source>
+      <translation>أدخل عنوان HTTP أو HTTPS لخادم Ollama.</translation>
+    </message>
+    <message>
       <source>Estonian</source>
       <translation>الإستونية</translation>
     </message>
@@ -1809,6 +1813,18 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Invalid ChatGPT connection record.</source>
       <translation>سجل اتصال ChatGPT غير صالح.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama answer.</source>
+      <translation>إجابة Ollama غير صالحة.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model list.</source>
+      <translation>قائمة نماذج Ollama غير صالحة.</translation>
+    </message>
+    <message>
+      <source>Invalid Ollama model.</source>
+      <translation>نموذج Ollama غير صالح.</translation>
     </message>
     <message>
       <source>Invalid app wheel checksum.</source>
@@ -2415,6 +2431,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>أقدم ترجمة نشطة: {value:.1f}ث</translation>
     </message>
     <message>
+      <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
+      <translation>فشل طلب Ollama على {server}. تحقّق من العنوان والنموذج في الإعدادات.</translation>
+    </message>
+    <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
       <translation>يمكن لهذه النقطة الدخول تشغيل وحدات DanteTL فقط.</translation>
     </message>
@@ -2775,6 +2795,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Refresh models to configure this model's request settings.</source>
       <translation>حدّث النماذج لتهيئة إعدادات طلب هذا النموذج.</translation>
+    </message>
+    <message>
+      <source>Refresh the Ollama model list for {server}.</source>
+      <translation>حدّث قائمة نماذج Ollama على {server}.</translation>
     </message>
     <message>
       <source>Refreshing provider models…</source>
@@ -4121,6 +4145,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>{last_inference_ms:.0f} ms</source>
       <translation>{last_inference_ms:.0f} مللي ثانية</translation>
+    </message>
+    <message>
+      <source>{model} is not a server-hosted text generation model.</source>
+      <translation>‏{model} ليس نموذجًا لتوليد النصوص يعمل على الخادم.</translation>
     </message>
     <message>
       <source>{name}
