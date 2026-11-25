@@ -435,6 +435,10 @@ Details finden Sie in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>CPU · langsamer</translation>
     </message>
     <message>
+      <source>CUDA requires compute capability 7.5+ and a CUDA 13+ driver. {name}: compute capability {capability}, driver CUDA {version}.</source>
+      <translation>CUDA benötigt Compute Capability 7.5 oder höher und einen Treiber für CUDA 13 oder höher. {name}: Compute Capability {capability}, CUDA-Version des Treibers {version}.</translation>
+    </message>
+    <message>
       <source>CUDA runtime is not installed. Open Settings → Acceleration or choose CPU.</source>
       <translation>CUDA-Runtime ist nicht installiert. Öffne Einstellungen → Beschleunigung oder wähle CPU.</translation>
     </message>
@@ -2267,12 +2271,20 @@ Details finden Sie in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Keine GPU-Schichten beobachtet. Wähle die CPU-Runtime oder prüfe die Beschleunigung.</translation>
     </message>
     <message>
+      <source>No GPU with Vulkan 1.2, compute queues and 16-bit storage was detected.</source>
+      <translation>Keine GPU mit Vulkan 1.2, Compute-Queues und 16-Bit-Speicherzugriff erkannt.</translation>
+    </message>
+    <message>
       <source>No OCR pass yet.</source>
       <translation>Noch kein OCR-Durchlauf.</translation>
     </message>
     <message>
       <source>No cloud models yet. Add a model using your ChatGPT account or an API key.</source>
       <translation>Noch keine Cloud-Modelle. Füge ein Modell über dein ChatGPT-Konto oder einen API-Schlüssel hinzu.</translation>
+    </message>
+    <message>
+      <source>No compatible CUDA device was detected.</source>
+      <translation>Kein kompatibles CUDA-Gerät erkannt.</translation>
     </message>
     <message>
       <source>No current frame.</source>

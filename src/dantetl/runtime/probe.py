@@ -34,10 +34,26 @@ def verify(profile: str) -> None:
     from PySide6 import QtWidgets  # noqa: F401
 
     if profile == "nvidia":
+        import numpy as np
+        from onnxruntime.datasets import get_example
+
         from dantetl.runtime.ocr import CUDA, prepare_cuda
 
         prepare_cuda(ort)
         if CUDA not in ort.get_available_providers():
+            raise RuntimeError(tr("The installed OCR runtime does not provide CUDA."))
+        # Run the tiny multiplication fixture included in the pinned ONNX wheel.
+        # Provider enumeration succeeds even when cuBLAS rejects the GPU.
+        options = ort.SessionOptions()
+        options.add_session_config_entry("session.disable_cpu_ep_fallback", "1")
+        session = ort.InferenceSession(get_example("mul_1.onnx"), options, providers=[CUDA])
+        values = np.arange(1, 7, dtype=np.float32).reshape(3, 2)
+        output = session.run(None, {"X": values})[0]
+        if (
+            CUDA not in session.get_providers()
+            or not isinstance(output, np.ndarray)
+            or not np.array_equal(output, values * values)
+        ):
             raise RuntimeError(tr("The installed OCR runtime does not provide CUDA."))
     from dantetl.runtime.llama import installed_device, load_runtime
 
@@ -53,6 +69,10 @@ def verify(profile: str) -> None:
             raise RuntimeError(
                 tr("GPU offload is unavailable. Update your graphics driver or use CPU.")
             )
+        if device != "cpu":
+            from dantetl.runtime.gpu_compute import verify_gpu_compute
+
+            verify_gpu_compute(device)
     finally:
         runtime.llama_backend_free()
     print(tr("Library checks passed. Model preparation happens after restart."), flush=True)

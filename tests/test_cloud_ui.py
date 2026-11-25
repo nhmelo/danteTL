@@ -241,7 +241,7 @@ def test_models_setup_saves_secret_off_gui_and_does_not_make_a_request(app, tmp_
 def test_welcome_shares_cloud_editor_and_preserves_pending_download_and_restart(
     app, tmp_path, monkeypatch, phase
 ):
-    from dantetl.runtime.hardware_values import HardwareStatus
+    from dantetl.runtime.hardware_values import Adapter, CudaDevice, HardwareStatus
     from dantetl.runtime.model_store import model_catalog
 
     entered, release = threading.Event(), threading.Event()
@@ -261,7 +261,9 @@ def test_welcome_shares_cloud_editor_and_preserves_pending_download_and_restart(
     )
     windows, hardware = Mock(), Mock()
     windows.list_targets.return_value = []
-    hardware.snapshot.return_value = HardwareStatus(llama_device="cpu")
+    hardware.snapshot.return_value = HardwareStatus(
+        (Adapter("RTX", 0x10DE, cuda=CudaDevice(13000, 8, 6)),), llama_device="cpu"
+    )
     models = tuple(
         replace(b, directory=tmp_path / b.key, bundled_directory=None) for b in model_catalog()
     )

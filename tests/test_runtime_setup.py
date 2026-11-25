@@ -14,13 +14,17 @@ import pytest
 
 from dantetl.runtime import restart as runtime_restart
 from dantetl.runtime import setup as setup
-from dantetl.runtime.hardware_values import Adapter, recommended_profile
+from dantetl.runtime.hardware_values import Adapter, CudaDevice, recommended_profile
 from dantetl.runtime.setup_process import run_setup_command
 from dantetl.runtime.setup_values import Cancelled
 
 
 @pytest.fixture
 def project(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        "dantetl.runtime.hardware.detect_adapters",
+        lambda *args: (Adapter("RTX", 0x10DE, cuda=CudaDevice(13000, 8, 6), vulkan=True),),
+    )
     (tmp_path / "uv.lock").write_text("pinned")
     (tmp_path / "pyproject.toml").write_text("project")
     uv = tmp_path / ".bootstrap/Scripts/uv.exe"
@@ -52,11 +56,38 @@ def project(tmp_path, monkeypatch):
 def test_recommends_discrete_gpu_and_preserves_manual_cpu_fallback():
     assert recommended_profile(()) == "cpu"
     assert recommended_profile((Adapter("Intel", 0x8086, 2**30),)) == "cpu"
-    integrated = Adapter("AMD integrated", 0x1002, 2**30)
-    nvidia = Adapter("RTX", 0x10DE, 16 * 2**30)
-    amd = Adapter("Radeon", 0x1002, 16 * 2**30)
+    integrated = Adapter("AMD integrated", 0x1002, 2**30, vulkan=True)
+    nvidia = Adapter("RTX", 0x10DE, 16 * 2**30, cuda=CudaDevice(13000, 7, 5), vulkan=True)
+    amd = Adapter("Radeon", 0x1002, 16 * 2**30, vulkan=True)
     assert recommended_profile((integrated, nvidia)) == "nvidia"
     assert recommended_profile((amd,)) == "amd"
+
+
+@pytest.mark.parametrize("cuda", [CudaDevice(13030, 6, 1), CudaDevice(12090, 8, 6), None])
+def test_vulkan_recommendation_requires_driver_features_and_cuda_checks_both_versions(cuda):
+    assert recommended_profile((Adapter("GPU", 0x10DE, cuda=cuda),)) == "cpu"
+    assert recommended_profile((Adapter("GPU", 0x10DE, cuda=cuda, vulkan=True),)) == "amd"
+    assert recommended_profile((Adapter("Intel", 0x8086, vulkan=True),)) == "amd"
+
+
+def test_incompatible_device_blocks_download_and_saved_runtime_launch(project, monkeypatch):
+    root, calls, _ = project
+    setup.install_runtime(root, setup.PROFILES[0], lambda _: None, threading.Event())
+    target = setup.ready_runtime(root, "nvidia")
+    assert target is not None
+    setup.select_runtime(root, target)
+    calls.clear()
+    monkeypatch.setattr(
+        "dantetl.runtime.hardware.detect_adapters",
+        lambda *args: (Adapter("GTX 1050", 0x10DE, cuda=CudaDevice(13000, 6, 1)),),
+    )
+    with pytest.raises(RuntimeError, match="6.1"):
+        setup.install_runtime(root, setup.PROFILES[0], lambda _: None, threading.Event())
+    with pytest.raises(RuntimeError, match="6.1"):
+        runtime_restart.RuntimeRestart(root, target)
+    with pytest.raises(RuntimeError, match="Vulkan"):
+        setup.install_runtime(root, setup.PROFILES[1], lambda _: None, threading.Event())
+    assert not calls and setup.selected_runtime(root) == target
 
 
 def test_native_installer_checks_hash_and_ignores_external_pip_target(tmp_path, monkeypatch):

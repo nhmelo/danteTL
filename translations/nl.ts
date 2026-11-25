@@ -435,6 +435,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>CPU · langzamer</translation>
     </message>
     <message>
+      <source>CUDA requires compute capability 7.5+ and a CUDA 13+ driver. {name}: compute capability {capability}, driver CUDA {version}.</source>
+      <translation>CUDA vereist compute capability 7.5+ en een stuurprogramma voor CUDA 13+. {name}: compute capability {capability}, CUDA-versie van het stuurprogramma {version}.</translation>
+    </message>
+    <message>
       <source>CUDA runtime is not installed. Open Settings → Acceleration or choose CPU.</source>
       <translation>CUDA-runtime is niet geïnstalleerd. Open Instellingen → Versnelling of kies CPU.</translation>
     </message>
@@ -2267,12 +2271,20 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Geen GPU-lagen waargenomen. Selecteer de CPU-runtime of controleer de versnelling.</translation>
     </message>
     <message>
+      <source>No GPU with Vulkan 1.2, compute queues and 16-bit storage was detected.</source>
+      <translation>Geen GPU gevonden met Vulkan 1.2, rekenwachtrijen en 16-bits opslag.</translation>
+    </message>
+    <message>
       <source>No OCR pass yet.</source>
       <translation>Nog geen OCR-pass.</translation>
     </message>
     <message>
       <source>No cloud models yet. Add a model using your ChatGPT account or an API key.</source>
       <translation>Nog geen cloudmodellen. Voeg een model toe met je ChatGPT-account of een API-sleutel.</translation>
+    </message>
+    <message>
+      <source>No compatible CUDA device was detected.</source>
+      <translation>Geen compatibel CUDA-apparaat gevonden.</translation>
     </message>
     <message>
       <source>No current frame.</source>

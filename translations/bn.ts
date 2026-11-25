@@ -435,6 +435,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>CPU · ধীরতর</translation>
     </message>
     <message>
+      <source>CUDA requires compute capability 7.5+ and a CUDA 13+ driver. {name}: compute capability {capability}, driver CUDA {version}.</source>
+      <translation>CUDA ব্যবহারের জন্য কম্পিউট ক্ষমতা 7.5+ এবং CUDA 13+ সমর্থিত ড্রাইভার প্রয়োজন। {name}: কম্পিউট ক্ষমতা {capability}, ড্রাইভারের CUDA সংস্করণ {version}।</translation>
+    </message>
+    <message>
       <source>CUDA runtime is not installed. Open Settings → Acceleration or choose CPU.</source>
       <translation>CUDA রানটাইম ইনস্টল করা নেই। সেটিংস → ত্বরণ খুলুন অথবা CPU বেছে নিন।</translation>
     </message>
@@ -2267,12 +2271,20 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>কোনো GPU লেয়ার লক্ষ্য করা যায়নি। CPU রানটাইম নির্বাচন করুন বা অ্যাক্সিলারেশন পরীক্ষা করুন।</translation>
     </message>
     <message>
+      <source>No GPU with Vulkan 1.2, compute queues and 16-bit storage was detected.</source>
+      <translation>Vulkan 1.2, কম্পিউট কিউ এবং 16-বিট স্টোরেজ সমর্থন করে এমন কোনো GPU পাওয়া যায়নি।</translation>
+    </message>
+    <message>
       <source>No OCR pass yet.</source>
       <translation>এখনও কোনো OCR পাস হয়নি।</translation>
     </message>
     <message>
       <source>No cloud models yet. Add a model using your ChatGPT account or an API key.</source>
       <translation>এখনও কোনো ক্লাউড মডেল নেই। আপনার ChatGPT অ্যাকাউন্ট বা API কী ব্যবহার করে একটি মডেল যোগ করুন।</translation>
+    </message>
+    <message>
+      <source>No compatible CUDA device was detected.</source>
+      <translation>কোনো সামঞ্জস্যপূর্ণ CUDA ডিভাইস পাওয়া যায়নি।</translation>
     </message>
     <message>
       <source>No current frame.</source>

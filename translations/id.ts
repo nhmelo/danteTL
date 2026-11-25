@@ -435,6 +435,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>CPU · lebih lambat</translation>
     </message>
     <message>
+      <source>CUDA requires compute capability 7.5+ and a CUDA 13+ driver. {name}: compute capability {capability}, driver CUDA {version}.</source>
+      <translation>CUDA memerlukan kemampuan komputasi 7.5+ dan driver yang mendukung CUDA 13+. {name}: kemampuan komputasi {capability}, versi CUDA driver {version}.</translation>
+    </message>
+    <message>
       <source>CUDA runtime is not installed. Open Settings → Acceleration or choose CPU.</source>
       <translation>Runtime CUDA tidak terpasang. Buka Pengaturan → Akselerasi atau pilih CPU.</translation>
     </message>
@@ -2267,12 +2271,20 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Tidak ada lapisan GPU yang terdeteksi. Pilih runtime CPU atau periksa akselerasi.</translation>
     </message>
     <message>
+      <source>No GPU with Vulkan 1.2, compute queues and 16-bit storage was detected.</source>
+      <translation>Tidak ada GPU yang mendukung Vulkan 1.2, antrean komputasi, dan penyimpanan 16-bit.</translation>
+    </message>
+    <message>
       <source>No OCR pass yet.</source>
       <translation>Belum ada proses OCR.</translation>
     </message>
     <message>
       <source>No cloud models yet. Add a model using your ChatGPT account or an API key.</source>
       <translation>Belum ada model cloud. Tambahkan model menggunakan akun ChatGPT Anda atau kunci API.</translation>
+    </message>
+    <message>
+      <source>No compatible CUDA device was detected.</source>
+      <translation>Tidak ada perangkat CUDA yang kompatibel terdeteksi.</translation>
     </message>
     <message>
       <source>No current frame.</source>

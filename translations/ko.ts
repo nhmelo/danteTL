@@ -435,6 +435,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>CPU · 느림</translation>
     </message>
     <message>
+      <source>CUDA requires compute capability 7.5+ and a CUDA 13+ driver. {name}: compute capability {capability}, driver CUDA {version}.</source>
+      <translation>CUDA를 사용하려면 컴퓨팅 성능 7.5 이상 및 CUDA 13 이상을 지원하는 드라이버가 필요합니다. {name}: 컴퓨팅 성능 {capability}, 드라이버 CUDA 버전 {version}.</translation>
+    </message>
+    <message>
       <source>CUDA runtime is not installed. Open Settings → Acceleration or choose CPU.</source>
       <translation>CUDA 런타임이 설치되지 않았습니다. 설정 → 가속을 열거나 CPU를 선택하세요.</translation>
     </message>
@@ -2267,12 +2271,20 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>GPU 레이어가 감지되지 않았습니다. CPU 런타임을 선택하거나 가속을 확인하세요.</translation>
     </message>
     <message>
+      <source>No GPU with Vulkan 1.2, compute queues and 16-bit storage was detected.</source>
+      <translation>Vulkan 1.2, 컴퓨팅 큐 및 16비트 저장소를 지원하는 GPU를 찾을 수 없습니다.</translation>
+    </message>
+    <message>
       <source>No OCR pass yet.</source>
       <translation>OCR 실행 기록 없음.</translation>
     </message>
     <message>
       <source>No cloud models yet. Add a model using your ChatGPT account or an API key.</source>
       <translation>아직 클라우드 모델이 없습니다. ChatGPT 계정이나 API 키로 모델을 추가하세요.</translation>
+    </message>
+    <message>
+      <source>No compatible CUDA device was detected.</source>
+      <translation>호환되는 CUDA 장치를 찾을 수 없습니다.</translation>
     </message>
     <message>
       <source>No current frame.</source>

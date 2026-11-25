@@ -435,6 +435,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>CPU · chậm hơn</translation>
     </message>
     <message>
+      <source>CUDA requires compute capability 7.5+ and a CUDA 13+ driver. {name}: compute capability {capability}, driver CUDA {version}.</source>
+      <translation>CUDA yêu cầu năng lực tính toán từ 7.5 và trình điều khiển hỗ trợ CUDA từ phiên bản 13. {name}: năng lực tính toán {capability}, phiên bản CUDA của trình điều khiển {version}.</translation>
+    </message>
+    <message>
       <source>CUDA runtime is not installed. Open Settings → Acceleration or choose CPU.</source>
       <translation>Chưa cài đặt môi trường chạy CUDA. Mở Cài đặt → Tăng tốc hoặc chọn CPU.</translation>
     </message>
@@ -2267,12 +2271,20 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Không phát hiện lớp GPU. Chọn runtime CPU hoặc kiểm tra tăng tốc.</translation>
     </message>
     <message>
+      <source>No GPU with Vulkan 1.2, compute queues and 16-bit storage was detected.</source>
+      <translation>Không phát hiện GPU hỗ trợ Vulkan 1.2, hàng đợi tính toán và lưu trữ 16 bit.</translation>
+    </message>
+    <message>
       <source>No OCR pass yet.</source>
       <translation>Chưa có lượt OCR nào.</translation>
     </message>
     <message>
       <source>No cloud models yet. Add a model using your ChatGPT account or an API key.</source>
       <translation>Chưa có mô hình đám mây. Thêm mô hình bằng tài khoản ChatGPT hoặc khóa API.</translation>
+    </message>
+    <message>
+      <source>No compatible CUDA device was detected.</source>
+      <translation>Không phát hiện thiết bị CUDA tương thích.</translation>
     </message>
     <message>
       <source>No current frame.</source>

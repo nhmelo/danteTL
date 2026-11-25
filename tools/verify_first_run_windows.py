@@ -20,7 +20,7 @@ from dantetl.application.preferences import PreferenceStore
 from dantetl.capture.windows import Windows
 from dantetl.runtime import first_run, model_store
 from dantetl.runtime.assets import ModelAsset
-from dantetl.runtime.hardware_values import Adapter, HardwareStatus
+from dantetl.runtime.hardware_values import Adapter, CudaDevice, HardwareStatus
 from dantetl.runtime.model_store import ModelBundle
 from dantetl.runtime.setup_values import DownloadProgress, ModelProgress
 
@@ -59,7 +59,10 @@ def main() -> int:
     models = (replace(models[0], bundled_directory=bundled), *models[1:])
     hardware = Mock()
     hardware.snapshot.return_value = HardwareStatus(
-        adapters=(Adapter("NVIDIA test adapter", 0x10DE, 16 * 2**30),), llama_device="cpu"
+        adapters=(
+            Adapter("NVIDIA test adapter", 0x10DE, 16 * 2**30, cuda=CudaDevice(13000, 8, 6)),
+        ),
+        llama_device="cpu",
     )
     window = MainWindow(
         windows,

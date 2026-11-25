@@ -628,7 +628,15 @@ Loading stays on model workers/probes; preserve old fork APIs and current upstre
 CPU/CUDA/Vulkan engines are complete upstream packages; CPU uses upstream PEP 517 build and standard
 DLL repair at release time, no player compiler. Never mix CPU/GPU ONNX or different llama wheels.
 NVIDIA OCR/Gemma share pinned CUDA 13 runtime/cuBLAS; preserve legacy ONNX 1.26/CUDA 12 loading. Select
-DLLs for the actual OCR build, not another model's installation. Strict GPU checks fail on fallback;
+acceleration from local driver capabilities. Match devices to DXGI by Windows LUID. Query the
+visible CUDA device zero for compute capability 7.5+ and a CUDA 13+ driver. Vulkan requires a
+hardware GPU with Vulkan 1.2, a compute queue and 16-bit storage buffers. Run each driver query
+in a bounded child. Recommend the supported adapter with the most dedicated memory, preferring
+CUDA when it qualifies, then Vulkan, then CPU. Recheck before GPU installation and managed
+runtime handoff. The isolated installer probe checks numerical output on the selected llama GPU
+backend and, for NVIDIA, the CUDA OCR provider before accepting the environment. Model preparation
+still checks the actual weights. Select DLLs for the actual OCR build.
+Strict GPU checks fail on fallback;
 automatic OCR reports fallback. Separate compilation from warm inference and keep the bounded CUDA cache.
 In-app AMD is Vulkan translation plus CPU OCR. Experimental DirectML retains its numerical compatibility
 probe; successful provider initialization is not validation.

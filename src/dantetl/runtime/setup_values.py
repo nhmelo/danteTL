@@ -6,7 +6,7 @@ from enum import StrEnum
 from pathlib import Path
 
 from dantetl.i18n import tr
-from dantetl.runtime.hardware_values import Adapter
+from dantetl.runtime.hardware_values import Adapter, compatibility_issue
 
 
 class Cancelled(Exception):
@@ -62,6 +62,8 @@ class RuntimeStatus:
     active_profile: str = ""
 
     def target(self, key: str) -> Path | None:
+        if compatibility_issue(key, self.adapters):
+            return None
         return next((path for name, path in self.targets if name == key), None)
 
 

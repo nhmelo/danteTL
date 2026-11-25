@@ -14,6 +14,7 @@ from uuid import uuid4
 from dantetl.i18n import mark, tr
 from dantetl.paths import is_standalone, module_command, resource_root
 from dantetl.runtime.application import prepare_application
+from dantetl.runtime.hardware import require_profile
 from dantetl.runtime.owned_process import OwnedProcess
 from dantetl.runtime.setup import (
     project_root,
@@ -42,8 +43,10 @@ class RuntimeRestart:
         on_cleanup: Callable[[], None] | None = None,
         cancel: threading.Event | None = None,
     ) -> None:
-        if verified_runtime(root, target.name.split("-", 1)[0], target.name) != target.resolve():
+        key = target.name.split("-", 1)[0]
+        if verified_runtime(root, key, target.name) != target.resolve():
             raise ValueError(tr("Runtime is no longer ready. Open Runtime setup and retry."))
+        require_profile(key, cancel)
         self._on_cleanup = on_cleanup or (lambda: None)
         self.root, self.target = root, target
         token = uuid4().hex

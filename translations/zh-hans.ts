@@ -435,6 +435,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>CPU · 较慢</translation>
     </message>
     <message>
+      <source>CUDA requires compute capability 7.5+ and a CUDA 13+ driver. {name}: compute capability {capability}, driver CUDA {version}.</source>
+      <translation>CUDA 需要 7.5 或更高的计算能力，以及支持 CUDA 13 或更高版本的驱动程序。{name} 的计算能力为 {capability}，驱动程序支持的 CUDA 版本为 {version}。</translation>
+    </message>
+    <message>
       <source>CUDA runtime is not installed. Open Settings → Acceleration or choose CPU.</source>
       <translation>未安装 CUDA 运行时。请打开设置 → 加速，或选择 CPU。</translation>
     </message>
@@ -2267,12 +2271,20 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>未观察到 GPU 层。请选择 CPU 运行时或检查加速。</translation>
     </message>
     <message>
+      <source>No GPU with Vulkan 1.2, compute queues and 16-bit storage was detected.</source>
+      <translation>未检测到支持 Vulkan 1.2、计算队列和 16 位存储的 GPU。</translation>
+    </message>
+    <message>
       <source>No OCR pass yet.</source>
       <translation>尚无 OCR 处理。</translation>
     </message>
     <message>
       <source>No cloud models yet. Add a model using your ChatGPT account or an API key.</source>
       <translation>尚无云模型。使用您的 ChatGPT 账户或 API 密钥添加模型。</translation>
+    </message>
+    <message>
+      <source>No compatible CUDA device was detected.</source>
+      <translation>未检测到兼容的 CUDA 设备。</translation>
     </message>
     <message>
       <source>No current frame.</source>

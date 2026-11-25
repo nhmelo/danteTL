@@ -435,6 +435,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>CPU · 遅い</translation>
     </message>
     <message>
+      <source>CUDA requires compute capability 7.5+ and a CUDA 13+ driver. {name}: compute capability {capability}, driver CUDA {version}.</source>
+      <translation>CUDA にはコンピュート性能 7.5 以上と CUDA 13 以降に対応するドライバーが必要です。{name} のコンピュート性能は {capability}、ドライバーの CUDA バージョンは {version} です。</translation>
+    </message>
+    <message>
       <source>CUDA runtime is not installed. Open Settings → Acceleration or choose CPU.</source>
       <translation>CUDAランタイムがインストールされていません。設定 → アクセラレーションを開くかCPUを選択してください。</translation>
     </message>
@@ -2267,12 +2271,20 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>GPUレイヤーが検出されませんでした。CPUランタイムを選択するかアクセラレーションを確認してください。</translation>
     </message>
     <message>
+      <source>No GPU with Vulkan 1.2, compute queues and 16-bit storage was detected.</source>
+      <translation>Vulkan 1.2、コンピュートキュー、16 ビットストレージに対応する GPU が見つかりませんでした。</translation>
+    </message>
+    <message>
       <source>No OCR pass yet.</source>
       <translation>OCR処理はまだ実行されていません。</translation>
     </message>
     <message>
       <source>No cloud models yet. Add a model using your ChatGPT account or an API key.</source>
       <translation>クラウドモデルがありません。ChatGPTアカウントまたはAPIキーを使用してモデルを追加してください。</translation>
+    </message>
+    <message>
+      <source>No compatible CUDA device was detected.</source>
+      <translation>互換性のある CUDA デバイスが見つかりませんでした。</translation>
     </message>
     <message>
       <source>No current frame.</source>

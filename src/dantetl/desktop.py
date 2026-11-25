@@ -42,7 +42,15 @@ def main() -> None:
                 os.environ["DANTETL_STARTUP_NOTICE"] = (
                     f"The selected runtime could not start. Using CPU fallback. {error}"
                 )
-        elif not cuda_update and (state / "data/runtime.json").is_file():
+        elif cuda_update:
+            from dantetl.runtime.hardware import require_profile
+
+            try:
+                require_profile("nvidia")
+            except (OSError, RuntimeError) as error:
+                cuda_update = False
+                os.environ["DANTETL_STARTUP_NOTICE"] = str(error)
+        elif (state / "data/runtime.json").is_file():
             os.environ["DANTETL_STARTUP_NOTICE"] = (
                 "The saved runtime is unavailable for this app version. Using CPU fallback. "
                 "Open Settings → Acceleration to set it up again."

@@ -19,7 +19,12 @@ from PySide6.QtWidgets import (
 from dantetl.application.model_advice import RECOMMENDED_TRANSLATION
 from dantetl.application.services import SetupCommands
 from dantetl.i18n import display, mark, tr
-from dantetl.runtime.hardware_values import HardwareReader, HardwareStatus, recommended_profile
+from dantetl.runtime.hardware_values import (
+    HardwareReader,
+    HardwareStatus,
+    compatibility_issue,
+    recommended_profile,
+)
 from dantetl.runtime.setup_values import ModelProgress, SetupLane, SetupReview
 from dantetl.ui.cloud_settings import CloudSettings
 from dantetl.ui.controls import Switch
@@ -188,6 +193,7 @@ class SetupAssistant(QDialog):
         job = service.job(SetupLane.GUIDE)
         if job.token and service.reviewed is not None:
             self._review = service.reviewed
+            self._runtime_chosen = True
             self.model.setCurrentIndex(self.model.findData(self._review.model))
             for index in range(self.runtime.count()):
                 if self.runtime.itemData(index).key == self._review.runtime:
@@ -235,7 +241,7 @@ class SetupAssistant(QDialog):
         self._model_labels()
         self._show_hardware()
         self._model_changed()
-        self.runtime_help.setText(tr(self.runtime.currentData().description))
+        self._show_runtime()
         if self.pages.currentIndex() == 0:
             self._show(0)
 
@@ -262,8 +268,15 @@ class SetupAssistant(QDialog):
 
     def _runtime_changed(self) -> None:
         self._runtime_chosen = True
+        self._show_runtime()
+
+    def _show_runtime(self) -> None:
         profile = self.runtime.currentData()
-        self.runtime_help.setText(tr(profile.description))
+        status = self.hardware_status
+        issue = compatibility_issue(profile.key, status.adapters) if status else ""
+        self.runtime_help.setText(issue or tr(profile.description))
+        if self.pages.currentIndex() == 2:
+            self.next.setEnabled(status is not None and not issue)
 
     def _show(self, page: int) -> None:
         self.pages.setCurrentIndex(page)
@@ -282,7 +295,9 @@ class SetupAssistant(QDialog):
         )
         self.back.setVisible(0 < page < 4)
         self.next.setText(tr("Download and set up") if page == 3 else tr("Next"))
-        self.next.setEnabled(page != 2 or self.hardware_status is not None)
+        self.next.setEnabled(True)
+        if page == 2:
+            self._show_runtime()
         if page == 3:
             assert self.hardware_status is not None
             profile = self.runtime.currentData()
@@ -392,8 +407,7 @@ class SetupAssistant(QDialog):
                             if self.runtime.itemData(i).key == key
                         )
                     )
-                if self.pages.currentIndex() == 2:
-                    self.next.setEnabled(True)
+                self._show_runtime()
         job = self.service.job(SetupLane.GUIDE)
         if not job.token or self._completion == job.token:
             return

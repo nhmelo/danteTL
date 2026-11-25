@@ -23,6 +23,9 @@ CPU: recognition and translation; larger language models may be slower.
 NVIDIA GPU - CUDA: accelerates supported recognition and translation engines.
 GPU - Vulkan: accelerates supported translation engines; OCR stays on CPU.
 Vulkan inference on Radeon still needs testing. Models are selected separately.
+Setup checks the installed driver before recommending acceleration. The NVIDIA runtime needs
+compute capability 7.5 or newer and driver support for CUDA 13. Older NVIDIA cards can use
+Vulkan translation if their driver supports Vulkan 1.2 with compute and 16-bit storage.
 NVIDIA OCR and Gemma share CUDA 13 libraries: about 1.29 GB of NVIDIA/ONNX downloads,
 plus other app dependencies. Model downloads are separate. If upgrading from the
 older dual-CUDA package, install the new runtime in Acceleration and restart once;

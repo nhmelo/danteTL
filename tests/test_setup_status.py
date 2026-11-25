@@ -72,3 +72,35 @@ def test_hardware_check_is_once_off_thread_and_failure_is_reported(monkeypatch):
     failed._thread.join(2)
     status = failed.snapshot()
     assert failed.finished and status is not None and status.error == "DXGI"
+
+
+@pytest.mark.parametrize("cuda_crashes", [False, True])
+def test_driver_evidence_matches_adapter_identity_and_survives_other_driver_failure(
+    monkeypatch, cuda_crashes
+):
+    from dantetl.runtime import hardware
+    from dantetl.runtime.hardware_values import CudaDevice, recommended_profile
+
+    monkeypatch.setattr(
+        hardware,
+        "_windows_adapters",
+        lambda: {
+            "000000000000000b": AMD,
+            "000000000000000a": NVIDIA,
+        },
+    )
+
+    def probe(command, root, environment, cancel, receive, *, timeout):
+        if command[-1] == "nvidia":
+            receive("CUDA 000000000000000a 13000 6 1")
+            if cuda_crashes:
+                raise RuntimeError("driver exited")
+        else:
+            receive("Vulkan 000000000000000b")
+            receive("Vulkan 000000000000000c")  # Not a detected hardware adapter.
+
+    monkeypatch.setattr(hardware, "run_setup_command", probe)
+    amd, nvidia = hardware.detect_adapters()
+    assert amd.vulkan and not nvidia.vulkan
+    assert nvidia.cuda == (None if cuda_crashes else CudaDevice(13000, 6, 1))
+    assert recommended_profile((amd, nvidia)) == "amd"

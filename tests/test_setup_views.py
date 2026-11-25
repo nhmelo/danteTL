@@ -12,7 +12,7 @@ import shiboken6  # noqa: E402
 from PySide6.QtWidgets import QMessageBox, QWidget  # noqa: E402
 from test_setup_ownership import configured  # noqa: E402
 
-from dantetl.runtime.hardware_values import HardwareStatus  # noqa: E402
+from dantetl.runtime.hardware_values import Adapter, CudaDevice, HardwareStatus  # noqa: E402
 from dantetl.runtime.setup_values import DownloadProgress, ModelProgress, RuntimeStatus, SetupLane  # noqa: E402
 from dantetl.translation.models.values import ImportedModel, ProbeResult  # noqa: E402
 from dantetl.ui.cloud_settings import CloudSettings  # noqa: E402
@@ -40,7 +40,12 @@ def test_unmeasured_setup_step_animates_until_bytes_arrive_or_work_stops(app):
 def test_runtime_picker_opens_on_active_profile_and_surfaces_verified_switch(app, tmp_path):
     replay = configured(tmp_path)
     target = tmp_path / "vulkan"
-    status = RuntimeStatus(current=tmp_path / "cpu", recommendation="nvidia", active_profile="cpu")
+    status = RuntimeStatus(
+        adapters=(Adapter("GPU", 0x1002, vulkan=True),),
+        current=tmp_path / "cpu",
+        recommendation="amd",
+        active_profile="cpu",
+    )
     detect = replay.dependencies.runtime_status
     select = replay.dependencies.select_runtime
     assert isinstance(detect, Mock) and isinstance(select, Mock)
@@ -88,6 +93,35 @@ def test_runtime_picker_opens_on_active_profile_and_surfaces_verified_switch(app
         assert replay.setup.installed_runtime is None
     finally:
         shiboken6.delete(view)
+        replay.close()
+
+
+@pytest.mark.parametrize("vulkan,expected", [(True, "amd"), (False, "cpu")])
+def test_pascal_guide_recommends_supported_runtime_and_explains_cuda(
+    app, tmp_path, vulkan, expected
+):
+    replay = configured(tmp_path)
+    parent = QWidget()
+    reader = Mock()
+    reader.snapshot.return_value = HardwareStatus(
+        (Adapter("GTX 1050", 0x10DE, 4 * 2**30, CudaDevice(13000, 6, 1), vulkan),),
+        llama_device="cpu",
+    )
+    try:
+        view = SetupAssistant(
+            replay.setup, reader, parent, cloud=CloudSettings(replay.cloud, parent)
+        )
+        view.next.click()
+        view.next.click()
+        assert view.runtime.currentData().key == expected and view.next.isEnabled()
+        cuda = next(
+            i for i in range(view.runtime.count()) if view.runtime.itemData(i).key == "nvidia"
+        )
+        view.runtime.setCurrentIndex(cuda)
+        assert not view.next.isEnabled() and "6.1" in view.runtime_help.text()
+        assert not replay.operations
+    finally:
+        shiboken6.delete(parent)
         replay.close()
 
 
@@ -145,9 +179,11 @@ def test_recreated_guide_observes_same_review_and_completion(app, tmp_path):
     try:
         review = replay.setup.review("model", "cpu", HardwareStatus(llama_device="cpu"))
         assert replay.setup.start_review(review.token)
+        detected = Mock()
+        detected.snapshot.return_value = HardwareStatus((Adapter("GPU", 0x1002, vulkan=True),))
         for _ in range(2):
             view = SetupAssistant(
-                replay.setup, None, parent, cloud=CloudSettings(replay.cloud, parent)
+                replay.setup, detected, parent, cloud=CloudSettings(replay.cloud, parent)
             )
             try:
                 assert view.pages.currentIndex() == 4

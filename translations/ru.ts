@@ -435,6 +435,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>ЦП · медленнее</translation>
     </message>
     <message>
+      <source>CUDA requires compute capability 7.5+ and a CUDA 13+ driver. {name}: compute capability {capability}, driver CUDA {version}.</source>
+      <translation>Для CUDA требуется вычислительная способность 7.5 или выше и драйвер с поддержкой CUDA 13 или выше. {name}: вычислительная способность {capability}, версия CUDA драйвера {version}.</translation>
+    </message>
+    <message>
       <source>CUDA runtime is not installed. Open Settings → Acceleration or choose CPU.</source>
       <translation>Среда выполнения CUDA не установлена. Откройте Настройки → Ускорение или выберите CPU.</translation>
     </message>
@@ -2267,12 +2271,20 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>Слои GPU не обнаружены. Выберите среду CPU или проверьте ускорение.</translation>
     </message>
     <message>
+      <source>No GPU with Vulkan 1.2, compute queues and 16-bit storage was detected.</source>
+      <translation>Не обнаружен графический процессор с поддержкой Vulkan 1.2, очередей вычислений и 16-битного хранения данных.</translation>
+    </message>
+    <message>
       <source>No OCR pass yet.</source>
       <translation>OCR ещё не выполнялся.</translation>
     </message>
     <message>
       <source>No cloud models yet. Add a model using your ChatGPT account or an API key.</source>
       <translation>Облачных моделей пока нет. Добавьте модель через учётную запись ChatGPT или ключ API.</translation>
+    </message>
+    <message>
+      <source>No compatible CUDA device was detected.</source>
+      <translation>Совместимое устройство CUDA не обнаружено.</translation>
     </message>
     <message>
       <source>No current frame.</source>

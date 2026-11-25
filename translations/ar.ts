@@ -435,6 +435,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>CPU · أبطأ</translation>
     </message>
     <message>
+      <source>CUDA requires compute capability 7.5+ and a CUDA 13+ driver. {name}: compute capability {capability}, driver CUDA {version}.</source>
+      <translation>يتطلب CUDA قدرة حوسبة 7.5 أو أحدث وبرنامج تشغيل يدعم CUDA 13 أو أحدث. ‏{name}: قدرة الحوسبة {capability}، وإصدار CUDA لبرنامج التشغيل {version}.</translation>
+    </message>
+    <message>
       <source>CUDA runtime is not installed. Open Settings → Acceleration or choose CPU.</source>
       <translation>وقت تشغيل CUDA غير مثبت. افتح الإعدادات ← التسريع أو اختر CPU.</translation>
     </message>
@@ -2267,12 +2271,20 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>لم تُرصد أي طبقات GPU. حدد بيئة تشغيل المعالج أو تحقق من التسريع.</translation>
     </message>
     <message>
+      <source>No GPU with Vulkan 1.2, compute queues and 16-bit storage was detected.</source>
+      <translation>لم يُكتشف أي معالج رسومات يدعم Vulkan 1.2 وقوائم انتظار الحوسبة والتخزين بدقة 16 بت.</translation>
+    </message>
+    <message>
       <source>No OCR pass yet.</source>
       <translation>لا توجد عملية OCR بعد.</translation>
     </message>
     <message>
       <source>No cloud models yet. Add a model using your ChatGPT account or an API key.</source>
       <translation>لا توجد نماذج سحابية بعد. أضف نموذجًا باستخدام حساب ChatGPT أو مفتاح API.</translation>
+    </message>
+    <message>
+      <source>No compatible CUDA device was detected.</source>
+      <translation>لم يُكتشف أي جهاز متوافق مع CUDA.</translation>
     </message>
     <message>
       <source>No current frame.</source>

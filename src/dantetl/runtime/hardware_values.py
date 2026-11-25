@@ -3,12 +3,27 @@
 from dataclasses import dataclass
 from typing import Protocol
 
+from dantetl.i18n import tr
+
+
+@dataclass(frozen=True, slots=True)
+class CudaDevice:
+    driver: int
+    major: int
+    minor: int
+
+    @property
+    def supported(self) -> bool:
+        return self.driver >= 13000 and (self.major, self.minor) >= (7, 5)
+
 
 @dataclass(frozen=True, slots=True)
 class Adapter:
     name: str
     vendor: int
     dedicated_bytes: int = 0
+    cuda: CudaDevice | None = None
+    vulkan: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -20,13 +35,30 @@ class HardwareStatus:
 
 
 def recommended_profile(adapters: tuple[Adapter, ...]) -> str:
-    # A discrete card normally has more dedicated memory than a CPU's integrated GPU.
-    # This is a recommendation, not a driver/compute compatibility guarantee.
-    supported = [a for a in adapters if a.vendor in (0x10DE, 0x1002)]
+    supported = [a for a in adapters if a.vulkan or (a.cuda and a.cuda.supported)]
     if not supported:
         return "cpu"
-    best = max(supported, key=lambda a: (a.dedicated_bytes, a.vendor == 0x10DE))
-    return "nvidia" if best.vendor == 0x10DE else "amd"
+    best = max(supported, key=lambda a: (a.dedicated_bytes, bool(a.cuda and a.cuda.supported)))
+    return "nvidia" if best.cuda and best.cuda.supported else "amd"
+
+
+def compatibility_issue(profile: str, adapters: tuple[Adapter, ...]) -> str:
+    if profile == "nvidia":
+        for adapter in adapters:
+            if cuda := adapter.cuda:
+                if cuda.supported:
+                    return ""
+                return tr(
+                    "CUDA requires compute capability 7.5+ and a CUDA 13+ driver. "
+                    "{name}: compute capability {capability}, driver CUDA {version}.",
+                    name=adapter.name,
+                    capability=f"{cuda.major}.{cuda.minor}",
+                    version=f"{cuda.driver // 1000}.{cuda.driver % 1000 // 10}",
+                )
+        return tr("No compatible CUDA device was detected.")
+    if profile == "amd" and not any(a.vulkan for a in adapters):
+        return tr("No GPU with Vulkan 1.2, compute queues and 16-bit storage was detected.")
+    return ""
 
 
 class HardwareReader(Protocol):

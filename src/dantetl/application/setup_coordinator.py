@@ -14,7 +14,7 @@ from dantetl.application.model_inventory import ModelInventory
 from dantetl.application.model_values import ModelFile
 from dantetl.i18n import tr
 from dantetl.runtime.first_run import SetupPlan, needs_runtime
-from dantetl.runtime.hardware_values import HardwareStatus
+from dantetl.runtime.hardware_values import HardwareStatus, compatibility_issue
 from dantetl.runtime.model_store import ModelBundle, ModelOperation
 from dantetl.runtime.setup_values import (
     ModelProgress,
@@ -260,6 +260,8 @@ class SetupCoordinator:
         model, ocr = self._models[model_key], self._models["ocr"]
         files = {f.key: f for f in self.files}
         profile = next(p for p in self.profiles if p.key == runtime_key)
+        if issue := compatibility_issue(runtime_key, hardware.adapters):
+            raise ValueError(issue)
         needs = needs_runtime(profile, hardware, upgrade=selected_file.upgrade)
         plan = SetupPlan(
             (() if files["ocr"].included else (ocr,)) + (model,), profile if needs else None

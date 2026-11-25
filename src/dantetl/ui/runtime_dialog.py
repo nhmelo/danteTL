@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
 
 from dantetl.application.services import SetupCommands
 from dantetl.i18n import mark, tr
+from dantetl.runtime.hardware_values import compatibility_issue
 from dantetl.runtime.setup_values import SetupLane
 from dantetl.ui.localization import localized, localized_item, on_language_change
 from dantetl.ui.runtime_restart_prompt import ask_restart
@@ -150,7 +151,8 @@ class RuntimeSetupDialog(QDialog):
             else profile.key == self.service.runtime.active_profile
         )
         idle = not self.busy
-        self.install.setEnabled(idle)
+        issue = compatibility_issue(profile.key, self.service.runtime.adapters)
+        self.install.setEnabled(idle and not issue)
         self.install.setText(
             tr("Verify / repair runtime") if ready or current else tr("Install runtime")
         )
@@ -169,7 +171,9 @@ class RuntimeSetupDialog(QDialog):
             )
         if idle:
             self.status.setText(
-                tr("✓ Supported · In use")
+                issue
+                if issue
+                else tr("✓ Supported · In use")
                 if current
                 else tr("Restart DanteTL to use {name}.", name=tr(profile.name))
                 if ready
@@ -178,7 +182,11 @@ class RuntimeSetupDialog(QDialog):
 
     def _install(self) -> None:
         profile = self.choice.currentData()
-        if profile is None or not self.service.install_runtime(profile.key):
+        if (
+            profile is None
+            or compatibility_issue(profile.key, self.service.runtime.adapters)
+            or not self.service.install_runtime(profile.key)
+        ):
             return
         self._pending_restart = None
         self._install_token = self.service.job(SetupLane.RUNTIME).token
@@ -216,11 +224,11 @@ class RuntimeSetupDialog(QDialog):
             self._show_hardware()
             requested = self._install_after_detection
             self._install_after_detection = None
-            self._select_profile(
-                requested
-                or self.service.runtime.active_profile
-                or self.service.runtime.recommendation
-            )
+            runtime = self.service.runtime
+            active = runtime.active_profile
+            if compatibility_issue(active, runtime.adapters):
+                active = ""
+            self._select_profile(requested or active or runtime.recommendation)
             if requested and not (value.cancelled or value.error or self._closing):
                 self._install()
                 if self.busy:

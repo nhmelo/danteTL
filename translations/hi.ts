@@ -435,6 +435,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>CPU · धीमा</translation>
     </message>
     <message>
+      <source>CUDA requires compute capability 7.5+ and a CUDA 13+ driver. {name}: compute capability {capability}, driver CUDA {version}.</source>
+      <translation>CUDA के लिए कंप्यूट क्षमता 7.5+ और CUDA 13+ का समर्थन करने वाला ड्राइवर चाहिए। {name}: कंप्यूट क्षमता {capability}, ड्राइवर का CUDA संस्करण {version}।</translation>
+    </message>
+    <message>
       <source>CUDA runtime is not installed. Open Settings → Acceleration or choose CPU.</source>
       <translation>CUDA रनटाइम इंस्टॉल नहीं है। सेटिंग्स → त्वरण खोलें या CPU चुनें।</translation>
     </message>
@@ -2267,12 +2271,20 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>कोई GPU लेयर नहीं देखी गई। CPU रनटाइम चुनें या एक्सेलेरेशन जांचें।</translation>
     </message>
     <message>
+      <source>No GPU with Vulkan 1.2, compute queues and 16-bit storage was detected.</source>
+      <translation>Vulkan 1.2, कंप्यूट क्यू और 16-बिट स्टोरेज का समर्थन करने वाला कोई GPU नहीं मिला।</translation>
+    </message>
+    <message>
       <source>No OCR pass yet.</source>
       <translation>अभी तक कोई OCR पास नहीं।</translation>
     </message>
     <message>
       <source>No cloud models yet. Add a model using your ChatGPT account or an API key.</source>
       <translation>अभी तक कोई क्लाउड मॉडल नहीं। अपने ChatGPT खाते या API कुंजी का उपयोग करके मॉडल जोड़ें।</translation>
+    </message>
+    <message>
+      <source>No compatible CUDA device was detected.</source>
+      <translation>कोई संगत CUDA डिवाइस नहीं मिला।</translation>
     </message>
     <message>
       <source>No current frame.</source>

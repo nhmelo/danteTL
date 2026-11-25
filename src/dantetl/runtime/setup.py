@@ -15,6 +15,7 @@ from dantetl.i18n import tr
 from dantetl.paths import is_standalone, module_command, runtime_project, state_root
 from dantetl.runtime.application import prepare_application
 from dantetl.runtime.downloads import prepare_wheels
+from dantetl.runtime.hardware import require_profile
 from dantetl.runtime.requirements import (
     RUNTIME_PYTHON,
     dependencies_match,
@@ -139,6 +140,7 @@ def install_runtime(
     """Explicit action only. Reuse completed installs; never mutate a loaded environment."""
     if profile not in PROFILES:
         raise ValueError(tr("Unknown runtime profile."))
+    require_profile(profile.key, cancel)
     root = root.resolve()
     # Exclusive across app copies sharing this project. A crash releases the OS lock.
     import msvcrt

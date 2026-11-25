@@ -163,7 +163,13 @@ def test_review_requests_the_selected_runtime_only_when_needed(
         data = replay.source.data
         files = tuple(replace(f, upgrade=upgrade) if f.key == "model" else f for f in data.files)
         replay.discover(replace(data, files=files))
-        hardware = HardwareStatus(cuda_ocr=cuda_ocr, llama_device=llama_device)
+        from dantetl.runtime.hardware_values import Adapter, CudaDevice
+
+        hardware = HardwareStatus(
+            (Adapter("Fixture", 0x10DE, cuda=CudaDevice(13000, 8, 6), vulkan=True),),
+            cuda_ocr=cuda_ocr,
+            llama_device=llama_device,
+        )
         assert replay.setup.review("model", profile, hardware).install_runtime is install
         assert not replay.operations
     finally:
