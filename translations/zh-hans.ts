@@ -887,6 +887,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>最多选择 {count} 个模型。</translation>
     </message>
     <message>
+      <source>Choose which models appear in the translation picker.</source>
+      <translation>选择要在翻译模型列表中显示的模型。</translation>
+    </message>
+    <message>
       <source>Choose your translation model</source>
       <translation>选择您的翻译模型</translation>
     </message>
@@ -1475,6 +1479,14 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>文件缺失或大小已更改。使用定位文件检查其新位置。</translation>
     </message>
     <message>
+      <source>Find models</source>
+      <translation>查找模型</translation>
+    </message>
+    <message>
+      <source>Find translation models installed in Ollama on this PC or another computer.</source>
+      <translation>查找本机或其他计算机上已安装在 Ollama 中的翻译模型。</translation>
+    </message>
+    <message>
       <source>Finish</source>
       <translation>完成</translation>
     </message>
@@ -1599,8 +1611,8 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>游戏名称</translation>
     </message>
     <message>
-      <source>Game name sent to cloud</source>
-      <translation>发送到云端的游戏名称</translation>
+      <source>Game name sent to the model</source>
+      <translation>发送给模型的游戏名称</translation>
     </message>
     <message>
       <source>Game terms</source>
@@ -2231,6 +2243,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>模型已保存。在主界面选择它以使用。</translation>
     </message>
     <message>
+      <source>Model selection saved.</source>
+      <translation>已保存模型选择。</translation>
+    </message>
+    <message>
       <source>Model type</source>
       <translation>模型类型</translation>
     </message>
@@ -2317,6 +2333,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>No models available · open Settings</source>
       <translation>没有可用模型 · 打开设置</translation>
+    </message>
+    <message>
+      <source>No models found. Install a text generation model in Ollama, then choose Find models again.</source>
+      <translation>未找到模型。请在 Ollama 中安装文本生成模型，然后重新查找。</translation>
     </message>
     <message>
       <source>No pinned Windows Python 3.12 wheel for {value}.</source>
@@ -2435,8 +2455,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>最长的活动翻译：{value:.1f}s</translation>
     </message>
     <message>
+      <source>Ollama and cloud models use this name as a terminology hint. Turn off Use window title to enter a name or leave it blank.</source>
+      <translation>Ollama 和云端模型会使用此名称来确定术语。关闭“使用窗口标题”即可输入名称或将其留空。</translation>
+    </message>
+    <message>
       <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
       <translation>向 {server} 发出的 Ollama 请求失败。请在设置中检查地址和模型。</translation>
+    </message>
+    <message>
+      <source>Ollama server</source>
+      <translation>Ollama 服务器</translation>
     </message>
     <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
@@ -3055,12 +3083,12 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>发送识别文本和对话上下文，绝不发送截图。 </translation>
     </message>
     <message>
-      <source>Sent to cloud models as a terminology hint. The selected game window title is the default; switch this off to enter a clearer name or leave it blank. Local prompts are unchanged.</source>
-      <translation>作为术语提示发送到云端模型。默认使用所选游戏窗口标题；关闭此项可输入更清晰的名称或留空。本地提示保持不变。</translation>
-    </message>
-    <message>
       <source>Serbian (Latin)</source>
       <translation>塞尔维亚语（拉丁字母）</translation>
+    </message>
+    <message>
+      <source>Server address</source>
+      <translation>服务器地址</translation>
     </message>
     <message>
       <source>Set up Gemma</source>
@@ -3849,8 +3877,8 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>下次启动时使用</translation>
     </message>
     <message>
-      <source>Use one model for all enabled text, or assign a model to each category. Only recognized text and the game hint are sent to cloud models; images stay on this PC.</source>
-      <translation>为所有启用的文本使用一个模型，或为每个类别分配一个模型。仅将识别出的文本和游戏提示发送到云模型；图像保留在此 PC 上。</translation>
+      <source>Use one model or assign one per category. Ollama and cloud models receive recognized text and the game hint. Images stay on this PC.</source>
+      <translation>可以统一使用一个模型，也可以按类别指定模型。Ollama 和云端模型会收到识别出的文字和游戏名称。图像保留在此电脑上。</translation>
     </message>
     <message>
       <source>Use the model filename</source>

@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
 
 from dantetl.application.model_advice import ADVICE, COMPARISON_NOTE
 from dantetl.application.model_values import ModelFile
-from dantetl.application.services import CloudCommands, SetupCommands
+from dantetl.application.services import CloudCommands, OllamaCommands, SetupCommands
 from dantetl.i18n import display, mark, tr
 from dantetl.runtime.setup_values import SetupLane
 from dantetl.translation.models.values import ImportedModel
@@ -28,6 +28,7 @@ from dantetl.ui.localization import localized, localized_item, on_language_chang
 from dantetl.ui.model_import_dialog import ModelImportDialog
 from dantetl.ui.model_summary import ModelSummary
 from dantetl.ui.ocr_model_settings import OcrModelSettings
+from dantetl.ui.ollama_settings import OllamaSettings
 
 
 class ModelManager(QDialog):
@@ -40,6 +41,7 @@ class ModelManager(QDialog):
         parent: QWidget | None = None,
         *,
         cloud: CloudCommands,
+        ollama: OllamaCommands | None = None,
         embedded: bool = False,
     ) -> None:
         super().__init__(parent)
@@ -167,6 +169,10 @@ class ModelManager(QDialog):
         self.cloud_page, cloud_layout = self._page()
         self.cloud = CloudSettings(cloud)
         cloud_layout.addWidget(self.cloud)
+        self.ollama = OllamaSettings(ollama) if ollama is not None else None
+        if self.ollama is not None:
+            self.category.addItem("Ollama API", "ollama")
+            self.pages.addWidget(self.ollama)
         self.operation_status = QLabel()
         self.operation_status.setTextFormat(Qt.TextFormat.PlainText)
         self.operation_status.setWordWrap(True)
@@ -379,6 +385,8 @@ class ModelManager(QDialog):
     def refresh_view(self) -> None:
         self.refresh()
         self.cloud.refresh_view()
+        if self.ollama is not None:
+            self.ollama.refresh_view()
         if self.import_dialog:
             self.import_dialog.refresh_view()
         job = self.service.job(SetupLane.MODELS)

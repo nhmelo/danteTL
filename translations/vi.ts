@@ -887,6 +887,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Chọn tối đa {count} mô hình.</translation>
     </message>
     <message>
+      <source>Choose which models appear in the translation picker.</source>
+      <translation>Chọn các mô hình sẽ xuất hiện trong danh sách mô hình dịch.</translation>
+    </message>
+    <message>
       <source>Choose your translation model</source>
       <translation>Chọn mô hình dịch của bạn</translation>
     </message>
@@ -1475,6 +1479,14 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Tệp bị thiếu hoặc kích thước đã thay đổi. Dùng Định vị tệp để kiểm tra vị trí mới.</translation>
     </message>
     <message>
+      <source>Find models</source>
+      <translation>Tìm mô hình</translation>
+    </message>
+    <message>
+      <source>Find translation models installed in Ollama on this PC or another computer.</source>
+      <translation>Tìm các mô hình dịch đã cài trong Ollama trên máy tính này hoặc máy tính khác.</translation>
+    </message>
+    <message>
       <source>Finish</source>
       <translation>Hoàn tất</translation>
     </message>
@@ -1599,8 +1611,8 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Tên trò chơi</translation>
     </message>
     <message>
-      <source>Game name sent to cloud</source>
-      <translation>Tên trò chơi gửi lên đám mây</translation>
+      <source>Game name sent to the model</source>
+      <translation>Tên trò chơi gửi đến mô hình</translation>
     </message>
     <message>
       <source>Game terms</source>
@@ -2231,6 +2243,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Đã lưu mô hình. Chọn mô hình trên màn hình chính để sử dụng.</translation>
     </message>
     <message>
+      <source>Model selection saved.</source>
+      <translation>Đã lưu lựa chọn mô hình.</translation>
+    </message>
+    <message>
       <source>Model type</source>
       <translation>Loại mô hình</translation>
     </message>
@@ -2317,6 +2333,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>No models available · open Settings</source>
       <translation>Không có mô hình · mở Cài đặt</translation>
+    </message>
+    <message>
+      <source>No models found. Install a text generation model in Ollama, then choose Find models again.</source>
+      <translation>Không tìm thấy mô hình nào. Hãy cài một mô hình tạo văn bản trong Ollama rồi tìm lại.</translation>
     </message>
     <message>
       <source>No pinned Windows Python 3.12 wheel for {value}.</source>
@@ -2435,8 +2455,16 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Bản dịch đang hoạt động lâu nhất: {value:.1f}s</translation>
     </message>
     <message>
+      <source>Ollama and cloud models use this name as a terminology hint. Turn off Use window title to enter a name or leave it blank.</source>
+      <translation>Các mô hình Ollama và đám mây dùng tên này để chọn thuật ngữ. Tắt Dùng tiêu đề cửa sổ để nhập tên hoặc để trống.</translation>
+    </message>
+    <message>
       <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
       <translation>Yêu cầu Ollama tại {server} thất bại. Hãy kiểm tra địa chỉ và mô hình trong phần Cài đặt.</translation>
+    </message>
+    <message>
+      <source>Ollama server</source>
+      <translation>Máy chủ Ollama</translation>
     </message>
     <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
@@ -3055,12 +3083,12 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
       <translation>Gửi văn bản nhận dạng và ngữ cảnh hội thoại, không bao giờ gửi ảnh chụp màn hình. </translation>
     </message>
     <message>
-      <source>Sent to cloud models as a terminology hint. The selected game window title is the default; switch this off to enter a clearer name or leave it blank. Local prompts are unchanged.</source>
-      <translation>Được gửi đến mô hình đám mây làm gợi ý thuật ngữ. Tiêu đề cửa sổ trò chơi đã chọn là mặc định; tắt tùy chọn này để nhập tên rõ hơn hoặc để trống. Lời nhắc cục bộ không thay đổi.</translation>
-    </message>
-    <message>
       <source>Serbian (Latin)</source>
       <translation>Tiếng Serbia (Latinh)</translation>
+    </message>
+    <message>
+      <source>Server address</source>
+      <translation>Địa chỉ máy chủ</translation>
     </message>
     <message>
       <source>Set up Gemma</source>
@@ -3849,8 +3877,8 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
       <translation>Dùng ở lần khởi chạy tiếp theo</translation>
     </message>
     <message>
-      <source>Use one model for all enabled text, or assign a model to each category. Only recognized text and the game hint are sent to cloud models; images stay on this PC.</source>
-      <translation>Dùng một mô hình cho toàn bộ văn bản được bật, hoặc gán mô hình cho từng danh mục. Chỉ văn bản được nhận diện và gợi ý trò chơi được gửi tới mô hình đám mây; hình ảnh vẫn ở trên PC này.</translation>
+      <source>Use one model or assign one per category. Ollama and cloud models receive recognized text and the game hint. Images stay on this PC.</source>
+      <translation>Dùng một mô hình chung hoặc chỉ định riêng cho từng loại. Mô hình Ollama và đám mây nhận văn bản đã nhận dạng và tên trò chơi. Hình ảnh vẫn ở trên máy tính này.</translation>
     </message>
     <message>
       <source>Use the model filename</source>

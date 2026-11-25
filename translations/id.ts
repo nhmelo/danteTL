@@ -887,6 +887,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Pilih hingga {count} model.</translation>
     </message>
     <message>
+      <source>Choose which models appear in the translation picker.</source>
+      <translation>Pilih model yang ditampilkan di daftar model terjemahan.</translation>
+    </message>
+    <message>
       <source>Choose your translation model</source>
       <translation>Pilih model terjemahan Anda</translation>
     </message>
@@ -1475,6 +1479,14 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>File hilang atau ukurannya berubah. Gunakan Cari file untuk memeriksa lokasi barunya.</translation>
     </message>
     <message>
+      <source>Find models</source>
+      <translation>Cari model</translation>
+    </message>
+    <message>
+      <source>Find translation models installed in Ollama on this PC or another computer.</source>
+      <translation>Temukan model terjemahan yang terpasang di Ollama pada komputer ini atau komputer lain.</translation>
+    </message>
+    <message>
       <source>Finish</source>
       <translation>Selesai</translation>
     </message>
@@ -1599,8 +1611,8 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Nama game</translation>
     </message>
     <message>
-      <source>Game name sent to cloud</source>
-      <translation>Nama game dikirim ke cloud</translation>
+      <source>Game name sent to the model</source>
+      <translation>Nama game yang dikirim ke model</translation>
     </message>
     <message>
       <source>Game terms</source>
@@ -2231,6 +2243,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Model disimpan. Pilih di layar utama untuk menggunakannya.</translation>
     </message>
     <message>
+      <source>Model selection saved.</source>
+      <translation>Pilihan model disimpan.</translation>
+    </message>
+    <message>
       <source>Model type</source>
       <translation>Jenis model</translation>
     </message>
@@ -2317,6 +2333,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>No models available · open Settings</source>
       <translation>Tidak ada model tersedia · buka Pengaturan</translation>
+    </message>
+    <message>
+      <source>No models found. Install a text generation model in Ollama, then choose Find models again.</source>
+      <translation>Model tidak ditemukan. Pasang model pembuat teks di Ollama, lalu cari lagi.</translation>
     </message>
     <message>
       <source>No pinned Windows Python 3.12 wheel for {value}.</source>
@@ -2435,8 +2455,16 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Terjemahan aktif tertua: {value:.1f}s</translation>
     </message>
     <message>
+      <source>Ollama and cloud models use this name as a terminology hint. Turn off Use window title to enter a name or leave it blank.</source>
+      <translation>Model Ollama dan cloud menggunakan nama ini sebagai panduan istilah. Nonaktifkan Gunakan judul jendela untuk memasukkan nama atau membiarkannya kosong.</translation>
+    </message>
+    <message>
       <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
       <translation>Permintaan Ollama ke {server} gagal. Periksa alamat dan model di Pengaturan.</translation>
+    </message>
+    <message>
+      <source>Ollama server</source>
+      <translation>Server Ollama</translation>
     </message>
     <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
@@ -3055,12 +3083,12 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
       <translation>Mengirim teks yang dikenali dan konteks dialog, tidak pernah tangkapan layar. </translation>
     </message>
     <message>
-      <source>Sent to cloud models as a terminology hint. The selected game window title is the default; switch this off to enter a clearer name or leave it blank. Local prompts are unchanged.</source>
-      <translation>Dikirim ke model cloud sebagai petunjuk terminologi. Judul jendela game yang dipilih adalah default; matikan ini untuk memasukkan nama yang lebih jelas atau biarkan kosong. Prompt lokal tidak berubah.</translation>
-    </message>
-    <message>
       <source>Serbian (Latin)</source>
       <translation>Serbia (Latin)</translation>
+    </message>
+    <message>
+      <source>Server address</source>
+      <translation>Alamat server</translation>
     </message>
     <message>
       <source>Set up Gemma</source>
@@ -3849,8 +3877,8 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
       <translation>Gunakan pada peluncuran berikutnya</translation>
     </message>
     <message>
-      <source>Use one model for all enabled text, or assign a model to each category. Only recognized text and the game hint are sent to cloud models; images stay on this PC.</source>
-      <translation>Gunakan satu model untuk semua teks yang diaktifkan, atau tetapkan model untuk setiap kategori. Hanya teks yang dikenali dan petunjuk game yang dikirim ke model cloud; gambar tetap di PC ini.</translation>
+      <source>Use one model or assign one per category. Ollama and cloud models receive recognized text and the game hint. Images stay on this PC.</source>
+      <translation>Gunakan satu model atau tetapkan satu per kategori. Model Ollama dan cloud menerima teks yang dikenali dan nama game. Gambar tetap ada di PC ini.</translation>
     </message>
     <message>
       <source>Use the model filename</source>

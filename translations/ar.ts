@@ -887,6 +887,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>اختر ما يصل إلى {count} من النماذج.</translation>
     </message>
     <message>
+      <source>Choose which models appear in the translation picker.</source>
+      <translation>اختر النماذج التي تظهر في قائمة نماذج الترجمة.</translation>
+    </message>
+    <message>
       <source>Choose your translation model</source>
       <translation>اختر نموذج الترجمة</translation>
     </message>
@@ -1475,6 +1479,14 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>الملف مفقود أو تغيّر حجمه. استخدم تحديد الموقع للتحقق من موقعه الجديد.</translation>
     </message>
     <message>
+      <source>Find models</source>
+      <translation>البحث عن النماذج</translation>
+    </message>
+    <message>
+      <source>Find translation models installed in Ollama on this PC or another computer.</source>
+      <translation>ابحث عن نماذج الترجمة المثبتة في Ollama على هذا الكمبيوتر أو على كمبيوتر آخر.</translation>
+    </message>
+    <message>
       <source>Finish</source>
       <translation>إنهاء</translation>
     </message>
@@ -1599,8 +1611,8 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>اسم اللعبة</translation>
     </message>
     <message>
-      <source>Game name sent to cloud</source>
-      <translation>اسم اللعبة المرسل إلى السحابة</translation>
+      <source>Game name sent to the model</source>
+      <translation>اسم اللعبة المُرسل إلى النموذج</translation>
     </message>
     <message>
       <source>Game terms</source>
@@ -2231,6 +2243,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>تم حفظ النموذج. حدده في الشاشة الرئيسية لاستخدامه.</translation>
     </message>
     <message>
+      <source>Model selection saved.</source>
+      <translation>تم حفظ النماذج المحددة.</translation>
+    </message>
+    <message>
       <source>Model type</source>
       <translation>نوع النموذج</translation>
     </message>
@@ -2317,6 +2333,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>No models available · open Settings</source>
       <translation>لا توجد نماذج متاحة · افتح الإعدادات</translation>
+    </message>
+    <message>
+      <source>No models found. Install a text generation model in Ollama, then choose Find models again.</source>
+      <translation>لم يُعثر على نماذج. ثبّت نموذجًا لتوليد النصوص في Ollama ثم ابحث مجددًا.</translation>
     </message>
     <message>
       <source>No pinned Windows Python 3.12 wheel for {value}.</source>
@@ -2435,8 +2455,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>أقدم ترجمة نشطة: {value:.1f}ث</translation>
     </message>
     <message>
+      <source>Ollama and cloud models use this name as a terminology hint. Turn off Use window title to enter a name or leave it blank.</source>
+      <translation>تستخدم نماذج Ollama والنماذج السحابية هذا الاسم للمساعدة في اختيار المصطلحات. عطّل «استخدام عنوان النافذة» لإدخال اسم أو تركه فارغًا.</translation>
+    </message>
+    <message>
       <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
       <translation>فشل طلب Ollama على {server}. تحقّق من العنوان والنموذج في الإعدادات.</translation>
+    </message>
+    <message>
+      <source>Ollama server</source>
+      <translation>خادم Ollama</translation>
     </message>
     <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
@@ -3055,12 +3083,12 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>يرسل النص المتعرّف عليه وسياق الحوار، ولا يرسل لقطات الشاشة أبدًا. </translation>
     </message>
     <message>
-      <source>Sent to cloud models as a terminology hint. The selected game window title is the default; switch this off to enter a clearer name or leave it blank. Local prompts are unchanged.</source>
-      <translation>يُرسل إلى نماذج السحابة كتلميح للمصطلحات. عنوان نافذة اللعبة المحددة هو الافتراضي؛ أوقف هذا الخيار لإدخال اسم أوضح أو اتركه فارغًا. لا تتغير المطالبات المحلية.</translation>
-    </message>
-    <message>
       <source>Serbian (Latin)</source>
       <translation>الصربية (اللاتينية)</translation>
+    </message>
+    <message>
+      <source>Server address</source>
+      <translation>عنوان الخادم</translation>
     </message>
     <message>
       <source>Set up Gemma</source>
@@ -3849,8 +3877,8 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>استخدم عند التشغيل التالي</translation>
     </message>
     <message>
-      <source>Use one model for all enabled text, or assign a model to each category. Only recognized text and the game hint are sent to cloud models; images stay on this PC.</source>
-      <translation>استخدم نموذجًا واحدًا لكل النص المفعّل، أو عيّن نموذجًا لكل فئة. يُرسل النص المتعرف عليه وتلميح اللعبة فقط إلى النماذج السحابية؛ تبقى الصور على هذا الكمبيوتر.</translation>
+      <source>Use one model or assign one per category. Ollama and cloud models receive recognized text and the game hint. Images stay on this PC.</source>
+      <translation>استخدم نموذجًا واحدًا أو اختر نموذجًا لكل فئة. تتلقى نماذج Ollama والنماذج السحابية النص المتعرّف عليه واسم اللعبة. تبقى الصور على هذا الكمبيوتر.</translation>
     </message>
     <message>
       <source>Use the model filename</source>

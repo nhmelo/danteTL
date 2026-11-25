@@ -50,9 +50,8 @@ class RoutingControls(QWidget):
             InfoButton(
                 mark("Model assignment"),
                 mark(
-                    "Use one model for all enabled text, or assign a model to each category. Only "
-                    "recognized text and the game hint are sent to cloud models; images stay on "
-                    "this PC."
+                    "Use one model or assign one per category. Ollama and cloud models receive "
+                    "recognized text and the game hint. Images stay on this PC."
                 ),
             )
         )
@@ -125,9 +124,8 @@ class RoutingControls(QWidget):
             InfoButton(
                 mark("Game name"),
                 mark(
-                    "Sent to cloud models as a terminology hint. The selected game window title is "
-                    "the default; switch this off to enter a clearer name or leave it blank. Local "
-                    "prompts are unchanged."
+                    "Ollama and cloud models use this name as a terminology hint. Turn off Use "
+                    "window title to enter a name or leave it blank."
                 ),
             )
         )
@@ -137,7 +135,7 @@ class RoutingControls(QWidget):
         game_row.addWidget(self.game_from_window)
         fields.addLayout(game_row)
         self.game = QLineEdit(preferences.game_hint)
-        localized(self.game, accessibleName=mark("Game name sent to cloud"))
+        localized(self.game, accessibleName=mark("Game name sent to the model"))
         self.game.setMaxLength(120)
         localized(self.game, placeholderText=mark("Optional game name"))
         fields.addWidget(self.game)
@@ -245,7 +243,7 @@ class RoutingControls(QWidget):
             add_model_section(combo, tr("Local models"))
             for backend in self._backends:
                 combo.addItem(display(backend.name) + tr(" · Local"), backend)
-        for provider, label in PROVIDERS.items():
+        for provider, label in (("ollama", "Ollama"), *PROVIDERS.items()):
             profiles = tuple(p for p in self._profiles if p.provider == provider)
             if profiles:
                 label = (

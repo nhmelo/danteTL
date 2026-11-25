@@ -887,6 +887,10 @@ Los detalles están en %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Elige hasta {count} modelos.</translation>
     </message>
     <message>
+      <source>Choose which models appear in the translation picker.</source>
+      <translation>Elige los modelos que aparecen en el selector de traducción.</translation>
+    </message>
+    <message>
       <source>Choose your translation model</source>
       <translation>Elige tu modelo de traducción</translation>
     </message>
@@ -1475,6 +1479,14 @@ Los detalles están en %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>El archivo falta o cambió de tamaño. Usa Localizar archivo para comprobar su nueva ubicación.</translation>
     </message>
     <message>
+      <source>Find models</source>
+      <translation>Buscar modelos</translation>
+    </message>
+    <message>
+      <source>Find translation models installed in Ollama on this PC or another computer.</source>
+      <translation>Busca los modelos de traducción instalados en Ollama en este equipo o en otro.</translation>
+    </message>
+    <message>
       <source>Finish</source>
       <translation>Finalizar</translation>
     </message>
@@ -1599,8 +1611,8 @@ Los detalles están en %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Nombre del juego</translation>
     </message>
     <message>
-      <source>Game name sent to cloud</source>
-      <translation>Nombre del juego enviado a la nube</translation>
+      <source>Game name sent to the model</source>
+      <translation>Nombre del juego enviado al modelo</translation>
     </message>
     <message>
       <source>Game terms</source>
@@ -2231,6 +2243,10 @@ Los detalles están en %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Modelo guardado. Selecciónalo en la pantalla principal para usarlo.</translation>
     </message>
     <message>
+      <source>Model selection saved.</source>
+      <translation>Selección de modelos guardada.</translation>
+    </message>
+    <message>
       <source>Model type</source>
       <translation>Tipo de modelo</translation>
     </message>
@@ -2317,6 +2333,10 @@ Los detalles están en %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>No models available · open Settings</source>
       <translation>No hay modelos disponibles · abrir Ajustes</translation>
+    </message>
+    <message>
+      <source>No models found. Install a text generation model in Ollama, then choose Find models again.</source>
+      <translation>No se encontraron modelos. Instala un modelo de generación de texto en Ollama y vuelve a buscar.</translation>
     </message>
     <message>
       <source>No pinned Windows Python 3.12 wheel for {value}.</source>
@@ -2435,8 +2455,16 @@ Los detalles están en %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Traducción activa más antigua: {value:.1f}s</translation>
     </message>
     <message>
+      <source>Ollama and cloud models use this name as a terminology hint. Turn off Use window title to enter a name or leave it blank.</source>
+      <translation>Los modelos de Ollama y de la nube usan este nombre como referencia terminológica. Desactiva «Usar título de la ventana» para escribir un nombre o dejarlo en blanco.</translation>
+    </message>
+    <message>
       <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
       <translation>La solicitud a Ollama en {server} ha fallado. Revisa la dirección y el modelo en los ajustes.</translation>
+    </message>
+    <message>
+      <source>Ollama server</source>
+      <translation>Servidor de Ollama</translation>
     </message>
     <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
@@ -3055,12 +3083,12 @@ Descargas de modelos: hasta {size:.2f} GB; los archivos existentes se verifican 
       <translation>Envía texto reconocido y contexto del diálogo, nunca capturas de pantalla. </translation>
     </message>
     <message>
-      <source>Sent to cloud models as a terminology hint. The selected game window title is the default; switch this off to enter a clearer name or leave it blank. Local prompts are unchanged.</source>
-      <translation>Se envía a modelos en la nube como sugerencia de terminología. El título de la ventana del juego seleccionada es el predeterminado; desactívalo para introducir un nombre más claro o déjalo en blanco. Los prompts locales no cambian.</translation>
-    </message>
-    <message>
       <source>Serbian (Latin)</source>
       <translation>Serbio (latino)</translation>
+    </message>
+    <message>
+      <source>Server address</source>
+      <translation>Dirección del servidor</translation>
     </message>
     <message>
       <source>Set up Gemma</source>
@@ -3849,8 +3877,8 @@ Descargas de modelos: hasta {size:.2f} GB; los archivos existentes se verifican 
       <translation>Usar en el próximo inicio</translation>
     </message>
     <message>
-      <source>Use one model for all enabled text, or assign a model to each category. Only recognized text and the game hint are sent to cloud models; images stay on this PC.</source>
-      <translation>Usa un modelo para todo el texto habilitado o asigna un modelo a cada categoría. Solo el texto reconocido y la pista del juego se envían a modelos en la nube; las imágenes permanecen en este PC.</translation>
+      <source>Use one model or assign one per category. Ollama and cloud models receive recognized text and the game hint. Images stay on this PC.</source>
+      <translation>Usa un modelo o asigna uno por categoría. Los modelos de Ollama y de la nube reciben el texto reconocido y el nombre del juego. Las imágenes se quedan en este equipo.</translation>
     </message>
     <message>
       <source>Use the model filename</source>

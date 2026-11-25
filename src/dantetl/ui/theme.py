@@ -34,6 +34,16 @@ STYLE = """
                 background: #172230; min-height: 18px; text-align: center; }
             QProgressBar::chunk { background: #257c73; border-radius: 3px; }
 
+    QLineEdit#ollamaAddress { background: #172230; border: 1px solid #3c4c60;
+        border-radius: 6px; padding: 9px 10px; }
+    QLineEdit#ollamaAddress:focus { border-color: #5eead4; }
+    QListWidget#ollamaModels { background: #172230; border: 1px solid #344557;
+        border-radius: 6px; outline: 0; padding: 2px; }
+    QListWidget#ollamaModels::item { padding: 0 8px; }
+    QListWidget#ollamaModels::indicator:unchecked { background: #172230; border: 1px solid #8b9caf;
+        border-radius: 2px; }
+    QListWidget#ollamaModels::item:hover { background: #213142; }
+    QListWidget#ollamaModels::item:selected { background: #274746; }
     QToolButton { color: #e7edf5; border: 1px solid transparent; padding: 6px; }
     QToolButton:hover { background: #243142; border-radius: 5px; }
     QToolButton:focus, QPushButton:focus, QComboBox:focus, QSpinBox:focus {

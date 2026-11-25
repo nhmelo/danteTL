@@ -887,6 +887,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>เลือกได้สูงสุด {count} โมเดล</translation>
     </message>
     <message>
+      <source>Choose which models appear in the translation picker.</source>
+      <translation>เลือกโมเดลที่จะแสดงในรายการโมเดลแปลภาษา</translation>
+    </message>
+    <message>
       <source>Choose your translation model</source>
       <translation>เลือกโมเดลแปลของคุณ</translation>
     </message>
@@ -1475,6 +1479,14 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>ไฟล์หายไปหรือขนาดเปลี่ยนไป ใช้ ค้นหาไฟล์ เพื่อตรวจสอบตำแหน่งใหม่</translation>
     </message>
     <message>
+      <source>Find models</source>
+      <translation>ค้นหาโมเดล</translation>
+    </message>
+    <message>
+      <source>Find translation models installed in Ollama on this PC or another computer.</source>
+      <translation>ค้นหาโมเดลแปลภาษาที่ติดตั้งใน Ollama บนคอมพิวเตอร์เครื่องนี้หรือเครื่องอื่น</translation>
+    </message>
+    <message>
       <source>Finish</source>
       <translation>เสร็จสิ้น</translation>
     </message>
@@ -1599,8 +1611,8 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>ชื่อเกม</translation>
     </message>
     <message>
-      <source>Game name sent to cloud</source>
-      <translation>ชื่อเกมที่ส่งไปยังคลาวด์</translation>
+      <source>Game name sent to the model</source>
+      <translation>ชื่อเกมที่ส่งให้โมเดล</translation>
     </message>
     <message>
       <source>Game terms</source>
@@ -2231,6 +2243,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>บันทึกโมเดลแล้ว เลือกโมเดลได้ที่หน้าจอหลักเพื่อใช้งาน</translation>
     </message>
     <message>
+      <source>Model selection saved.</source>
+      <translation>บันทึกโมเดลที่เลือกแล้ว</translation>
+    </message>
+    <message>
       <source>Model type</source>
       <translation>ประเภทโมเดล</translation>
     </message>
@@ -2317,6 +2333,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>No models available · open Settings</source>
       <translation>ไม่มีโมเดลที่พร้อมใช้งาน · เปิดการตั้งค่า</translation>
+    </message>
+    <message>
+      <source>No models found. Install a text generation model in Ollama, then choose Find models again.</source>
+      <translation>ไม่พบโมเดล ติดตั้งโมเดลสร้างข้อความใน Ollama แล้วค้นหาอีกครั้ง</translation>
     </message>
     <message>
       <source>No pinned Windows Python 3.12 wheel for {value}.</source>
@@ -2435,8 +2455,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>การแปลที่ใช้งานอยู่นานที่สุด: {value:.1f} วินาที</translation>
     </message>
     <message>
+      <source>Ollama and cloud models use this name as a terminology hint. Turn off Use window title to enter a name or leave it blank.</source>
+      <translation>โมเดล Ollama และคลาวด์ใช้ชื่อนี้เป็นแนวทางในการเลือกคำศัพท์ ปิดตัวเลือกใช้ชื่อหน้าต่างเพื่อป้อนชื่อเองหรือเว้นว่างไว้</translation>
+    </message>
+    <message>
       <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
       <translation>คำขอ Ollama ที่ {server} ล้มเหลว ตรวจสอบที่อยู่และโมเดลในการตั้งค่า</translation>
+    </message>
+    <message>
+      <source>Ollama server</source>
+      <translation>เซิร์ฟเวอร์ Ollama</translation>
     </message>
     <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
@@ -3055,12 +3083,12 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>ส่งข้อความที่รู้จำได้และบริบทของบทสนทนา ไม่เคยส่งภาพหน้าจอ </translation>
     </message>
     <message>
-      <source>Sent to cloud models as a terminology hint. The selected game window title is the default; switch this off to enter a clearer name or leave it blank. Local prompts are unchanged.</source>
-      <translation>ส่งไปยังโมเดลบนคลาวด์เป็นคำใบ้ศัพท์ ชื่อหน้าต่างเกมที่เลือกเป็นค่าเริ่มต้น ปิดตัวเลือกนี้เพื่อป้อนชื่อที่ชัดเจนขึ้นหรือเว้นว่างไว้ พรอมป์ต์ภายในเครื่องไม่เปลี่ยนแปลง</translation>
-    </message>
-    <message>
       <source>Serbian (Latin)</source>
       <translation>เซอร์เบีย (ละติน)</translation>
+    </message>
+    <message>
+      <source>Server address</source>
+      <translation>ที่อยู่เซิร์ฟเวอร์</translation>
     </message>
     <message>
       <source>Set up Gemma</source>
@@ -3849,8 +3877,8 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>ใช้ในการเปิดครั้งถัดไป</translation>
     </message>
     <message>
-      <source>Use one model for all enabled text, or assign a model to each category. Only recognized text and the game hint are sent to cloud models; images stay on this PC.</source>
-      <translation>ใช้โมเดลเดียวสำหรับข้อความที่เปิดใช้ทั้งหมด หรือกำหนดโมเดลให้แต่ละหมวดหมู่ จะส่งเฉพาะข้อความที่รู้จักและคำใบ้เกมไปยังโมเดลคลาวด์เท่านั้น รูปภาพยังคงอยู่บนพีซีเครื่องนี้</translation>
+      <source>Use one model or assign one per category. Ollama and cloud models receive recognized text and the game hint. Images stay on this PC.</source>
+      <translation>ใช้โมเดลเดียวหรือกำหนดโมเดลแยกตามหมวดหมู่ โมเดล Ollama และคลาวด์จะได้รับข้อความที่อ่านได้และชื่อเกม รูปภาพจะอยู่บนพีซีเครื่องนี้</translation>
     </message>
     <message>
       <source>Use the model filename</source>

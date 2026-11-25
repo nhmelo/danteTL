@@ -126,6 +126,7 @@ class MainWindow(QMainWindow):
             self,
             edit=self._edit_settings,
             cloud=self.application.cloud,
+            ollama=self.application.ollama,
             setup=self.application.setup,
             cache=self.application.cache,
             hotkeys=self._hotkeys,
@@ -618,10 +619,10 @@ class MainWindow(QMainWindow):
     def _show_setup_status(self) -> None:
         if self._notice_destination == "usage":
             QDesktopServices.openUrl(QUrl("https://chatgpt.com/settings/usage"))
-        elif self._notice_destination == "cloud":
+        elif self._notice_destination in ("ollama", "cloud"):
             self._settings.show_models()
             self._settings.models.category.setCurrentIndex(
-                self._settings.models.category.findData("cloud")
+                self._settings.models.category.findData(self._notice_destination)
             )
         elif self._notice_destination == "prepare":
             notice = self.application.notices()

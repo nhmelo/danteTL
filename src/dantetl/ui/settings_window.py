@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
 
 from dantetl.application.hotkeys import HotkeyAction, Hotkeys
 from dantetl.application.preference_values import MAX_CAPTURE_RATE, EditSettings, Preferences
-from dantetl.application.services import CacheCommands, CloudCommands, SetupCommands
+from dantetl.application.services import CacheCommands, CloudCommands, OllamaCommands, SetupCommands
 from dantetl.i18n import display, mark, tr
 from dantetl.runtime.setup_values import SetupLane
 from dantetl.translation.selection import OcrOption
@@ -48,6 +48,7 @@ class SettingsWindow(QDialog):
         *,
         edit: EditSettings,
         cloud: CloudCommands,
+        ollama: OllamaCommands,
         setup: SetupCommands,
         cache: CacheCommands,
         hotkeys: Hotkeys | None = None,
@@ -203,7 +204,7 @@ class SettingsWindow(QDialog):
         recognition.addWidget(self.capture_note)
         recognition.addStretch()
 
-        self.models = ModelManager(setup, self, cloud=cloud, embedded=True)
+        self.models = ModelManager(setup, self, cloud=cloud, ollama=ollama, embedded=True)
         self.models.runtime_requested.connect(self.show_runtime)
         self._pages["Models"] = self.models
         self.tabs.addTab(self.models, tr("Models"))

@@ -887,6 +887,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>モデルは最大 {count} 個まで選べます。</translation>
     </message>
     <message>
+      <source>Choose which models appear in the translation picker.</source>
+      <translation>翻訳モデルの選択欄に表示するモデルを選んでください。</translation>
+    </message>
+    <message>
       <source>Choose your translation model</source>
       <translation>翻訳モデルを選択</translation>
     </message>
@@ -1475,6 +1479,14 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>ファイルが見つからないかサイズが変更されました。ファイルを場所で確認してください。</translation>
     </message>
     <message>
+      <source>Find models</source>
+      <translation>モデルを検索</translation>
+    </message>
+    <message>
+      <source>Find translation models installed in Ollama on this PC or another computer.</source>
+      <translation>この PC または別のコンピューターの Ollama にインストールされている翻訳モデルを検索します。</translation>
+    </message>
+    <message>
       <source>Finish</source>
       <translation>完了</translation>
     </message>
@@ -1599,8 +1611,8 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>ゲーム名</translation>
     </message>
     <message>
-      <source>Game name sent to cloud</source>
-      <translation>ゲーム名をクラウドに送信</translation>
+      <source>Game name sent to the model</source>
+      <translation>モデルに送信するゲーム名</translation>
     </message>
     <message>
       <source>Game terms</source>
@@ -2231,6 +2243,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>モデルを保存しました。メイン画面で選択して使用してください。</translation>
     </message>
     <message>
+      <source>Model selection saved.</source>
+      <translation>モデルの選択を保存しました。</translation>
+    </message>
+    <message>
       <source>Model type</source>
       <translation>モデルの種類</translation>
     </message>
@@ -2317,6 +2333,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>No models available · open Settings</source>
       <translation>利用可能なモデルがありません。設定を開く</translation>
+    </message>
+    <message>
+      <source>No models found. Install a text generation model in Ollama, then choose Find models again.</source>
+      <translation>モデルが見つかりません。Ollama にテキスト生成モデルをインストールし、もう一度モデルを検索してください。</translation>
     </message>
     <message>
       <source>No pinned Windows Python 3.12 wheel for {value}.</source>
@@ -2435,8 +2455,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>最新の有効な翻訳: {value:.1f}秒</translation>
     </message>
     <message>
+      <source>Ollama and cloud models use this name as a terminology hint. Turn off Use window title to enter a name or leave it blank.</source>
+      <translation>Ollama とクラウドのモデルはこの名前を用語選択の参考にします。「ウィンドウタイトルを使用」をオフにすると、名前を入力するか空欄にできます。</translation>
+    </message>
+    <message>
       <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
       <translation>{server} への Ollama リクエストが失敗しました。設定でアドレスとモデルを確認してください。</translation>
+    </message>
+    <message>
+      <source>Ollama server</source>
+      <translation>Ollama サーバー</translation>
     </message>
     <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
@@ -3055,12 +3083,12 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>認識されたテキストと会話のコンテキストを送信します。スクリーンショットは送信されません。 </translation>
     </message>
     <message>
-      <source>Sent to cloud models as a terminology hint. The selected game window title is the default; switch this off to enter a clearer name or leave it blank. Local prompts are unchanged.</source>
-      <translation>用語のヒントとしてクラウドモデルに送信されます。選択されたゲームウィンドウのタイトルがデフォルトです。これをオフにすると、より明確な名前を入力するか、空のままにできます。ローカルのプロンプトは変更されません。</translation>
-    </message>
-    <message>
       <source>Serbian (Latin)</source>
       <translation>セルビア語（ラテン文字）</translation>
+    </message>
+    <message>
+      <source>Server address</source>
+      <translation>サーバーアドレス</translation>
     </message>
     <message>
       <source>Set up Gemma</source>
@@ -3849,8 +3877,8 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>次回起動時に使用</translation>
     </message>
     <message>
-      <source>Use one model for all enabled text, or assign a model to each category. Only recognized text and the game hint are sent to cloud models; images stay on this PC.</source>
-      <translation>すべての有効なテキストに1つのモデルを使用するか 各カテゴリにモデルを割り当てます。認識されたテキストとゲームのヒントのみがクラウドモデルに送信され 画像はこのPCに保存されます。</translation>
+      <source>Use one model or assign one per category. Ollama and cloud models receive recognized text and the game hint. Images stay on this PC.</source>
+      <translation>全体に同じモデルを使用するか、カテゴリごとに指定できます。Ollama とクラウドのモデルには認識したテキストとゲーム名が送信されます。画像はこの PC に残ります。</translation>
     </message>
     <message>
       <source>Use the model filename</source>

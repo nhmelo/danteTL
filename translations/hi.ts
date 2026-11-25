@@ -887,6 +887,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>अधिकतम {count} मॉडल चुनें।</translation>
     </message>
     <message>
+      <source>Choose which models appear in the translation picker.</source>
+      <translation>चुनें कि अनुवाद मॉडल की सूची में कौन से मॉडल दिखें।</translation>
+    </message>
+    <message>
       <source>Choose your translation model</source>
       <translation>अपना अनुवाद मॉडल चुनें</translation>
     </message>
@@ -1475,6 +1479,14 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>फ़ाइल गायब है या आकार बदल गया है। इसका नया स्थान जाँचने के लिए फ़ाइल का पता लगाएँ का उपयोग करें।</translation>
     </message>
     <message>
+      <source>Find models</source>
+      <translation>मॉडल खोजें</translation>
+    </message>
+    <message>
+      <source>Find translation models installed in Ollama on this PC or another computer.</source>
+      <translation>इस कंप्यूटर या किसी दूसरे कंप्यूटर पर Ollama में इंस्टॉल किए गए अनुवाद मॉडल ढूँढें।</translation>
+    </message>
+    <message>
       <source>Finish</source>
       <translation>समाप्त करें</translation>
     </message>
@@ -1599,8 +1611,8 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>गेम नाम</translation>
     </message>
     <message>
-      <source>Game name sent to cloud</source>
-      <translation>क्लाउड को भेजा गया गेम नाम</translation>
+      <source>Game name sent to the model</source>
+      <translation>मॉडल को भेजा जाने वाला गेम का नाम</translation>
     </message>
     <message>
       <source>Game terms</source>
@@ -2231,6 +2243,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>मॉडल सहेजा गया। इसका उपयोग करने के लिए इसे मुख्य स्क्रीन पर चुनें।</translation>
     </message>
     <message>
+      <source>Model selection saved.</source>
+      <translation>मॉडल का चयन सहेज लिया गया है।</translation>
+    </message>
+    <message>
       <source>Model type</source>
       <translation>मॉडल प्रकार</translation>
     </message>
@@ -2317,6 +2333,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>No models available · open Settings</source>
       <translation>कोई मॉडल उपलब्ध नहीं · सेटिंग्स खोलें</translation>
+    </message>
+    <message>
+      <source>No models found. Install a text generation model in Ollama, then choose Find models again.</source>
+      <translation>कोई मॉडल नहीं मिला। Ollama में टेक्स्ट जनरेशन मॉडल इंस्टॉल करें और फिर से मॉडल खोजें।</translation>
     </message>
     <message>
       <source>No pinned Windows Python 3.12 wheel for {value}.</source>
@@ -2435,8 +2455,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>सबसे पुराना सक्रिय अनुवाद: {value:.1f}s</translation>
     </message>
     <message>
+      <source>Ollama and cloud models use this name as a terminology hint. Turn off Use window title to enter a name or leave it blank.</source>
+      <translation>Ollama और क्लाउड मॉडल शब्दावली चुनने में इस नाम की मदद लेते हैं। नाम दर्ज करने या खाली छोड़ने के लिए विंडो शीर्षक का उपयोग बंद करें।</translation>
+    </message>
+    <message>
       <source>Ollama request failed at {server}. Check the address and model in Settings.</source>
       <translation>{server} पर Ollama अनुरोध विफल रहा। सेटिंग में पता और मॉडल जाँचें।</translation>
+    </message>
+    <message>
+      <source>Ollama server</source>
+      <translation>Ollama सर्वर</translation>
     </message>
     <message>
       <source>Only DanteTL modules may be launched by this entry point.</source>
@@ -3055,12 +3083,12 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>मान्यता प्राप्त टेक्स्ट और संवाद संदर्भ भेजता है, कभी भी स्क्रीनशॉट नहीं। </translation>
     </message>
     <message>
-      <source>Sent to cloud models as a terminology hint. The selected game window title is the default; switch this off to enter a clearer name or leave it blank. Local prompts are unchanged.</source>
-      <translation>शब्दावली संकेत के रूप में क्लाउड मॉडल को भेजा जाता है। डिफ़ॉल्ट चयनित गेम विंडो शीर्षक है; स्पष्ट नाम दर्ज करने के लिए इसे बंद करें या खाली छोड़ें। स्थानीय प्रॉम्प्ट अपरिवर्तित रहते हैं।</translation>
-    </message>
-    <message>
       <source>Serbian (Latin)</source>
       <translation>सर्बियाई (लैटिन)</translation>
+    </message>
+    <message>
+      <source>Server address</source>
+      <translation>सर्वर का पता</translation>
     </message>
     <message>
       <source>Set up Gemma</source>
@@ -3849,8 +3877,8 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>अगली बार लॉन्च पर उपयोग करें</translation>
     </message>
     <message>
-      <source>Use one model for all enabled text, or assign a model to each category. Only recognized text and the game hint are sent to cloud models; images stay on this PC.</source>
-      <translation>सभी सक्षम टेक्स्ट के लिए एक मॉडल उपयोग करें, या प्रत्येक श्रेणी को एक मॉडल असाइन करें। केवल मान्यता प्राप्त टेक्स्ट और गेम संकेत क्लाउड मॉडल को भेजे जाते हैं; छवियाँ इस PC पर रहती हैं।</translation>
+      <source>Use one model or assign one per category. Ollama and cloud models receive recognized text and the game hint. Images stay on this PC.</source>
+      <translation>एक मॉडल इस्तेमाल करें या हर श्रेणी के लिए अलग मॉडल चुनें। Ollama और क्लाउड मॉडल को पहचाना गया टेक्स्ट और गेम का नाम मिलता है। चित्र इसी पीसी पर रहते हैं।</translation>
     </message>
     <message>
       <source>Use the model filename</source>
