@@ -68,6 +68,8 @@ def run_setup(
     target = None
     if plan.runtime is None:
         models(progress)
+    elif not plan.models:
+        target = runtime(progress)
     else:
         lock = threading.Lock()
         lanes = [ModelProgress(tr("Models")), ModelProgress(tr(plan.runtime.name))]

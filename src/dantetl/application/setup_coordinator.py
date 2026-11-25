@@ -266,6 +266,24 @@ class SetupCoordinator:
         plan = SetupPlan(
             (() if files["ocr"].included else (ocr,)) + (model,), profile if needs else None
         )
+        return self._review_plan(model_key, runtime_key, plan)
+
+    def review_ocr(self, hardware: HardwareStatus, *, cuda: bool) -> SetupReview:
+        if self.job(SetupLane.GUIDE).busy:
+            raise ValueError(
+                tr("Wait for the active setup to finish before reviewing another plan.")
+            )
+        runtime = None
+        if cuda and not hardware.cuda_ocr:
+            if issue := compatibility_issue("nvidia", hardware.adapters):
+                raise ValueError(issue)
+            runtime = next(profile for profile in self.profiles if profile.key == "nvidia")
+        ocr = next(f for f in self.files if f.key == "ocr")
+        models = () if ocr.present or ocr.included else (self._models["ocr"],)
+        return self._review_plan("ocr", "nvidia" if cuda else "", SetupPlan(models, runtime))
+
+    def _review_plan(self, model_key: str, runtime_key: str, plan: SetupPlan) -> SetupReview:
+        files = {f.key: f for f in self.files}
         self._serial += 1
         self._plan = plan
         self._review = SetupReview(
@@ -315,7 +333,9 @@ class SetupCoordinator:
         """Consume a successful review once, including across recreated dialogs."""
         if self._review is None or token != self._review.token or token != self._completed_review:
             return None
-        selection = self._models[self._review.model].selection_id
+        selection = (
+            "" if self._review.model == "ocr" else self._models[self._review.model].selection_id
+        )
         self._review = None
         self._plan = None
         self._completed_review = None

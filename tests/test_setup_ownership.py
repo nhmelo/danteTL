@@ -235,3 +235,32 @@ def test_cancelled_runtime_completion_cannot_replace_current_snapshot(tmp_path):
         assert replay.setup.runtime == before
     finally:
         replay.close()
+
+
+@pytest.mark.parametrize("present", [False, True])
+def test_remote_translation_can_review_cuda_for_ocr_without_translation_weights(tmp_path, present):
+    from dantetl.runtime.hardware_values import Adapter, CudaDevice
+
+    replay = configured(tmp_path)
+    try:
+        data = replay.inventory.snapshot().data
+        replay.discover(
+            replace(
+                data,
+                files=tuple(
+                    replace(f, present=present) if f.key == "ocr" else f for f in data.files
+                ),
+            )
+        )
+        hardware = HardwareStatus((Adapter("GPU", 0x10DE, cuda=CudaDevice(13000, 8, 6)),))
+        ordinary = replay.setup.review_ocr(hardware, cuda=False)
+        assert not ordinary.install_runtime
+        review = replay.setup.review_ocr(hardware, cuda=True)
+        assert review.model_keys == (() if present else ("ocr",))
+        assert review.install_runtime and review.runtime == "nvidia" and not replay.operations
+        ready = replay.setup.review_ocr(replace(hardware, cuda_ocr=True), cuda=True)
+        assert ready.model_keys == review.model_keys and not ready.install_runtime
+        with pytest.raises(ValueError, match="CUDA"):
+            replay.setup.review_ocr(HardwareStatus(), cuda=True)
+    finally:
+        replay.close()

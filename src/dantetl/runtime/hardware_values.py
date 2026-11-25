@@ -44,10 +44,10 @@ def recommended_profile(adapters: tuple[Adapter, ...]) -> str:
 
 def compatibility_issue(profile: str, adapters: tuple[Adapter, ...]) -> str:
     if profile == "nvidia":
+        if any(a.cuda and a.cuda.supported for a in adapters):
+            return ""
         for adapter in adapters:
             if cuda := adapter.cuda:
-                if cuda.supported:
-                    return ""
                 return tr(
                     "CUDA requires compute capability 7.5+ and a CUDA 13+ driver. "
                     "{name}: compute capability {capability}, driver CUDA {version}.",

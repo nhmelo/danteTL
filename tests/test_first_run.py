@@ -88,3 +88,22 @@ def test_operation_keeps_download_snapshot_on_completion():
     operation._thread.join(2)
     result = operation.snapshot()
     assert result.done and result.download == value.download and result.stage == 2
+
+
+def test_runtime_only_plan_runs_one_installer_and_returns_verified_restart(monkeypatch, tmp_path):
+    profile = next(p for p in PROFILES if p.key == "nvidia")
+    installer = Mock()
+    model_install = Mock()
+    monkeypatch.setattr(first_run, "install_model", model_install)
+    monkeypatch.setattr(first_run, "install_runtime", installer)
+    monkeypatch.setattr(first_run, "ready_runtime", lambda *_: tmp_path)
+    updates = []
+    assert (
+        first_run.run_setup(
+            first_run.SetupPlan((), profile), tmp_path, updates.append, threading.Event()
+        )
+        == tmp_path
+    )
+    installer.assert_called_once()
+    model_install.assert_not_called()
+    assert all(not update.parallel for update in updates)
