@@ -44,6 +44,23 @@ def wait(process: OwnedProcess, seconds: float) -> None:
     assert process.returncode == 0, process.returncode
 
 
+def verify_cpu_variants(bundle: Path) -> None:
+    internal = bundle / "_internal"
+    (wheel,) = (internal / "app/cpu-runtime").glob("*.whl")
+    with ZipFile(wheel) as archive:
+        variants = {
+            Path(name).name: hashlib.sha256(archive.read(name)).digest()
+            for name in archive.namelist()
+            if name.startswith("llama_cpp/lib/ggml-cpu-") and name.endswith(".dll")
+        }
+    frozen = {
+        path.name: hashlib.sha256(path.read_bytes()).digest()
+        for path in (internal / "llama_cpp/lib").glob("ggml-cpu*.dll")
+    }
+    assert {"ggml-cpu-x64.dll", "ggml-cpu-haswell.dll", "ggml-cpu-skylakex.dll"} <= variants.keys()
+    assert frozen == variants, "Bundled app and CPU installer must ship the same CPU backends"
+
+
 def download_helper(exe: Path, output: Path, environment: dict[str, str]) -> None:
     """The windowed EXE must stream progress through its inherited pipe without Python on PATH."""
     payload = b"synthetic download fixture" * 20000
@@ -176,6 +193,7 @@ def main() -> None:
             archive.extractall(relocated)
         bundle = relocated / "DanteTL"
     before = files(bundle)
+    verify_cpu_variants(bundle)
     assert not (bundle / "_internal/app/src").exists(), "No duplicate application source tree"
     assert not (bundle / "_internal/app/bootstrap.py").exists(), "No custom runtime bootstrap"
     exe = bundle / "DanteTL.exe"

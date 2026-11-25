@@ -17,7 +17,8 @@ The script only orchestrates established tools:
 
 1. `uv sync --locked` prepares `.venv-build` with CPU OCR, common LLM dependencies and build tools.
 2. `pip wheel --require-hashes --no-build-isolation` builds the pinned upstream CPU source through
-   its scikit-build-core/CMake backend. `delvewheel repair` bundles required external DLLs. Both
+   its scikit-build-core/CMake backend. Per-requirement settings in `packaging/cpu-runtime.txt`
+   build ggml's runtime-selected x64 CPU variants into `llama_cpp/lib`. `delvewheel repair` bundles required external DLLs. Both
    tools and their dependencies are locked; their standard code owns wheel metadata and packaging.
 3. `uv build --no-build-isolation` uses locked Hatchling to make the wheel and source archive.
    The build imports the wheel's CLI entry point with the working directory excluded, checking
@@ -154,8 +155,8 @@ to PATH, set `CC=clang`, `CXX=clang++`, `CMAKE_GENERATOR=Ninja`, and
 `CXXFLAGS=-static-libstdc++ -D_WIN32_WINNT=0x0A00`. Keep the toolchain available to delvewheel during
 repair. The app build then restricts PATH before PyInstaller so unrelated apps cannot supply DLLs.
 `-Offline` reuses the verified finished CPU wheel; it does not compile a replacement.
-Online CPU builds use pip's normal build cache. Clear that cache when deliberately changing the
-compiler or build flags; the published CPU wheel/checksum must then be regenerated together.
+Source builds bypass pip's wheel cache so changes to CPU targets take effect. The build checks
+the baseline x64, AVX2 and AVX-512 DLLs and initializes the installed wheel before packaging.
 
 References: [uv builds](https://docs.astral.sh/uv/guides/package/),
 [PyInstaller specs](https://pyinstaller.org/en/stable/spec-files.html),

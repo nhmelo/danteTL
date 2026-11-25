@@ -246,7 +246,9 @@ CUDA and `.venv-amd` Vulkan/experimental DirectML isolated; never co-install ONN
 native llama wheels. The NVIDIA profile pins ONNX 1.30 and shared CUDA 13 libraries; preserve the
 legacy ONNX 1.26/CUDA 12 loader. Test both import/initialization orders and loaded DLL identities
 when changing dependencies. For NVIDIA translation, verify Gemma context creation and the
-selected CPU backend on both AVX2-only and AVX-512 systems. `tools/verify_shared_cuda.py` records
+selected CPU backend on both AVX2-only and AVX-512 systems. For CPU wheel changes, run a local
+translation on both CPU classes and record the selected ggml DLL. The relocated standalone check
+compares the frozen CPU variants with those in the offline installer wheel. `tools/verify_shared_cuda.py` records
 the loaded CPU variant alongside the CUDA libraries. First-use compilation and warm inference are
 separate measurements.
 

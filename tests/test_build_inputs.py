@@ -51,13 +51,18 @@ def test_cpu_source_requirement_matches_uv_lock():
     (package,) = (
         p for p in lock["package"] if p["name"] == "llama-cpp-python" and "registry" in p["source"]
     )
-    (requirement,) = (
-        line
-        for line in (root / "packaging/cpu-runtime.txt").read_text("utf-8").splitlines()
-        if line and not line.startswith("#")
+    requirement = (root / "packaging/cpu-runtime.txt").read_text("utf-8").replace("\\\n", "")
+    (arguments,) = (
+        line.split() for line in requirement.splitlines() if line and not line.startswith("#")
     )
-    assert requirement == (
-        f"llama-cpp-python=={package['version']} --hash={package['sdist']['hash']}"
+    assert arguments[:2] == [
+        f"llama-cpp-python=={package['version']}",
+        f"--hash={package['sdist']['hash']}",
+    ]
+    project = tomllib.loads((root / "pyproject.toml").read_text("utf-8"))
+    settings = project["tool"]["uv"]["config-settings-package"]["llama-cpp-python"]
+    assert sorted(arguments[2:]) == sorted(
+        f"--config-settings={key}={value}" for key, value in settings.items()
     )
 
 

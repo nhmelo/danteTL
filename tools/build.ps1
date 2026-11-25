@@ -17,9 +17,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Build environment setup failed.' }
 $python = Join-Path $env:UV_PROJECT_ENVIRONMENT 'Scripts/python.exe'
 # Upstream's PEP 517 backend owns compilation, native-library installation and wheel metadata.
 # The compiler must already be installed (MSVC Build Tools on Windows CI/developer machines).
-$env:PIP_CACHE_DIR = Join-Path $PWD '.pip-cache'
-$wheelArgs = @('wheel', '--no-deps', '--no-build-isolation', '--require-hashes', '--no-binary=llama-cpp-python',
-    '--config-settings=cmake.define.GGML_NATIVE=OFF', '--config-settings=cmake.define.GGML_OPENMP=OFF',
+$wheelArgs = @('wheel', '--no-deps', '--no-build-isolation', '--no-cache-dir', '--require-hashes', '--no-binary=llama-cpp-python',
     '--wheel-dir=build/upstream-cpu', '--requirement=packaging/cpu-runtime.txt')
 if (-not $Offline) {
     & $python -m pip @wheelArgs
@@ -35,6 +33,15 @@ if ($Offline -and (Get-Content -LiteralPath ($cpuWheel.FullName + '.sha256')) -n
 "$cpuHash  $($cpuWheel.Name)`n" | Set-Content -LiteralPath ($cpuWheel.FullName + '.sha256') -Encoding ascii -NoNewline
 & $uv pip install --offline --no-deps --python $python $cpuWheel.FullName
 if ($LASTEXITCODE -ne 0) { throw 'Upstream CPU wheel installation failed.' }
+# Catch stale single-backend wheels in offline builds as well as incomplete upstream installs.
+$cpuLib = Join-Path $env:UV_PROJECT_ENVIRONMENT 'Lib/site-packages/llama_cpp/lib'
+foreach ($variant in 'x64', 'haswell', 'skylakex') {
+    if (!(Test-Path -LiteralPath (Join-Path $cpuLib "ggml-cpu-$variant.dll") -PathType Leaf)) {
+        throw "CPU wheel is missing its $variant backend. Rebuild from source."
+    }
+}
+& $python -m dantetl.runtime.probe cpu
+if ($LASTEXITCODE -ne 0) { throw 'Installed CPU wheel failed native initialization.' }
 if ($CpuWheelOnly) { Write-Host "Built $($cpuWheel.FullName)"; exit 0 }
 # Native dependency discovery must not pick DLLs from unrelated applications on PATH.
 $env:PATH = @((Split-Path -Parent $python), (Split-Path -Parent $uv), "$env:SystemRoot/System32", $env:SystemRoot) -join ';'

@@ -81,6 +81,9 @@ ignore-until-fixed = ["GHSA-w8v5-vhqr-4h9v"]
 [tool.uv.config-settings-package.llama-cpp-python]
 "cmake.define.GGML_NATIVE" = "OFF"
 "cmake.define.GGML_OPENMP" = "OFF"
+"cmake.define.GGML_BACKEND_DL" = "ON"
+"cmake.define.GGML_CPU_ALL_VARIANTS" = "ON"
+"cmake.define.CMAKE_INSTALL_BINDIR" = "llama_cpp/lib"
 
 # Meiki imports the shared onnxruntime namespace. Select exactly one distribution
 # via CPU/GPU groups instead of installing overlapping CPU and GPU files together.

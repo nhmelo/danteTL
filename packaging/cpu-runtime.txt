@@ -1,2 +1,7 @@
 # Upstream source distribution. pip/scikit-build-core build the complete wheel unchanged.
-llama-cpp-python==0.3.37 --hash=sha256:bf4108fc76e933ea4969b61b1e281a2d232dd3e43361d1fdca5e2e029d62f729
+llama-cpp-python==0.3.37 --hash=sha256:bf4108fc76e933ea4969b61b1e281a2d232dd3e43361d1fdca5e2e029d62f729 \
+    --config-settings=cmake.define.GGML_NATIVE=OFF \
+    --config-settings=cmake.define.GGML_OPENMP=OFF \
+    --config-settings=cmake.define.GGML_BACKEND_DL=ON \
+    --config-settings=cmake.define.GGML_CPU_ALL_VARIANTS=ON \
+    --config-settings=cmake.define.CMAKE_INSTALL_BINDIR=llama_cpp/lib
