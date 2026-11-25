@@ -647,7 +647,8 @@ import and legacy plugin registration, caching only successful initialization. F
 Loading stays on model workers/probes; preserve old fork APIs and current upstream PLaMo support.
 
 CPU/CUDA/Vulkan engines are complete upstream packages; CPU uses upstream PEP 517 build and standard
-DLL repair at release time, no player compiler. Never mix CPU/GPU ONNX or different llama wheels.
+DLL repair at release time, no player compiler. The CPU runtime loads ggml plugins from its own
+package and verifies that ggml registered a CPU device before model preparation. Never mix CPU/GPU ONNX or different llama wheels.
 NVIDIA OCR/Gemma share pinned CUDA 13 runtime/cuBLAS; preserve legacy ONNX 1.26/CUDA 12 loading. Select
 acceleration from local driver capabilities. Match devices to DXGI by Windows LUID. Query the
 visible CUDA device zero for compute capability 7.5+ and a CUDA 13+ driver. Vulkan requires a

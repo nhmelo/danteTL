@@ -1,5 +1,6 @@
 """Embedded llama.cpp discovery and native loading, independent of model prompts/weights."""
 
+import ctypes
 import importlib
 import os
 import threading
@@ -85,16 +86,34 @@ def load_runtime(device: str) -> Any:
             return _runtime
         _prepare_libraries(device)
         runtime = importlib.import_module("llama_cpp")
-        # Legacy 0.4.x wheels need explicit plugin discovery before GPU queries.
-        # Publish only after complete initialization; a failed load can be retried.
+        if runtime.__file__ is None:
+            raise RuntimeError(tr("Language-model runtime has no library location."))
+        directory = Path(runtime.__file__).parent / "lib"
+        # ggml's default plugin search uses the executable and working directories.
+        # Select from the installed package before initializing any model.
         if _modern(getattr(runtime, "__version__", "0")):
             ggml = importlib.import_module("llama_cpp._ggml")
-            if runtime.__file__ is None:
-                raise RuntimeError(tr("Language-model runtime has no library location."))
-            directory = Path(runtime.__file__).parent / "lib"
             ggml.ggml_backend_load_all_from_path(str(directory).encode("utf-8"))
+        elif device == "cpu" and os.name == "nt":
+            _load_cpu_backend(directory)
         _runtime = runtime
         return runtime
+
+
+def _load_cpu_backend(directory: Path) -> None:
+    # The upstream 0.3 binding does not expose ggml's plugin API in Python.
+    library = ctypes.CDLL(str(directory / "ggml.dll"))
+    cpu_device = ctypes.CFUNCTYPE(ctypes.c_void_p, ctypes.c_char_p)(
+        ("ggml_backend_dev_by_name", library)
+    )
+    if cpu_device(b"CPU"):  # Older single-backend CPU wheels register at startup.
+        return
+    load = ctypes.CFUNCTYPE(None, ctypes.c_char_p)(("ggml_backend_load_all_from_path", library))
+    load(str(directory).encode("utf-8"))
+    if not cpu_device(b"CPU"):
+        raise RuntimeError(
+            tr("The installed language-model engine does not provide {device}.", device="cpu")
+        )
 
 
 def _prepare_libraries(device: str) -> None:

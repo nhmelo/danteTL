@@ -121,11 +121,15 @@ def test_cpu_loading_never_requests_gpu_packages(monkeypatch, tmp_path):
     monkeypatch.setattr(llama_runtime, "_dll_handles", [])
     monkeypatch.setattr(llama_runtime.os, "add_dll_directory", lambda p: object())
     monkeypatch.setenv("PATH", "original")
-    runtime = object()
+    runtime = SimpleNamespace(__file__=str(tmp_path / "llama_cpp/__init__.py"))
+    initialize = Mock()
+    monkeypatch.setattr(llama_runtime, "_load_cpu_backend", initialize)
     monkeypatch.setattr(llama_runtime.importlib, "import_module", lambda _: runtime)
     assert llama_runtime.load_runtime("cpu") is runtime
     assert llama_runtime.load_runtime("cpu") is runtime
     assert requested == ["llama-cpp-python"]
+    if sys.platform == "win32":
+        initialize.assert_called_once_with(tmp_path / "llama_cpp/lib")
 
 
 def test_matching_runtime_api_keeps_flash_attention_policy():
