@@ -16,6 +16,7 @@ from dantetl.languages.selection import DEFAULT_SOURCE
 from dantetl.languages.source import SourceLanguage
 from dantetl.translation.backend import BackendChoice
 from dantetl.translation.cloud.values import CloudProfile
+from dantetl.translation.ollama.values import OllamaIdentity, OllamaModel
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.routing import RoutedTranslationSession
 from dantetl.translation.selection import CloudIdentity, LocalIdentity
@@ -40,9 +41,9 @@ class ModelPhase(StrEnum):
 @dataclass(frozen=True, slots=True)
 class RouteModel:
     reference: str
-    identity: LocalIdentity | CloudIdentity
+    identity: LocalIdentity | CloudIdentity | OllamaIdentity
     available: bool
-    choice: BackendChoice | CloudProfile = field(compare=False)
+    choice: BackendChoice | CloudProfile | OllamaModel = field(compare=False)
 
 
 @dataclass(frozen=True)

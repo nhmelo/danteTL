@@ -12,6 +12,7 @@ from dantetl.application.live_session import LiveSession
 from dantetl.application.model_discovery import inspect_models
 from dantetl.application.model_factories import ocr_backends as source_ocr_backends
 from dantetl.application.model_inventory import ModelInventory, SourceModels
+from dantetl.application.ollama_services import OllamaServices
 from dantetl.application.preferences import PreferenceStore
 from dantetl.application.session import ApplicationSession
 from dantetl.application.setup_coordinator import SetupCoordinator
@@ -62,6 +63,7 @@ def application_session(
 ) -> ApplicationSession:
     preferences = preferences or PreferenceStore(preferences_path)
     cache = cache_path or state_root() / "data/game-translations.sqlite3"
+    ollama = OllamaServices(preferences.current.ollama, notify)
     cache_management = CacheManagement(cache, notify)
     initial_choices = ocr_backends or (OcrChoice("CPU", recognizer_factory, key="cpu"),)
 
@@ -90,7 +92,9 @@ def application_session(
     shutdown = ShutdownCoordinator(
         live,
         translation.lifecycle,
-        setup_busy=lambda: setup.busy or cloud.busy or not inventory.finished,
+        setup_busy=lambda: (
+            setup.busy or cloud.busy or ollama.snapshot().busy or not inventory.finished
+        ),
         cancel_setup=cancel_setup,
         preferences_idle=lambda: preferences.idle and not cache_management.snapshot().busy,
         hardware_finished=lambda: hardware is None or hardware.finished,
@@ -105,6 +109,7 @@ def application_session(
         source_models=source_models,
         inventory=inventory,
         cloud=cloud,
+        ollama=ollama,
         setup=setup,
         preferences=preferences,
         shutdown=shutdown,

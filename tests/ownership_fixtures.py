@@ -10,6 +10,7 @@ from dantetl.application.cache_management import CacheManagement
 from dantetl.application.cloud_services import CloudServices
 from dantetl.application.live_session import LiveSession
 from dantetl.application.model_inventory import InventoryData, ModelInventory, SourceModels
+from dantetl.application.ollama_services import OllamaServices
 from dantetl.application.preference_values import Preferences
 from dantetl.application.preferences import PreferenceStore
 from dantetl.application.session import ApplicationSession
@@ -228,6 +229,7 @@ class Replay:
             source_models=source_models or (lambda _: SourceModels((), choices, self.source)),
             inventory=self.inventory,
             cloud=self.cloud,
+            ollama=OllamaServices(preferences.ollama, lambda: None),
             setup=self.setup,
             preferences=self.preferences,
             shutdown=self.shutdown,

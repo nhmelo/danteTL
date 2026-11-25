@@ -883,6 +883,10 @@ Los detalles están en %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Elige un modelo de lenguaje GGUF completo (hasta 32 GiB).</translation>
     </message>
     <message>
+      <source>Choose up to {count} models.</source>
+      <translation>Elige hasta {count} modelos.</translation>
+    </message>
+    <message>
       <source>Choose your translation model</source>
       <translation>Elige tu modelo de traducción</translation>
     </message>

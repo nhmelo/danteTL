@@ -883,6 +883,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Kies één volledig GGUF-taalmmodel (max. 32 GiB).</translation>
     </message>
     <message>
+      <source>Choose up to {count} models.</source>
+      <translation>Kies maximaal {count} modellen.</translation>
+    </message>
+    <message>
       <source>Choose your translation model</source>
       <translation>Kies je vertaalmodel</translation>
     </message>

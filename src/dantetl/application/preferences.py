@@ -14,8 +14,9 @@ from dantetl.file_lock import file_lock
 from dantetl.i18n import INTERFACE_LANGUAGES, tr
 from dantetl.languages.selection import SOURCE_LANGUAGES
 from dantetl.languages.target import TARGET_LANGUAGES
+from dantetl.translation.ollama.values import OllamaConfig
 
-_MAX_BYTES = 16_384
+_MAX_BYTES = 32_768
 
 
 def decode_preferences(value: object) -> Preferences:
@@ -48,6 +49,12 @@ def decode_preferences(value: object) -> Preferences:
         },
     }
     for key, default in defaults.items():
+        if key == "ollama":
+            try:
+                defaults[key] = OllamaConfig.decode(value[key])
+            except (KeyError, ValueError, TypeError):
+                defaults[key] = OllamaConfig()
+            continue
         candidate = value.get(key, default)
         if type(candidate) is not type(default):
             continue
@@ -76,7 +83,8 @@ def decode_preferences(value: object) -> Preferences:
             key in ("short_model", "long_model", "history_model")
             and candidate not in ("", "legacy" if key != "history_model" else "layout")
             and not re.fullmatch(
-                r"(?:local:[a-z0-9._-]{1,100}|cloud:cloud-[0-9a-f]{32})", candidate
+                r"(?:local:[a-z0-9._-]{1,100}|cloud:cloud-[0-9a-f]{32}|ollama:[0-9a-f]{64})",
+                candidate,
             )
         ):
             continue

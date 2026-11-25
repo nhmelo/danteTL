@@ -883,6 +883,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>选择一个完整的 GGUF 语言模型（最大 32 GiB）。</translation>
     </message>
     <message>
+      <source>Choose up to {count} models.</source>
+      <translation>最多选择 {count} 个模型。</translation>
+    </message>
+    <message>
       <source>Choose your translation model</source>
       <translation>选择您的翻译模型</translation>
     </message>

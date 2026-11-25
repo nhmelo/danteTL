@@ -10,6 +10,7 @@ from dantetl.languages.target import ENGLISH, TargetLanguage
 from dantetl.ocr.observation import TextTrack
 from dantetl.translation.backend import TranslationBackend
 from dantetl.translation.grouping import TextBlock
+from dantetl.translation.ollama.values import OllamaIdentity
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.selection import CloudIdentity, LocalIdentity
 from dantetl.translation.values import (
@@ -20,7 +21,7 @@ from dantetl.translation.values import (
 )
 from dantetl.translation.worker import TranslationSession
 
-type ModelIdentity = LocalIdentity | CloudIdentity | str
+type ModelIdentity = LocalIdentity | CloudIdentity | OllamaIdentity | str
 
 
 class RoutedTranslationSession:

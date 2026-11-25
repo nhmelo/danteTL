@@ -129,8 +129,15 @@ def project_notices(value: NoticeInput) -> Notices:
             missing.append(tr("No translation model is selected for {label}", label=label))
         elif choice is None:
             missing.append(tr("The model for {label} is unavailable", label=label))
-            if key.startswith("cloud:"):
+            if key.startswith("ollama:"):
+                action, destination = "Ollama API", "ollama"
+            elif key.startswith("cloud:"):
                 action, destination = tr("Cloud models"), "cloud"
+        elif choice.provider == "ollama" and not choice.prepared:
+            missing.append(
+                tr("The model for {label} is unavailable", label=label) + f" ({choice.name})"
+            )
+            action, destination = "Ollama API", "ollama"
         elif not choice.local and not choice.prepared:
             missing.append(tr("Connect the cloud model for {label} in Models", label=label))
             action, destination = tr("Cloud models"), "cloud"
@@ -157,7 +164,7 @@ def project_notices(value: NoticeInput) -> Notices:
             model_action, model_destination = action, destination
             if destination == "prepare":
                 prepare_reference = key
-    if not options and not value.discovering and model_destination != "cloud":
+    if not options and not value.discovering and model_destination not in ("cloud", "ollama"):
         missing.append(tr("No translation model is downloaded or configured"))
         model_action, model_destination = tr("Download models"), "models"
     warning = ". ".join(missing)

@@ -27,6 +27,8 @@ from dantetl.languages.selection import source_language
 from dantetl.languages.source import SourceLanguage
 from dantetl.translation.backend import BackendChoice, TranslationBackend
 from dantetl.translation.cloud.values import CloudProfile
+from dantetl.translation.ollama.backend import OllamaBackend
+from dantetl.translation.ollama.values import OllamaConfig, OllamaIdentity, OllamaModel
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.routing import ModelIdentity, RoutedTranslationSession
 from dantetl.translation.selection import (
@@ -35,6 +37,7 @@ from dantetl.translation.selection import (
     CloudIdentity,
     ModelOption,
 )
+from dantetl.translation.values import TranslationState
 from dantetl.translation.worker import TranslationSession
 
 
@@ -65,6 +68,9 @@ class TranslationCoordinator:
         )
         self.inventory, self.cloud = inventory, cloud
         self._route_create, self._cache, self._notify = route_create, cache, on_change
+        self._ollama_config = preferences.ollama
+        self._ollama_unavailable: frozenset[OllamaModel] = frozenset()
+        self._ollama_attempts: dict[str, int] = {}
         self._preferences = preferences
         self._restored = False
         self._options_key = None
@@ -113,16 +119,39 @@ class TranslationCoordinator:
     def restored(self) -> bool:
         return self._restored
 
-    def resolve(self, reference: str) -> BackendChoice | CloudProfile | None:
+    def resolve(self, reference: str) -> BackendChoice | CloudProfile | OllamaModel | None:
+        if reference.startswith("ollama:"):
+            return next(
+                (
+                    m
+                    for m in self._ollama_config.models
+                    if m.reference(self._ollama_config.server) == reference
+                ),
+                None,
+            )
         return next(
             (c for c in (*self.choices, *self.cloud.profiles) if model_reference(c) == reference),
             None,
         )
 
+    def update_ollama(self, config: OllamaConfig, unavailable: frozenset[OllamaModel]) -> None:
+        self._ollama_config, self._ollama_unavailable = config, unavailable
+        # Explicit rediscovery can revive a failed lane without restarting healthy siblings.
+        refs = {m.reference(config.server) for m in config.models if m not in unavailable}
+        self._ollama_attempts = {k: v for k, v in self._ollama_attempts.items() if k in refs}
+        snapshot = self._lifecycle.snapshot().worker
+        for lane in snapshot.lanes if snapshot else ():
+            if lane.reference in refs and lane.state == TranslationState.FAILED:
+                self._ollama_attempts[lane.reference] = (
+                    self._ollama_attempts.get(lane.reference, 0) + 1
+                )
+
     def options(self) -> tuple[ModelOption, ...]:
         cloud = self.cloud.snapshot()
         key = (
             self.inventory.snapshot().revision,
+            self._ollama_config,
+            self._ollama_unavailable,
             cloud.profiles,
             cloud.available,
             cloud.revision,
@@ -131,28 +160,41 @@ class TranslationCoordinator:
         if key == self._options_key:
             return self._options
         self._options_key = key
-        self._options = tuple(
-            ModelOption(
-                model_reference(c),
-                c.name,
-                c.key,
-                prepared=self._lifecycle.is_prepared(c),
-                unavailable_reason=c.unavailable_reason,
-                performance_notice=c.performance_notice,
-                classifies=c.classifies,
-                output_codes=c.output_codes,
+        self._options = (
+            tuple(
+                ModelOption(
+                    model_reference(c),
+                    c.name,
+                    c.key,
+                    prepared=self._lifecycle.is_prepared(c),
+                    unavailable_reason=c.unavailable_reason,
+                    performance_notice=c.performance_notice,
+                    classifies=c.classifies,
+                    output_codes=c.output_codes,
+                )
+                for c in self.choices
             )
-            for c in self.choices
-        ) + tuple(
-            ModelOption(
-                model_reference(p),
-                p.name,
-                p.key,
-                provider=p.provider,
-                prepared=self.cloud.available(p.key),
-                classifies=True,
+            + tuple(
+                ModelOption(
+                    model_reference(p),
+                    p.name,
+                    p.key,
+                    provider=p.provider,
+                    prepared=self.cloud.available(p.key),
+                    classifies=True,
+                )
+                for p in self.cloud.profiles
             )
-            for p in self.cloud.profiles
+            + tuple(
+                ModelOption(
+                    m.reference(self._ollama_config.server),
+                    m.display_name,
+                    m.name,
+                    provider="ollama",
+                    prepared=m not in self._ollama_unavailable,
+                )
+                for m in self._ollama_config.models
+            )
         )
         return self._options
 
@@ -193,6 +235,18 @@ class TranslationCoordinator:
             return RouteModel(
                 reference, choice.identity, self._lifecycle.is_prepared(choice), choice
             )
+        if isinstance(choice, OllamaModel):
+            return RouteModel(
+                reference,
+                OllamaIdentity(
+                    self._ollama_config.server,
+                    choice,
+                    self.game,
+                    self._ollama_attempts.get(reference, 0),
+                ),
+                choice not in self._ollama_unavailable,
+                choice,
+            )
         if choice is None:
             return None
         identity = CloudIdentity.from_profile(
@@ -206,7 +260,9 @@ class TranslationCoordinator:
         models = tuple(m for ref in self.plan.active_models if (m := self._route_model(ref)))
         route = RouteSelection(
             language=self.language,
-            game=self.game if any(isinstance(m.choice, CloudProfile) for m in models) else "",
+            game=self.game
+            if any(isinstance(m.choice, (CloudProfile, OllamaModel)) for m in models)
+            else "",
             plan=self.plan,
             models=models,
         )
@@ -224,11 +280,15 @@ class TranslationCoordinator:
             if not model.available:
                 continue
             choice, reference = model.choice, model.reference
-            factories[reference] = (
-                choice.create
-                if isinstance(choice, BackendChoice)
-                else partial(self.cloud.create_backend, choice, route.game, route.language)
-            )
+            if isinstance(choice, BackendChoice):
+                factories[reference] = choice.create
+            elif isinstance(choice, CloudProfile):
+                factories[reference] = partial(
+                    self.cloud.create_backend, choice, route.game, route.language
+                )
+            else:
+                assert isinstance(model.identity, OllamaIdentity)
+                factories[reference] = partial(OllamaBackend, model.identity, route.language)
             identities[reference] = model.identity
             names[reference] = choice.name
         if isinstance(local, RoutedTranslationSession):

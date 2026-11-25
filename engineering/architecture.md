@@ -568,6 +568,20 @@ consume resources; cloud checks share selected-profile limits. The reader holds 
 in memory, newest first with scroll anchoring and exact copy controls. Clear suppresses unchanged current
 turns; growth/corrections update a turn. A new capture or source language starts fresh turn identities. Reader history never enters prompts.
 
+## Ollama API
+
+One user-configured HTTP(S) origin serves translation through Ollama’s native API. Discovery can present the exact tag,
+parameter count, quantization and model size. Discovery reads `/api/tags` on request. Save verifies
+selected models through `/api/show` and retains their display metadata for the next launch. Requests have deadlines and response limits, preserve TLS
+verification, and disable redirects and environment proxies. DanteTL contacts the selected origin only.
+Models must support text completion on that server. Model pulls and cloud-backed entries are excluded.
+
+Preferences store the server and selected tags and digests together. Assignments identify the server
+and tag. Cache entries also depend on the model digest, game hint, source and target languages,
+prompt version, exact source text and any dialogue context sent with it. Display metadata does not
+affect reuse. The translation worker verifies the model before opening its cache scope. An outstanding chat can be
+cancelled on a scene or route change. A server change requires a new model assignment.
+
 ## Cloud and credential boundary
 
 Cloud discovery reports unreadable account records and API credentials and disables their dependent
@@ -597,7 +611,7 @@ OAuth uses the system browser, exclusive random loopback port, PKCE S256, state/
 issuer/signature/audience/expiry/identity. Rotation is atomic under an account lock; temporary failure
 preserves tokens. Logout clears local tokens even if remote revocation fails and reports the distinction.
 Native credential buffers are wiped; Python copy zeroization is not guaranteed. Provider HTTPS verifies
-certificates, disables redirects and ignores proxy environment; OAuth loopback is the local HTTP exception.
+certificates, disables redirects and ignores proxy environment; OAuth callbacks use loopback HTTP. The separate Ollama integration accepts an explicit HTTP(S) origin.
 OS protection is a Windows-user boundary, not an application sandbox. Same-user programs, malware,
 administrators and memory dumps are outside it. Forget does not revoke provider API keys; request limits
 are not monetary limits. Automated tests use disposable fake credentials and transports, never paid calls.

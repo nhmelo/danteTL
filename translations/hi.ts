@@ -883,6 +883,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>एक पूरा GGUF भाषा मॉडल चुनें (32 GiB तक)।</translation>
     </message>
     <message>
+      <source>Choose up to {count} models.</source>
+      <translation>अधिकतम {count} मॉडल चुनें।</translation>
+    </message>
+    <message>
       <source>Choose your translation model</source>
       <translation>अपना अनुवाद मॉडल चुनें</translation>
     </message>

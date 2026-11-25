@@ -5,7 +5,7 @@ from typing import Protocol, Unpack
 
 from dantetl.application.notice import Notices
 from dantetl.application.preference_values import Preferences, SettingsEdit
-from dantetl.application.services import CacheCommands, CloudCommands, SetupCommands
+from dantetl.application.services import CacheCommands, CloudCommands, OllamaCommands, SetupCommands
 from dantetl.application.values import (
     ApplicationControls,
     ApplicationView,
@@ -23,6 +23,8 @@ class ApplicationCommands(Protocol):
     def cache(self) -> CacheCommands: ...
     @property
     def cloud(self) -> CloudCommands: ...
+    @property
+    def ollama(self) -> OllamaCommands: ...
     @property
     def setup(self) -> SetupCommands: ...
     @property

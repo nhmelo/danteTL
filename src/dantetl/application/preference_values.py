@@ -3,6 +3,7 @@ from typing import Protocol, TypedDict, Unpack
 
 from dantetl.application.hotkeys import DEFAULT_CAPTURE, DEFAULT_OVERLAY
 from dantetl.languages.target import ENGLISH
+from dantetl.translation.ollama.values import OllamaConfig
 
 # Numeric targets use the full range supported by Qt's integer editor. Zero is unlimited.
 MAX_CAPTURE_RATE = 2**31 - 1
@@ -28,6 +29,7 @@ class Preferences:
     setup_seen: bool = False
     setup_model: str = ""
     translation_route: str = "local"
+    ollama: OllamaConfig = OllamaConfig()
     cloud_model: str = ""
     game_hint: str = ""
     advanced_routing: bool = False

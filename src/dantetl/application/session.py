@@ -11,6 +11,7 @@ from dantetl.application.cloud_services import CloudServices
 from dantetl.application.live_session import CaptureWorker, LiveSession
 from dantetl.application.model_inventory import ModelInventory, SourceModels
 from dantetl.application.notice import NoticeInput, Notices, project_notices
+from dantetl.application.ollama_services import OllamaServices
 from dantetl.application.preference_values import SettingsEdit
 from dantetl.application.preferences import PreferenceStore
 from dantetl.application.presentation import (
@@ -68,6 +69,7 @@ class ApplicationSession:
         source_models: Callable[[SourceLanguage], SourceModels],
         inventory: ModelInventory,
         cloud: CloudServices,
+        ollama: OllamaServices,
         setup: SetupCoordinator,
         cache: CacheManagement,
         preferences: PreferenceStore,
@@ -80,6 +82,7 @@ class ApplicationSession:
         self._source_models = source_models
         self.inventory, self.cloud, self.setup = inventory, cloud, setup
         self.preferences, self.shutdown = preferences, shutdown
+        self.ollama = ollama
         self.cache = cache
         self._notify = notify
         self.live, self.translation = live, translation
@@ -391,8 +394,8 @@ class ApplicationSession:
             # Completing a local download preserves independently configured cloud routes.
             plan = replace(
                 current,
-                short=current.short if current.short.startswith("cloud:") else key,
-                long=current.long if current.long.startswith("cloud:") else key,
+                short=current.short if current.short.startswith(("cloud:", "ollama:")) else key,
+                long=current.long if current.long.startswith(("cloud:", "ollama:")) else key,
             )
             if key not in (plan.short, plan.long):
                 self.values = replace(self.values, setup_model="")
@@ -428,6 +431,7 @@ class ApplicationSession:
         self._desktop_action = None
         self._source_change = None
         self.cloud.close()
+        self.ollama.discard()
         self.shutdown.request(target)
         self.view = ApplicationView(reset=self.view.reset + 1)
 
@@ -652,6 +656,13 @@ class ApplicationSession:
         self.setup.advance()
         self.inventory.advance(now)
         self.cloud.advance()
+        if self.ollama.advance():
+            config = self.ollama.snapshot().config
+            self.translation.update_ollama(config, self.ollama.unavailable)
+            self.refresh_routes()
+            if config != self.values.ollama:
+                self.values = replace(self.values, ollama=config)
+                self.persist()
         if self._source_change:
             self._finish_source_change(self._source_change, now)
             return

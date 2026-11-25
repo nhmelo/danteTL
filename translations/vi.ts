@@ -883,6 +883,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Chọn một mô hình ngôn ngữ GGUF hoàn chỉnh (tối đa 32 GiB).</translation>
     </message>
     <message>
+      <source>Choose up to {count} models.</source>
+      <translation>Chọn tối đa {count} mô hình.</translation>
+    </message>
+    <message>
       <source>Choose your translation model</source>
       <translation>Chọn mô hình dịch của bạn</translation>
     </message>
