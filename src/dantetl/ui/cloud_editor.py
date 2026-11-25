@@ -47,14 +47,19 @@ class CloudModelDialog(QDialog):
     refresh_requested = Signal(str)
     cancel_requested = Signal()
 
-    def __init__(self, profile: CloudProfile | None, parent: QWidget) -> None:
+    def __init__(
+        self, profile: CloudProfile | None, parent: QWidget, *, inline: bool = False
+    ) -> None:
         super().__init__(parent)
         localized(
             self, windowTitle=mark("Edit cloud model") if profile else mark("Add cloud model")
         )
-        self.setWindowModality(Qt.WindowModality.WindowModal)
-        self.resize(600, 640)
-        self.setMinimumSize(480, 420)
+        if inline:
+            self.setWindowFlags(Qt.WindowType.Widget)
+        else:
+            self.setWindowModality(Qt.WindowModality.WindowModal)
+            self.resize(600, 640)
+            self.setMinimumSize(480, 420)
         self.profile = profile
         self._id = profile.key if profile else "cloud-" + uuid4().hex
         self._model_label = ""
@@ -122,7 +127,11 @@ class CloudModelDialog(QDialog):
             ),
         )
         model_row.addWidget(self.refresh_models)
-        form.addRow(localized(QLabel(), text=mark("Model")), model_row)
+        model_label = localized(QLabel(), text=mark("Model"))
+        if inline:
+            form.insertRow(1, model_label, model_row)
+        else:
+            form.addRow(model_label, model_row)
         self.model_note = QLabel()
         self.model_note.setWordWrap(True)
         self.model_note.setObjectName("muted")
@@ -198,11 +207,15 @@ class CloudModelDialog(QDialog):
             QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel
         )
         self.save = self.buttons.button(QDialogButtonBox.StandardButton.Save)
-        self.save.setDefault(True)
+        if inline:
+            localized(self.save, text=mark("Save and choose another"))
+        self.save.setDefault(not inline)
+        self.save.setAutoDefault(not inline)
         self.cancel_button = self.buttons.button(QDialogButtonBox.StandardButton.Cancel)
+        self.cancel_button.setVisible(not inline)
         footer.addWidget(self.buttons)
         layout.addLayout(footer)
-        self.buttons.accepted.connect(lambda: self._submit(test=False))
+        self.buttons.accepted.connect(self.save_draft)
         self.buttons.rejected.connect(self.reject)
         self.test.clicked.connect(lambda: self._submit(test=True))
         self.refresh_models.clicked.connect(lambda: self._submit(refresh=True))
@@ -274,7 +287,8 @@ class CloudModelDialog(QDialog):
         if self._last_provider != self.provider.currentData():
             self._models = {}
             self._discovered = None
-            self.resize(self.width(), 600 if chatgpt else 480)
+            if self.isWindow():
+                self.resize(self.width(), 600 if chatgpt else 480)
         self.refresh_models.setVisible(not chatgpt)
         for control in (self.api_fields, self._api_label, self.key, self._key_label):
             if control:
@@ -423,6 +437,9 @@ class CloudModelDialog(QDialog):
                     else ""
                 )
             )
+
+    def save_draft(self) -> None:
+        self._submit()
 
     def _submit(self, *, test: bool = False, refresh: bool = False) -> None:
         if self._busy or self._closing:

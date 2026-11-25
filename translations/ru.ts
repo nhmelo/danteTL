@@ -233,10 +233,6 @@ Repairs folder: {directory}</source>
       <translation>Фактическое среднее за сеанс / запрошенных сэмплов в секунду.</translation>
     </message>
     <message>
-      <source>Add a cloud model here, or choose Next to set up a local model and optional GPU acceleration. You can also add cloud models while files download.</source>
-      <translation>Добавьте облачную модель здесь или нажмите «Далее», чтобы настроить локальную модель и при желании включить ускорение на GPU. Облачные модели можно добавлять и во время загрузки файлов.</translation>
-    </message>
-    <message>
       <source>Add cloud model</source>
       <translation>Добавить облачную модель</translation>
     </message>
@@ -1807,6 +1803,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>Проверка и диагностика</translation>
     </message>
     <message>
+      <source>Install CUDA for text recognition (about 1.3 GB)</source>
+      <translation>Установить CUDA для распознавания текста (около 1,3 ГБ)</translation>
+    </message>
+    <message>
       <source>Install runtime</source>
       <translation>Установить среду выполнения</translation>
     </message>
@@ -1997,6 +1997,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Layout heuristics only · No classifier calls.</source>
       <translation>Только эвристика макета · Без вызовов классификатора.</translation>
+    </message>
+    <message>
+      <source>Leave None selected to skip the local model download.</source>
+      <translation>Оставьте «Нет», чтобы пропустить загрузку локальной модели.</translation>
     </message>
     <message>
       <source>Library checks passed. Model preparation happens after restart.</source>
@@ -2295,8 +2299,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>Новый ключ API…</translation>
     </message>
     <message>
+      <source>New cloud model…</source>
+      <translation>Новая облачная модель…</translation>
+    </message>
+    <message>
       <source>Next</source>
       <translation>Далее</translation>
+    </message>
+    <message>
+      <source>Next, choose which translation models to set up.</source>
+      <translation>На следующем шаге выберите модели перевода для настройки.</translation>
     </message>
     <message>
       <source>No</source>
@@ -2365,6 +2377,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>No windows found. Open a game or the demo, then refresh.</source>
       <translation>Окна не найдены. Откройте игру или демо, затем обновите.</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>Нет</translation>
     </message>
     <message>
       <source>None selected</source>
@@ -2995,6 +3011,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>Сохранить</translation>
     </message>
     <message>
+      <source>Save and choose another</source>
+      <translation>Сохранить и выбрать другую модель</translation>
+    </message>
+    <message>
       <source>Save cancelled.</source>
       <translation>Сохранение отменено.</translation>
     </message>
@@ -3423,6 +3443,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Text recognition is included with DanteTL.</source>
       <translation>Распознавание текста входит в комплект DanteTL.</translation>
+    </message>
+    <message>
+      <source>Text recognition is ready.</source>
+      <translation>Распознавание текста готово.</translation>
     </message>
     <message>
       <source>Text recognition model files</source>
@@ -4229,6 +4253,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{name} · {label}</source>
       <translation>{name} · {label}</translation>
+    </message>
+    <message>
+      <source>{name} · {value:.0f} MB</source>
+      <translation>{name} · {value:.0f} МБ</translation>
     </message>
     <message>
       <source>{name} · {value:.1f} MB received; total unknown</source>

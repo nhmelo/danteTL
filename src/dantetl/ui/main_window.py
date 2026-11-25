@@ -517,6 +517,7 @@ class MainWindow(QMainWindow):
             self._hardware,
             self,
             cloud=self._settings.models.cloud,
+            ollama=self.application.ollama,
             interface_language=self.application.values.interface_language,
             backdrop_blur=self.application.values.backdrop_blur,
         )

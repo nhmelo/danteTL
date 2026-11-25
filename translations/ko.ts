@@ -233,10 +233,6 @@ Repairs folder: {directory}</source>
       <translation>실제 세션 평균 / 요청된 초당 샘플 수입니다.</translation>
     </message>
     <message>
-      <source>Add a cloud model here, or choose Next to set up a local model and optional GPU acceleration. You can also add cloud models while files download.</source>
-      <translation>여기서 클라우드 모델을 추가하거나 다음을 눌러 로컬 모델을 설정하세요. 필요하면 GPU 가속도 설정할 수 있습니다. 파일을 다운로드하는 동안에도 클라우드 모델을 추가할 수 있습니다.</translation>
-    </message>
-    <message>
       <source>Add cloud model</source>
       <translation>클라우드 모델 추가</translation>
     </message>
@@ -1807,6 +1803,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>검사 및 진단</translation>
     </message>
     <message>
+      <source>Install CUDA for text recognition (about 1.3 GB)</source>
+      <translation>텍스트 인식용 CUDA 설치(약 1.3GB)</translation>
+    </message>
+    <message>
       <source>Install runtime</source>
       <translation>런타임 설치</translation>
     </message>
@@ -1997,6 +1997,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Layout heuristics only · No classifier calls.</source>
       <translation>레이아웃 휴리스틱만 사용 · 분류기 호출 없음.</translation>
+    </message>
+    <message>
+      <source>Leave None selected to skip the local model download.</source>
+      <translation>로컬 모델 다운로드를 건너뛰려면 ‘없음’을 선택한 상태로 두세요.</translation>
     </message>
     <message>
       <source>Library checks passed. Model preparation happens after restart.</source>
@@ -2295,8 +2299,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>새 API 키…</translation>
     </message>
     <message>
+      <source>New cloud model…</source>
+      <translation>새 클라우드 모델…</translation>
+    </message>
+    <message>
       <source>Next</source>
       <translation>다음</translation>
+    </message>
+    <message>
+      <source>Next, choose which translation models to set up.</source>
+      <translation>다음 단계에서 설정할 번역 모델을 선택하세요.</translation>
     </message>
     <message>
       <source>No</source>
@@ -2365,6 +2377,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>No windows found. Open a game or the demo, then refresh.</source>
       <translation>창을 찾을 수 없습니다. 게임이나 데모를 연 후 새로 고치세요.</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>없음</translation>
     </message>
     <message>
       <source>None selected</source>
@@ -2995,6 +3011,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>저장</translation>
     </message>
     <message>
+      <source>Save and choose another</source>
+      <translation>저장하고 다른 모델 선택</translation>
+    </message>
+    <message>
       <source>Save cancelled.</source>
       <translation>저장이 취소되었습니다.</translation>
     </message>
@@ -3423,6 +3443,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Text recognition is included with DanteTL.</source>
       <translation>DanteTL에는 텍스트 인식 기능이 포함되어 있습니다.</translation>
+    </message>
+    <message>
+      <source>Text recognition is ready.</source>
+      <translation>텍스트 인식이 준비되었습니다.</translation>
     </message>
     <message>
       <source>Text recognition model files</source>
@@ -4229,6 +4253,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{name} · {label}</source>
       <translation>{name} · {label}</translation>
+    </message>
+    <message>
+      <source>{name} · {value:.0f} MB</source>
+      <translation>{name} · {value:.0f} MB</translation>
     </message>
     <message>
       <source>{name} · {value:.1f} MB received; total unknown</source>

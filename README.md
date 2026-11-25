@@ -11,16 +11,20 @@ translator.
 1. Extract the entire `DanteTL-windows-x64.zip` and open `DanteTL.exe`. Keep the `_internal`
    folder beside it. The ZIP includes text recognition (OCR) and runs without a separate Python
    installation. [GitHub releases](https://github.com/nhmelo/dantejp/releases)
-2. In the **Setup assistant**, choose how to translate.
-   - **For offline translation**, choose **Next** to download a local model. CPU support is included.
-   - **For cloud translation**, choose **Add cloud model…**, sign in with an eligible ChatGPT account or enter an
-     OpenAI, Gemini, DeepSeek or Claude API key, then save the model. Cloud requests can consume
+2. In the **Setup assistant**, choose **Next** to pick your models. You can combine choices across tabs.
+   - **Local models** starts with the recommended translator selected. Choose **None** to skip the local translator. You can review acceleration and download size before starting.
+   - Under **Ollama API**, connect to your server. Use the default address for this PC or enter
+     your server’s HTTP or HTTPS address. Click **Find models**, check the models you want in
+     the translation picker. The same controls are available directly in **Settings → Models → Ollama API**.
+   - Under **Cloud models**, sign in with an eligible ChatGPT account or enter an
+     OpenAI, Gemini, DeepSeek or Claude API key and choose a model. To configure several, save each additional profile in the tab. Cloud requests can consume
      plan allowance or incur API charges.
+   - Choose **Next** to apply your selections. With **None** selected locally, a compatible NVIDIA PC can still opt into CUDA for text recognition. The guide reviews the runtime and any missing OCR files before downloading. If OCR is ready and no runtime is needed, setup finishes here.
 3. Run the game in windowed or borderless fullscreen mode. In DanteTL, select the game window.
    Under **Translation**, choose your model, **Game text language** and **Output language**.
    Click **Start capture**, then return to the game.
 
-Screenshots stay on your PC. With cloud translation, the selected provider receives recognized
+Screenshots stay on your PC. With Ollama or cloud translation, the selected server or provider receives recognized
 text and, when available, a game-name hint and recent dialogue for context.
 
 ## Model recommendations

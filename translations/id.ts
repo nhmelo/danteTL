@@ -233,10 +233,6 @@ Folder perbaikan: {directory}</translation>
       <translation>Rata-rata sesi aktual / sampel yang diminta per detik.</translation>
     </message>
     <message>
-      <source>Add a cloud model here, or choose Next to set up a local model and optional GPU acceleration. You can also add cloud models while files download.</source>
-      <translation>Tambahkan model cloud di sini, atau pilih Berikutnya untuk menyiapkan model lokal dan akselerasi GPU opsional. Anda juga dapat menambahkan model cloud saat file sedang diunduh.</translation>
-    </message>
-    <message>
       <source>Add cloud model</source>
       <translation>Tambah model cloud</translation>
     </message>
@@ -1807,6 +1803,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Pemeriksaan dan diagnostik</translation>
     </message>
     <message>
+      <source>Install CUDA for text recognition (about 1.3 GB)</source>
+      <translation>Pasang CUDA untuk pengenalan teks (sekitar 1,3 GB)</translation>
+    </message>
+    <message>
       <source>Install runtime</source>
       <translation>Instal runtime</translation>
     </message>
@@ -1997,6 +1997,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Layout heuristics only · No classifier calls.</source>
       <translation>Hanya heuristik tata letak · Tanpa panggilan pengklasifikasi.</translation>
+    </message>
+    <message>
+      <source>Leave None selected to skip the local model download.</source>
+      <translation>Biarkan “Tidak ada” terpilih untuk melewati unduhan model lokal.</translation>
     </message>
     <message>
       <source>Library checks passed. Model preparation happens after restart.</source>
@@ -2295,8 +2299,16 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Kunci API baru…</translation>
     </message>
     <message>
+      <source>New cloud model…</source>
+      <translation>Model cloud baru…</translation>
+    </message>
+    <message>
       <source>Next</source>
       <translation>Berikutnya</translation>
+    </message>
+    <message>
+      <source>Next, choose which translation models to set up.</source>
+      <translation>Berikutnya, pilih model terjemahan yang ingin disiapkan.</translation>
     </message>
     <message>
       <source>No</source>
@@ -2365,6 +2377,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>No windows found. Open a game or the demo, then refresh.</source>
       <translation>Tidak ada jendela ditemukan. Buka game atau demo, lalu segarkan.</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>Tidak ada</translation>
     </message>
     <message>
       <source>None selected</source>
@@ -2995,6 +3011,10 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
       <translation>Simpan</translation>
     </message>
     <message>
+      <source>Save and choose another</source>
+      <translation>Simpan dan pilih model lain</translation>
+    </message>
+    <message>
       <source>Save cancelled.</source>
       <translation>Penyimpanan dibatalkan.</translation>
     </message>
@@ -3423,6 +3443,10 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
     <message>
       <source>Text recognition is included with DanteTL.</source>
       <translation>Pengenalan teks sudah disertakan dalam DanteTL.</translation>
+    </message>
+    <message>
+      <source>Text recognition is ready.</source>
+      <translation>Pengenalan teks siap digunakan.</translation>
     </message>
     <message>
       <source>Text recognition model files</source>
@@ -4229,6 +4253,10 @@ Arsitektur: {architecture} · Format: {value}
     <message>
       <source>{name} · {label}</source>
       <translation>{name} · {label}</translation>
+    </message>
+    <message>
+      <source>{name} · {value:.0f} MB</source>
+      <translation>{name} · {value:.0f} MB</translation>
     </message>
     <message>
       <source>{name} · {value:.1f} MB received; total unknown</source>

@@ -127,8 +127,29 @@ def main() -> int:
                 assert not any(b.present() for b in models[1:])
                 screenshot("welcome.png")
                 guide.next.click()
-                assert guide.model.currentData() == "gemma" and guide.model.findData("ocr") == -1
+                assert guide.model.currentData() == "gemma"
                 screenshot("models.png")
+                guide.model.setCurrentIndex(guide.model.findData(""))
+                guide.sources.setCurrentWidget(guide.cloud_tab)
+                screenshot("cloud.png")
+                assert guide.ocr_cuda.isVisible() and not guide.ocr_cuda.isChecked()
+                guide.ocr_cuda.click()
+                guide.next.click()
+                review = guide.service.reviewed
+                assert review and review.model_keys == () and review.install_runtime
+                assert review.runtime == "nvidia" and not guide.busy
+                screenshot("ocr-cuda-review.png")
+                guide.back.click()
+                guide.ocr_cuda.click()
+                guide.sources.setCurrentIndex(0)
+                guide.model.setCurrentIndex(guide.model.findData("gemma"))
+                assert guide.model.currentData() == "gemma" and guide.model.findData("ocr") == -1
+                screenshot("local-model.png")
+                assert guide.ollama
+                guide.sources.setCurrentWidget(guide.ollama)
+                assert not guide.model.isVisible() and not guide.ollama.save_button.isEnabled()
+                screenshot("ollama.png")
+                guide.sources.setCurrentIndex(0)
                 guide.next.click()
                 assert guide.runtime.currentData().key == "nvidia"
                 screenshot("acceleration.png")
@@ -166,26 +187,12 @@ def main() -> int:
                 assert runtime_cancelled.is_set() and next(state.rglob("*.part")).stat().st_size > 0
                 assert not list(state.rglob("*.tmp"))
                 guide.next.click()
-                guide.add_cloud.click()
-                editor = window._settings.models.cloud.editor
-                assert guide.busy and editor and editor.parentWidget() is guide
-                editor.provider.setCurrentIndex(editor.provider.findData("deepseek"))
-                editor.name.setText("First-run draft")
-                editor.grab().save(str(args.output / "cloud-editor.png"))
                 stage = 3
             elif stage == 3:
                 if guide.busy:
                     return
                 assert guide._finished and models[0].present() and models[1].present()
                 assert not models[2].present()
-                editor = window._settings.models.cloud.editor
-                assert (
-                    editor
-                    and app.activeModalWidget() is editor
-                    and editor.name.text() == "First-run draft"
-                )
-                editor.reject()
-                evidence["downloads_finished_while_editing_cloud_model"] = True
                 stage = 6
             elif stage == 6:
                 prompt = app.activeModalWidget()

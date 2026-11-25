@@ -233,10 +233,6 @@ Repairs folder: {directory}</source>
       <translation>متوسط الجلسة الفعلي / العينات المطلوبة في الثانية.</translation>
     </message>
     <message>
-      <source>Add a cloud model here, or choose Next to set up a local model and optional GPU acceleration. You can also add cloud models while files download.</source>
-      <translation>أضف نموذجًا سحابيًا هنا، أو اختر «التالي» لإعداد نموذج محلي وتفعيل تسريع وحدة معالجة الرسومات إن أردت. يمكنك أيضًا إضافة نماذج سحابية أثناء تنزيل الملفات.</translation>
-    </message>
-    <message>
       <source>Add cloud model</source>
       <translation>إضافة نموذج سحابي</translation>
     </message>
@@ -1807,6 +1803,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>الفحص والتشخيص</translation>
     </message>
     <message>
+      <source>Install CUDA for text recognition (about 1.3 GB)</source>
+      <translation>تثبيت CUDA للتعرّف على النص (حوالي 1.3 غيغابايت)</translation>
+    </message>
+    <message>
       <source>Install runtime</source>
       <translation>تثبيت بيئة التشغيل</translation>
     </message>
@@ -1997,6 +1997,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Layout heuristics only · No classifier calls.</source>
       <translation>استدلالات التخطيط فقط · دون استدعاءات للمصنّف.</translation>
+    </message>
+    <message>
+      <source>Leave None selected to skip the local model download.</source>
+      <translation>اترك الخيار «بلا نموذج» لتخطي تنزيل النموذج المحلي.</translation>
     </message>
     <message>
       <source>Library checks passed. Model preparation happens after restart.</source>
@@ -2295,8 +2299,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>مفتاح API جديد…</translation>
     </message>
     <message>
+      <source>New cloud model…</source>
+      <translation>نموذج سحابي جديد…</translation>
+    </message>
+    <message>
       <source>Next</source>
       <translation>التالي</translation>
+    </message>
+    <message>
+      <source>Next, choose which translation models to set up.</source>
+      <translation>بعد ذلك، اختر نماذج الترجمة التي تريد إعدادها.</translation>
     </message>
     <message>
       <source>No</source>
@@ -2365,6 +2377,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>No windows found. Open a game or the demo, then refresh.</source>
       <translation>لم يتم العثور على نوافذ. افتح لعبة أو العرض التجريبي، ثم حدّث.</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>بلا نموذج</translation>
     </message>
     <message>
       <source>None selected</source>
@@ -2995,6 +3011,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>حفظ</translation>
     </message>
     <message>
+      <source>Save and choose another</source>
+      <translation>حفظ واختيار نموذج آخر</translation>
+    </message>
+    <message>
       <source>Save cancelled.</source>
       <translation>أُلغي الحفظ.</translation>
     </message>
@@ -3423,6 +3443,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Text recognition is included with DanteTL.</source>
       <translation>يتضمّن DanteTL ميزة التعرّف على النصوص.</translation>
+    </message>
+    <message>
+      <source>Text recognition is ready.</source>
+      <translation>التعرّف على النص جاهز.</translation>
     </message>
     <message>
       <source>Text recognition model files</source>
@@ -4229,6 +4253,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{name} · {label}</source>
       <translation>{name} · {label}</translation>
+    </message>
+    <message>
+      <source>{name} · {value:.0f} MB</source>
+      <translation>{name} · {value:.0f} ميغابايت</translation>
     </message>
     <message>
       <source>{name} · {value:.1f} MB received; total unknown</source>

@@ -6,18 +6,20 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
     QApplication,
+    QCheckBox,
     QComboBox,
     QDialog,
     QHBoxLayout,
     QLabel,
     QPushButton,
     QStackedWidget,
+    QTabWidget,
     QVBoxLayout,
     QWidget,
 )
 
 from dantetl.application.model_advice import RECOMMENDED_TRANSLATION
-from dantetl.application.services import SetupCommands
+from dantetl.application.services import OllamaCommands, SetupCommands
 from dantetl.i18n import display, mark, tr
 from dantetl.runtime.hardware_values import (
     HardwareReader,
@@ -27,6 +29,7 @@ from dantetl.runtime.hardware_values import (
 )
 from dantetl.runtime.setup_values import ModelProgress, SetupLane, SetupReview
 from dantetl.ui.cloud_settings import CloudSettings
+from dantetl.ui.cloud_setup_tab import CloudSetupTab
 from dantetl.ui.controls import Switch
 from dantetl.ui.localization import (
     InterfaceLanguageCombo,
@@ -35,6 +38,7 @@ from dantetl.ui.localization import (
     on_language_change,
 )
 from dantetl.ui.model_summary import ModelSummary
+from dantetl.ui.ollama_settings import OllamaSettings
 from dantetl.ui.runtime_restart_prompt import ask_restart
 from dantetl.ui.setup_progress import SetupProgressView
 
@@ -50,15 +54,17 @@ class SetupAssistant(QDialog):
         parent: QWidget,
         *,
         cloud: CloudSettings,
+        ollama: OllamaCommands | None = None,
         interface_language: str = "en",
         backdrop_blur: bool = True,
     ) -> None:
         super().__init__(parent)
         localized(self, windowTitle=mark("DanteTL · Welcome"))
         self.setWindowModality(Qt.WindowModality.WindowModal)
-        self.resize(640, 510)
+        self.resize(640, min(660, parent.screen().availableGeometry().height() - 48))
         self.service = service
         self.cloud = cloud
+        self._pending_save = ""
         self._pending_restart: Path | None = None
         self.models = {model.key: model for model in service.files}
         ocr = self.models["ocr"]
@@ -76,6 +82,12 @@ class SetupAssistant(QDialog):
         layout.addWidget(self.heading)
         self.pages = QStackedWidget()
         layout.addWidget(self.pages, 1)
+        self.ocr_cuda = localized(
+            QCheckBox(), text=mark("Install CUDA for text recognition (about 1.3 GB)")
+        )
+        layout.addWidget(self.ocr_cuda)
+        self.checking_hardware = localized(QLabel(), text=mark("Checking graphics hardware…"))
+        layout.addWidget(self.checking_hardware)
         page = self._page()
         self.interface_language = InterfaceLanguageCombo(interface_language)
         language_label = localized(QLabel(), text=mark("App language"))
@@ -95,16 +107,22 @@ class SetupAssistant(QDialog):
                         else tr("This guide can set up local text recognition.")
                     )
                     + "\n\n"
-                    + tr(
-                        "Add a cloud model here, or choose Next to set up a local model and "
-                        "optional GPU acceleration. You can also add cloud models while "
-                        "files download."
-                    )
+                    + tr("Next, choose which translation models to set up.")
                 ),
             )
         )
         page.addStretch()
-        page = self._page()
+        self.sources = QTabWidget()
+        self.pages.addWidget(self.sources)
+        local_models = QWidget()
+        page = QVBoxLayout(local_models)
+        page.setSpacing(12)
+        self.sources.addTab(local_models, tr("Local models"))
+        self.ollama = OllamaSettings(ollama, guide=True) if ollama else None
+        if self.ollama:
+            self.sources.addTab(self.ollama, "Ollama API")
+        self.cloud_tab = CloudSetupTab(cloud)
+        self.sources.addTab(self.cloud_tab, tr("Cloud models"))
         page.addWidget(
             localized(
                 self._label(""),
@@ -120,12 +138,11 @@ class SetupAssistant(QDialog):
             )
         )
         self.model = QComboBox()
+        localized_item(self.model, mark("None"), "")
         for bundle in service.guide_models:
             self.model.addItem("", bundle.key)
+        self.model.setCurrentIndex(max(0, self.model.findData(RECOMMENDED_TRANSLATION)))
         self._model_labels()
-        recommended = self.model.findData(RECOMMENDED_TRANSLATION)
-        if recommended >= 0:
-            self.model.setCurrentIndex(recommended)
         page.addWidget(self.model)
         self.model_help = self._label("")
         page.addWidget(self.model_help)
@@ -167,14 +184,6 @@ class SetupAssistant(QDialog):
         self.result_note = self._label("")
         page.addWidget(self.result_note)
         page.addStretch()
-        self.add_cloud = localized(QPushButton(), text=mark("Add cloud model…"))
-        self.add_cloud.clicked.connect(self._add_cloud)
-        layout.addWidget(self.add_cloud, 0, Qt.AlignmentFlag.AlignLeading)
-        self.cloud_note = localized(
-            self._label(""), text=mark("Model saved. Select it on the main screen to use it.")
-        )
-        self.cloud_note.hide()
-        layout.addWidget(self.cloud_note)
         buttons = QHBoxLayout()
         self.skip = localized(QPushButton(), text=mark("Skip for now"))
         self.back = localized(QPushButton(), text=mark("Back"))
@@ -186,15 +195,19 @@ class SetupAssistant(QDialog):
         buttons.addWidget(self.next)
         layout.addLayout(buttons)
         self.skip.clicked.connect(self._skip)
-        self.back.clicked.connect(lambda: self._show(self.pages.currentIndex() - 1))
+        self.back.clicked.connect(self._back)
         self.next.clicked.connect(self._next)
+        self.sources.currentChanged.connect(self._refresh_choices)
         on_language_change(self, self._refresh_language)
         self._show(0)
         job = service.job(SetupLane.GUIDE)
         if job.token and service.reviewed is not None:
             self._review = service.reviewed
+            self.ocr_cuda.setChecked(
+                self._review.model == "ocr" and self._review.runtime == "nvidia"
+            )
+            self.model.setCurrentIndex(max(0, self.model.findData(self._review.model)))
             self._runtime_chosen = True
-            self.model.setCurrentIndex(self.model.findData(self._review.model))
             for index in range(self.runtime.count()):
                 if self.runtime.itemData(index).key == self._review.runtime:
                     self.runtime.setCurrentIndex(index)
@@ -204,18 +217,64 @@ class SetupAssistant(QDialog):
             localized(self.skip, text=mark("Cancel setup"))
         self.refresh_view()
 
-    def _add_cloud(self) -> None:
-        editor = self.cloud.open_editor(parent=self)
-        if editor is not None:
-            editor.accepted.connect(self._cloud_saved)
+    def _back(self) -> None:
+        page = self.pages.currentIndex()
+        self._show(1 if page == 3 and not self.model.currentData() else page - 1)
 
-    def _cloud_saved(self) -> None:
-        self.cloud_note.show()
-        if self.pages.currentIndex() < 4:
-            self.skip.setText(tr("Finish"))
+    def _refresh_choices(self) -> None:
+        if self.pages.currentWidget() is not self.sources:
+            return
+        if self.ollama:
+            self.ollama.refresh_view()
+        self.cloud.refresh_view()
+        if self.sources.currentWidget() is self.cloud_tab:
+            self.cloud_tab.present()
+        remote = self.ollama.service.snapshot() if self.ollama else None
+        waiting = bool(self.cloud.busy and self.cloud_tab.editor) or bool(remote and remote.busy)
+        self.next.setEnabled(
+            not waiting and (bool(self.model.currentData()) or self.hardware_status is not None)
+        )
+        self.back.setEnabled(not waiting)
+        self.sources.tabBar().setEnabled(not self._pending_save)
+        if self._pending_save and not waiting:
+            saved = (
+                self.cloud.service.snapshot().saved
+                if self._pending_save == "cloud"
+                else bool(remote and remote.saved)
+            )
+            finished, self._pending_save = self._pending_save, ""
+            self.sources.tabBar().setEnabled(True)
+            if saved and not self._closing:
+                self._apply_choices(after=finished)
+
+    def _apply_choices(self, *, after: str = "") -> None:
+        if not after and self.cloud_tab.has_draft:
+            self.sources.setCurrentWidget(self.cloud_tab)
+            self.cloud_tab.save_draft()
+            if self.cloud.service.snapshot().busy:
+                self._pending_save = "cloud"
+        elif after != "ollama" and self.ollama and self.ollama.pending_selection:
+            self.sources.setCurrentWidget(self.ollama)
+            self.ollama.save()
+            if self.ollama.service.snapshot().busy:
+                self._pending_save = "ollama"
+        else:
+            self.cloud_tab.discard()
+            if self.model.currentData():
+                self._show(2)
+            elif not self.ocr_cuda.isChecked() and (
+                self.models["ocr"].present or self.models["ocr"].included
+            ):
+                self._reported = True
+                self.completed.emit("", None, False)
+                self.accept()
+            else:
+                self._show(3)
+            return
+        self._refresh_choices()
 
     def _model_labels(self) -> None:
-        for i in range(self.model.count()):
+        for i in range(1, self.model.count()):
             bundle = self.models[self.model.itemData(i)]
             suffix = (
                 tr(" · downloaded")
@@ -242,8 +301,10 @@ class SetupAssistant(QDialog):
         self._show_hardware()
         self._model_changed()
         self._show_runtime()
-        if self.pages.currentIndex() == 0:
-            self._show(0)
+        self.sources.setTabText(0, tr("Local models"))
+        self.sources.setTabText(self.sources.indexOf(self.cloud_tab), tr("Cloud models"))
+        if self.pages.currentIndex() in (0, 1):
+            self._show(self.pages.currentIndex())
 
     @staticmethod
     def _label(text: str) -> QLabel:
@@ -258,11 +319,28 @@ class SetupAssistant(QDialog):
         self.pages.addWidget(widget)
         return layout
 
+    def _show_ocr_option(self) -> None:
+        choosing = self.pages.currentWidget() is self.sources and not self.model.currentData()
+        status = self.hardware_status
+        self.checking_hardware.setVisible(choosing and status is None)
+        self.ocr_cuda.setVisible(
+            bool(
+                choosing
+                and status
+                and not status.cuda_ocr
+                and not compatibility_issue("nvidia", status.adapters)
+            )
+        )
+
     def _model_changed(self) -> None:
+        self._show_ocr_option()
         bundle = self.models.get(self.model.currentData())
         self.model_help.setText(
-            display(bundle.description) if bundle else tr("Choose a translation model.")
+            display(bundle.description)
+            if bundle
+            else tr("Leave None selected to skip the local model download.")
         )
+        self.model_summary.setVisible(bool(bundle))
         if bundle:
             self.model_summary.set_model(bundle.key, bundle.size, bundle.language_model)
 
@@ -280,10 +358,11 @@ class SetupAssistant(QDialog):
 
     def _show(self, page: int) -> None:
         self.pages.setCurrentIndex(page)
-        self.add_cloud.setVisible(page in (0, 1, 4))
+        self._show_ocr_option()
         if page < 4:
-            self.skip.setText(tr("Skip for now") if self.cloud_note.isHidden() else tr("Finish"))
+            self.skip.setText(tr("Skip for now"))
             self.skip.setEnabled(True)
+        self.back.setEnabled(True)
         self.heading.setText(
             (
                 tr("Welcome to DanteTL"),
@@ -296,9 +375,35 @@ class SetupAssistant(QDialog):
         self.back.setVisible(0 < page < 4)
         self.next.setText(tr("Download and set up") if page == 3 else tr("Next"))
         self.next.setEnabled(True)
+        self.skip.show()
+        if page == 1:
+            self._refresh_choices()
         if page == 2:
             self._show_runtime()
         if page == 3:
+            if not self.model.currentData():
+                assert self.hardware_status is not None
+                self._review = self.service.review_ocr(
+                    self.hardware_status, cuda=self.ocr_cuda.isChecked()
+                )
+                details = (
+                    tr(
+                        "{name} · {value:.0f} MB",
+                        name=self.models["ocr"].name,
+                        value=self._review.download_bytes / 1e6,
+                    )
+                    if self._review.model_keys
+                    else tr("Text recognition is ready.")
+                )
+                if self._review.install_runtime:
+                    details += (
+                        "\n\n"
+                        + tr("Install CUDA for text recognition (about 1.3 GB)")
+                        + "\n"
+                        + tr("Restart DanteTL to use {name}.", name=tr(self._reviewed_runtime_name))
+                    )
+                self.review.setText(details)
+                return
             assert self.hardware_status is not None
             profile = self.runtime.currentData()
             ocr = self.models["ocr"]
@@ -336,6 +441,9 @@ class SetupAssistant(QDialog):
 
     def _next(self) -> None:
         page = self.pages.currentIndex()
+        if page == 1:
+            self._apply_choices()
+            return
         if page < 3:
             self._show(page + 1)
         elif page == 3 or (page == 4 and not self._finished):
@@ -370,6 +478,13 @@ class SetupAssistant(QDialog):
                 tr("Cancelling… waiting for the current read or installer to stop.")
             )
 
+    @property
+    def _reviewed_runtime_name(self) -> str:
+        assert self._review is not None
+        return next(
+            profile.name for profile in self.service.profiles if profile.key == self._review.runtime
+        )
+
     def _prompt_if_ready(self) -> None:
         if (
             self._pending_restart
@@ -382,12 +497,21 @@ class SetupAssistant(QDialog):
             if target == self.target:
                 ask_restart(
                     self,
-                    self.runtime.currentData().name,
+                    self._reviewed_runtime_name,
                     lambda: self._finish(target) if self.target == target else None,
                 )
 
     def refresh_view(self) -> None:
-        self.add_cloud.setEnabled(not self.cloud.busy and self.cloud.editor is None)
+        if (
+            self._closing
+            and self.isVisible()
+            and self.pages.currentWidget() is self.sources
+            and not self.cloud.service.snapshot().busy
+        ):
+            self.close()
+            return
+        if self.isVisible():
+            self._refresh_choices()
         self._prompt_if_ready()
         if self.hardware_status is None:
             status = (
@@ -397,6 +521,8 @@ class SetupAssistant(QDialog):
             )
             if status is not None:
                 self.hardware_status = status
+                self._show_ocr_option()
+                self._refresh_choices()
                 self._show_hardware()
                 if not self._runtime_chosen:
                     key = recommended_profile(status.adapters)
@@ -437,8 +563,10 @@ class SetupAssistant(QDialog):
         )
         self.back.setVisible(not self._finished)
         self.result_note.setText(
-            tr("Restart DanteTL to use {name}.", name=tr(self.runtime.currentData().name))
+            tr("Restart DanteTL to use {name}.", name=tr(self._reviewed_runtime_name))
             if self._finished and self.target
+            else tr("Text recognition is ready.")
+            if not self.model.currentData() and self._finished
             else tr(
                 "Your chosen model will be selected next. Language models ask before preparation."
             )
@@ -476,6 +604,15 @@ class SetupAssistant(QDialog):
         self.close()
 
     def closeEvent(self, event: QCloseEvent) -> None:
+        self._pending_save = ""
+        if self.ollama:
+            self.ollama.cancel_pending()
+        if self.cloud_tab.editor:
+            self.cloud_tab.discard()
+            if self.cloud.service.snapshot().busy:
+                self._closing = True
+                event.ignore()
+                return
         if self.busy:
             self._closing = True
             self.cancel()

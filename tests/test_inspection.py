@@ -314,6 +314,7 @@ def test_first_run_close_drains_worker_and_progress_reports_actual_download(
     assert guide
     setup_owner(guide).advance()
     guide.refresh_view()
+    guide.model.setCurrentIndex(guide.model.findData("gemma"))
     for _ in range(4):
         guide.next.click()
     assert entered.wait(2) and guide.busy
@@ -360,7 +361,11 @@ def test_first_run_skip_persists_and_settings_can_reopen_it(app, tmp_path):
     assert guide.isVisible() and guide.pages.currentIndex() == 0
     assert guide.heading.text() == tr("Welcome to DanteTL") != "Welcome to DanteTL"
     assert guide.next.text() == tr("Next") != "Next"
-    assert guide.add_cloud.text() == tr("Add cloud model…") != "Add cloud model…"
+    assert (
+        guide.sources.tabText(guide.sources.indexOf(guide.cloud_tab))
+        == tr("Cloud models")
+        != "Cloud models"
+    )
     assert window.refresh_button.text() == tr("Refresh") != "Refresh"
     assert settings(window).tabs.tabText(0) == tr("Appearance") != "Appearance"
     guide.skip.click()

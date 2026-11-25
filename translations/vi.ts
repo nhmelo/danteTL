@@ -233,10 +233,6 @@ Thư mục sửa chữa: {directory}</translation>
       <translation>Trung bình phiên thực tế / số mẫu yêu cầu mỗi giây.</translation>
     </message>
     <message>
-      <source>Add a cloud model here, or choose Next to set up a local model and optional GPU acceleration. You can also add cloud models while files download.</source>
-      <translation>Thêm mô hình đám mây tại đây hoặc chọn Tiếp theo để thiết lập mô hình cục bộ và bật tăng tốc GPU nếu muốn. Bạn cũng có thể thêm mô hình đám mây trong khi tải tệp.</translation>
-    </message>
-    <message>
       <source>Add cloud model</source>
       <translation>Thêm mô hình đám mây</translation>
     </message>
@@ -1807,6 +1803,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Kiểm tra và chẩn đoán</translation>
     </message>
     <message>
+      <source>Install CUDA for text recognition (about 1.3 GB)</source>
+      <translation>Cài CUDA để nhận dạng văn bản (khoảng 1,3 GB)</translation>
+    </message>
+    <message>
       <source>Install runtime</source>
       <translation>Cài đặt runtime</translation>
     </message>
@@ -1997,6 +1997,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Layout heuristics only · No classifier calls.</source>
       <translation>Chỉ dùng heuristic bố cục · Không gọi bộ phân loại.</translation>
+    </message>
+    <message>
+      <source>Leave None selected to skip the local model download.</source>
+      <translation>Giữ lựa chọn “Không có” để bỏ qua việc tải mô hình cục bộ.</translation>
     </message>
     <message>
       <source>Library checks passed. Model preparation happens after restart.</source>
@@ -2295,8 +2299,16 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Khóa API mới…</translation>
     </message>
     <message>
+      <source>New cloud model…</source>
+      <translation>Mô hình đám mây mới…</translation>
+    </message>
+    <message>
       <source>Next</source>
       <translation>Tiếp theo</translation>
+    </message>
+    <message>
+      <source>Next, choose which translation models to set up.</source>
+      <translation>Ở bước tiếp theo, hãy chọn các mô hình dịch muốn thiết lập.</translation>
     </message>
     <message>
       <source>No</source>
@@ -2365,6 +2377,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>No windows found. Open a game or the demo, then refresh.</source>
       <translation>Không tìm thấy cửa sổ. Mở trò chơi hoặc bản demo, rồi làm mới.</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>Không có</translation>
     </message>
     <message>
       <source>None selected</source>
@@ -2995,6 +3011,10 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
       <translation>Lưu</translation>
     </message>
     <message>
+      <source>Save and choose another</source>
+      <translation>Lưu và chọn mô hình khác</translation>
+    </message>
+    <message>
       <source>Save cancelled.</source>
       <translation>Đã hủy lưu.</translation>
     </message>
@@ -3423,6 +3443,10 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
     <message>
       <source>Text recognition is included with DanteTL.</source>
       <translation>DanteTL có sẵn tính năng nhận dạng văn bản.</translation>
+    </message>
+    <message>
+      <source>Text recognition is ready.</source>
+      <translation>Nhận dạng văn bản đã sẵn sàng.</translation>
     </message>
     <message>
       <source>Text recognition model files</source>
@@ -4229,6 +4253,10 @@ Kiến trúc: {architecture} · Định dạng: {value}
     <message>
       <source>{name} · {label}</source>
       <translation>{name} · {label}</translation>
+    </message>
+    <message>
+      <source>{name} · {value:.0f} MB</source>
+      <translation>{name} · {value:.0f} MB</translation>
     </message>
     <message>
       <source>{name} · {value:.1f} MB received; total unknown</source>

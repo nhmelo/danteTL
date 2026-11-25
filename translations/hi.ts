@@ -233,10 +233,6 @@ Repairs folder: {directory}</source>
       <translation>वास्तविक सत्र औसत / अनुरोधित नमूने प्रति सेकंड।</translation>
     </message>
     <message>
-      <source>Add a cloud model here, or choose Next to set up a local model and optional GPU acceleration. You can also add cloud models while files download.</source>
-      <translation>यहाँ क्लाउड मॉडल जोड़ें या स्थानीय मॉडल और वैकल्पिक GPU त्वरण सेट अप करने के लिए अगला चुनें। फ़ाइलें डाउनलोड होते समय भी आप क्लाउड मॉडल जोड़ सकते हैं।</translation>
-    </message>
-    <message>
       <source>Add cloud model</source>
       <translation>क्लाउड मॉडल जोड़ें</translation>
     </message>
@@ -1807,6 +1803,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>निरीक्षण और निदान</translation>
     </message>
     <message>
+      <source>Install CUDA for text recognition (about 1.3 GB)</source>
+      <translation>टेक्स्ट पहचान के लिए CUDA इंस्टॉल करें (लगभग 1.3 GB)</translation>
+    </message>
+    <message>
       <source>Install runtime</source>
       <translation>रनटाइम इंस्टॉल करें</translation>
     </message>
@@ -1997,6 +1997,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Layout heuristics only · No classifier calls.</source>
       <translation>केवल लेआउट ह्यूरिस्टिक्स · कोई क्लासिफायर कॉल नहीं।</translation>
+    </message>
+    <message>
+      <source>Leave None selected to skip the local model download.</source>
+      <translation>स्थानीय मॉडल डाउनलोड छोड़ने के लिए ‘कोई नहीं’ चुना रहने दें।</translation>
     </message>
     <message>
       <source>Library checks passed. Model preparation happens after restart.</source>
@@ -2295,8 +2299,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>नई API कुंजी…</translation>
     </message>
     <message>
+      <source>New cloud model…</source>
+      <translation>नया क्लाउड मॉडल…</translation>
+    </message>
+    <message>
       <source>Next</source>
       <translation>अगला</translation>
+    </message>
+    <message>
+      <source>Next, choose which translation models to set up.</source>
+      <translation>अगले चरण में चुनें कि कौन से अनुवाद मॉडल सेट अप करने हैं।</translation>
     </message>
     <message>
       <source>No</source>
@@ -2365,6 +2377,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>No windows found. Open a game or the demo, then refresh.</source>
       <translation>कोई विंडो नहीं मिली। कोई गेम या डेमो खोलें, फिर रीफ़्रेश करें।</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>कोई नहीं</translation>
     </message>
     <message>
       <source>None selected</source>
@@ -2995,6 +3011,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>सहेजें</translation>
     </message>
     <message>
+      <source>Save and choose another</source>
+      <translation>सहेजें और दूसरा चुनें</translation>
+    </message>
+    <message>
       <source>Save cancelled.</source>
       <translation>सहेजना रद्द किया गया।</translation>
     </message>
@@ -3423,6 +3443,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Text recognition is included with DanteTL.</source>
       <translation>DanteTL में टेक्स्ट पहचान की सुविधा शामिल है।</translation>
+    </message>
+    <message>
+      <source>Text recognition is ready.</source>
+      <translation>टेक्स्ट पहचान तैयार है।</translation>
     </message>
     <message>
       <source>Text recognition model files</source>
@@ -4229,6 +4253,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{name} · {label}</source>
       <translation>{name} · {label}</translation>
+    </message>
+    <message>
+      <source>{name} · {value:.0f} MB</source>
+      <translation>{name} · {value:.0f} एमबी</translation>
     </message>
     <message>
       <source>{name} · {value:.1f} MB received; total unknown</source>

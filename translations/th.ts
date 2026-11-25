@@ -233,10 +233,6 @@ Repairs folder: {directory}</source>
       <translation>ค่าเฉลี่ยเซสชันจริง / จำนวนตัวอย่างที่ร้องขอต่อวินาที</translation>
     </message>
     <message>
-      <source>Add a cloud model here, or choose Next to set up a local model and optional GPU acceleration. You can also add cloud models while files download.</source>
-      <translation>เพิ่มโมเดลคลาวด์ที่นี่ หรือเลือก «ถัดไป» เพื่อตั้งค่าโมเดลในเครื่องและเปิดใช้การเร่งด้วย GPU หากต้องการ คุณยังเพิ่มโมเดลคลาวด์ระหว่างดาวน์โหลดไฟล์ได้ด้วย</translation>
-    </message>
-    <message>
       <source>Add cloud model</source>
       <translation>เพิ่มโมเดลคลาวด์</translation>
     </message>
@@ -1807,6 +1803,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>การตรวจสอบและวินิจฉัย</translation>
     </message>
     <message>
+      <source>Install CUDA for text recognition (about 1.3 GB)</source>
+      <translation>ติดตั้ง CUDA สำหรับการรู้จำข้อความ (ประมาณ 1.3 GB)</translation>
+    </message>
+    <message>
       <source>Install runtime</source>
       <translation>ติดตั้งรันไทม์</translation>
     </message>
@@ -1997,6 +1997,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Layout heuristics only · No classifier calls.</source>
       <translation>ใช้ฮิวริสติกเค้าโครงเท่านั้น · ไม่เรียกตัวจำแนก</translation>
+    </message>
+    <message>
+      <source>Leave None selected to skip the local model download.</source>
+      <translation>เลือก «ไม่มี» ไว้เพื่อข้ามการดาวน์โหลดโมเดลในเครื่อง</translation>
     </message>
     <message>
       <source>Library checks passed. Model preparation happens after restart.</source>
@@ -2295,8 +2299,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>คีย์ API ใหม่…</translation>
     </message>
     <message>
+      <source>New cloud model…</source>
+      <translation>โมเดลคลาวด์ใหม่…</translation>
+    </message>
+    <message>
       <source>Next</source>
       <translation>ถัดไป</translation>
+    </message>
+    <message>
+      <source>Next, choose which translation models to set up.</source>
+      <translation>ขั้นตอนถัดไป ให้เลือกโมเดลแปลภาษาที่ต้องการตั้งค่า</translation>
     </message>
     <message>
       <source>No</source>
@@ -2365,6 +2377,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>No windows found. Open a game or the demo, then refresh.</source>
       <translation>ไม่พบหน้าต่าง เปิดเกมหรือเดโม แล้วรีเฟรช</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>ไม่มี</translation>
     </message>
     <message>
       <source>None selected</source>
@@ -2995,6 +3011,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>บันทึก</translation>
     </message>
     <message>
+      <source>Save and choose another</source>
+      <translation>บันทึกและเลือกโมเดลอื่น</translation>
+    </message>
+    <message>
       <source>Save cancelled.</source>
       <translation>ยกเลิกการบันทึกแล้ว</translation>
     </message>
@@ -3423,6 +3443,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Text recognition is included with DanteTL.</source>
       <translation>DanteTL มีระบบรู้จำข้อความในตัว</translation>
+    </message>
+    <message>
+      <source>Text recognition is ready.</source>
+      <translation>การรู้จำข้อความพร้อมใช้งานแล้ว</translation>
     </message>
     <message>
       <source>Text recognition model files</source>
@@ -4229,6 +4253,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{name} · {label}</source>
       <translation>{name} · {label}</translation>
+    </message>
+    <message>
+      <source>{name} · {value:.0f} MB</source>
+      <translation>{name} · {value:.0f} MB</translation>
     </message>
     <message>
       <source>{name} · {value:.1f} MB received; total unknown</source>

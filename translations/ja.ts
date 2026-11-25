@@ -233,10 +233,6 @@ Repairs folder: {directory}</source>
       <translation>実際のセッション平均 / リクエストされた秒間サンプル数</translation>
     </message>
     <message>
-      <source>Add a cloud model here, or choose Next to set up a local model and optional GPU acceleration. You can also add cloud models while files download.</source>
-      <translation>ここでクラウドモデルを追加できます。ローカルモデルを設定するには「次へ」を選んでください。必要に応じて GPU アクセラレーションも設定できます。ファイルのダウンロード中にもクラウドモデルを追加できます。</translation>
-    </message>
-    <message>
       <source>Add cloud model</source>
       <translation>クラウドモデルを追加</translation>
     </message>
@@ -1807,6 +1803,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>検査と診断</translation>
     </message>
     <message>
+      <source>Install CUDA for text recognition (about 1.3 GB)</source>
+      <translation>文字認識用に CUDA をインストールする（約 1.3 GB）</translation>
+    </message>
+    <message>
       <source>Install runtime</source>
       <translation>ランタイムをインストール</translation>
     </message>
@@ -1997,6 +1997,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Layout heuristics only · No classifier calls.</source>
       <translation>レイアウトヒューリスティックのみ · 分類器呼び出しなし</translation>
+    </message>
+    <message>
+      <source>Leave None selected to skip the local model download.</source>
+      <translation>ローカルモデルをダウンロードしない場合は「なし」のままにしてください。</translation>
     </message>
     <message>
       <source>Library checks passed. Model preparation happens after restart.</source>
@@ -2295,8 +2299,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>新しいAPIキー…</translation>
     </message>
     <message>
+      <source>New cloud model…</source>
+      <translation>新しいクラウドモデル…</translation>
+    </message>
+    <message>
       <source>Next</source>
       <translation>次へ</translation>
+    </message>
+    <message>
+      <source>Next, choose which translation models to set up.</source>
+      <translation>次の画面で、セットアップする翻訳モデルを選択してください。</translation>
     </message>
     <message>
       <source>No</source>
@@ -2365,6 +2377,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>No windows found. Open a game or the demo, then refresh.</source>
       <translation>ウィンドウが見つかりません。ゲームまたはデモを開いてから更新してください。</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>なし</translation>
     </message>
     <message>
       <source>None selected</source>
@@ -2995,6 +3011,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>保存</translation>
     </message>
     <message>
+      <source>Save and choose another</source>
+      <translation>保存して別のモデルを選ぶ</translation>
+    </message>
+    <message>
       <source>Save cancelled.</source>
       <translation>保存をキャンセルしました。</translation>
     </message>
@@ -3423,6 +3443,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Text recognition is included with DanteTL.</source>
       <translation>DanteTL には文字認識機能が含まれています。</translation>
+    </message>
+    <message>
+      <source>Text recognition is ready.</source>
+      <translation>文字認識の準備ができました。</translation>
     </message>
     <message>
       <source>Text recognition model files</source>
@@ -4229,6 +4253,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{name} · {label}</source>
       <translation>{name} · {label}</translation>
+    </message>
+    <message>
+      <source>{name} · {value:.0f} MB</source>
+      <translation>{name} · {value:.0f} MB</translation>
     </message>
     <message>
       <source>{name} · {value:.1f} MB received; total unknown</source>

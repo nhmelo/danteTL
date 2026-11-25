@@ -112,6 +112,7 @@ def test_pascal_guide_recommends_supported_runtime_and_explains_cuda(
             replay.setup, reader, parent, cloud=CloudSettings(replay.cloud, parent)
         )
         view.next.click()
+        view.model.setCurrentIndex(1)
         view.next.click()
         assert view.runtime.currentData().key == expected and view.next.isEnabled()
         cuda = next(
@@ -230,7 +231,8 @@ def test_guide_offers_only_models_it_can_review_and_keeps_imports_elsewhere(app,
         view = SetupAssistant(replay.setup, None, parent, cloud=CloudSettings(replay.cloud, parent))
         try:
             assert imported in replay.setup.files
-            assert [view.model.itemData(i) for i in range(view.model.count())] == ["model"]
+            assert [view.model.itemData(i) for i in range(view.model.count())] == ["", "model"]
+            view.model.setCurrentIndex(view.model.findData("model"))
             view.hardware_status = HardwareStatus(llama_device="cpu")
             view._show(3)
             assert replay.setup.reviewed and replay.setup.reviewed.model == "model"

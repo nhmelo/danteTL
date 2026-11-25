@@ -233,10 +233,6 @@ Repairs folder: {directory}</source>
       <translation>প্রকৃত সেশন গড় / প্রতি সেকেন্ডে অনুরোধকৃত নমুনা।</translation>
     </message>
     <message>
-      <source>Add a cloud model here, or choose Next to set up a local model and optional GPU acceleration. You can also add cloud models while files download.</source>
-      <translation>এখানে একটি ক্লাউড মডেল যোগ করুন, অথবা স্থানীয় মডেল ও ঐচ্ছিক GPU ত্বরণ সেট আপ করতে পরবর্তী নির্বাচন করুন। ফাইল ডাউনলোডের সময়ও ক্লাউড মডেল যোগ করা যায়।</translation>
-    </message>
-    <message>
       <source>Add cloud model</source>
       <translation>ক্লাউড মডেল যোগ করুন</translation>
     </message>
@@ -1807,6 +1803,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>পরিদর্শন ও ডায়াগনস্টিকস</translation>
     </message>
     <message>
+      <source>Install CUDA for text recognition (about 1.3 GB)</source>
+      <translation>টেক্সট শনাক্তকরণের জন্য CUDA ইনস্টল করুন (প্রায় ১.৩ গিগাবাইট)</translation>
+    </message>
+    <message>
       <source>Install runtime</source>
       <translation>রানটাইম ইনস্টল করুন</translation>
     </message>
@@ -1997,6 +1997,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Layout heuristics only · No classifier calls.</source>
       <translation>শুধুমাত্র লেআউট হিউরিস্টিক · কোনো ক্লাসিফায়ার কল নেই।</translation>
+    </message>
+    <message>
+      <source>Leave None selected to skip the local model download.</source>
+      <translation>স্থানীয় মডেল ডাউনলোড এড়াতে ‘কোনোটিই নয়’ নির্বাচিত রাখুন।</translation>
     </message>
     <message>
       <source>Library checks passed. Model preparation happens after restart.</source>
@@ -2295,8 +2299,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>নতুন API কী…</translation>
     </message>
     <message>
+      <source>New cloud model…</source>
+      <translation>নতুন ক্লাউড মডেল…</translation>
+    </message>
+    <message>
       <source>Next</source>
       <translation>পরবর্তী</translation>
+    </message>
+    <message>
+      <source>Next, choose which translation models to set up.</source>
+      <translation>পরের ধাপে কোন অনুবাদ মডেলগুলি সেট আপ করবেন তা বেছে নিন।</translation>
     </message>
     <message>
       <source>No</source>
@@ -2365,6 +2377,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>No windows found. Open a game or the demo, then refresh.</source>
       <translation>কোনো উইন্ডো পাওয়া যায়নি। একটি গেম বা ডেমো খুলুন, তারপর রিফ্রেশ করুন।</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>কোনোটিই নয়</translation>
     </message>
     <message>
       <source>None selected</source>
@@ -2995,6 +3011,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>সংরক্ষণ করুন</translation>
     </message>
     <message>
+      <source>Save and choose another</source>
+      <translation>সংরক্ষণ করে আরেকটি বেছে নিন</translation>
+    </message>
+    <message>
       <source>Save cancelled.</source>
       <translation>সংরক্ষণ বাতিল হয়েছে।</translation>
     </message>
@@ -3423,6 +3443,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Text recognition is included with DanteTL.</source>
       <translation>DanteTL-এর সঙ্গে লেখা শনাক্তকরণের সুবিধা দেওয়া আছে।</translation>
+    </message>
+    <message>
+      <source>Text recognition is ready.</source>
+      <translation>টেক্সট শনাক্তকরণ প্রস্তুত।</translation>
     </message>
     <message>
       <source>Text recognition model files</source>
@@ -4229,6 +4253,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{name} · {label}</source>
       <translation>{name} · {label}</translation>
+    </message>
+    <message>
+      <source>{name} · {value:.0f} MB</source>
+      <translation>{name} · {value:.0f} মেগাবাইট</translation>
     </message>
     <message>
       <source>{name} · {value:.1f} MB received; total unknown</source>

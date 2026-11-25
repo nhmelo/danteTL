@@ -233,10 +233,6 @@ Repairs folder: {directory}</source>
       <translation>实际会话平均速率 / 每秒请求的样本数。</translation>
     </message>
     <message>
-      <source>Add a cloud model here, or choose Next to set up a local model and optional GPU acceleration. You can also add cloud models while files download.</source>
-      <translation>在此添加云端模型，或选择“下一步”设置本地模型，也可按需启用 GPU 加速。下载文件时也可以添加云端模型。</translation>
-    </message>
-    <message>
       <source>Add cloud model</source>
       <translation>添加云端模型</translation>
     </message>
@@ -1807,6 +1803,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>检查与诊断</translation>
     </message>
     <message>
+      <source>Install CUDA for text recognition (about 1.3 GB)</source>
+      <translation>安装 CUDA 用于文本识别（约 1.3 GB）</translation>
+    </message>
+    <message>
       <source>Install runtime</source>
       <translation>安装运行时</translation>
     </message>
@@ -1997,6 +1997,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Layout heuristics only · No classifier calls.</source>
       <translation>仅使用布局启发式 · 不调用分类器。</translation>
+    </message>
+    <message>
+      <source>Leave None selected to skip the local model download.</source>
+      <translation>保留“无”即可跳过本地模型下载。</translation>
     </message>
     <message>
       <source>Library checks passed. Model preparation happens after restart.</source>
@@ -2295,8 +2299,16 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>新建 API 密钥…</translation>
     </message>
     <message>
+      <source>New cloud model…</source>
+      <translation>新建云端模型…</translation>
+    </message>
+    <message>
       <source>Next</source>
       <translation>下一步</translation>
+    </message>
+    <message>
+      <source>Next, choose which translation models to set up.</source>
+      <translation>下一步，选择要设置的翻译模型。</translation>
     </message>
     <message>
       <source>No</source>
@@ -2365,6 +2377,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>No windows found. Open a game or the demo, then refresh.</source>
       <translation>未找到窗口。请打开游戏或演示，然后刷新。</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>无</translation>
     </message>
     <message>
       <source>None selected</source>
@@ -2995,6 +3011,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>保存</translation>
     </message>
     <message>
+      <source>Save and choose another</source>
+      <translation>保存并选择其他模型</translation>
+    </message>
+    <message>
       <source>Save cancelled.</source>
       <translation>保存已取消。</translation>
     </message>
@@ -3423,6 +3443,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Text recognition is included with DanteTL.</source>
       <translation>DanteTL 已内置文字识别功能。</translation>
+    </message>
+    <message>
+      <source>Text recognition is ready.</source>
+      <translation>文本识别已就绪。</translation>
     </message>
     <message>
       <source>Text recognition model files</source>
@@ -4229,6 +4253,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{name} · {label}</source>
       <translation>{name} · {label}</translation>
+    </message>
+    <message>
+      <source>{name} · {value:.0f} MB</source>
+      <translation>{name} · {value:.0f} MB</translation>
     </message>
     <message>
       <source>{name} · {value:.1f} MB received; total unknown</source>

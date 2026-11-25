@@ -233,10 +233,6 @@ Herstelmap: {directory}</translation>
       <translation>Werkelijk sessiegemiddelde / gevraagde samples per seconde.</translation>
     </message>
     <message>
-      <source>Add a cloud model here, or choose Next to set up a local model and optional GPU acceleration. You can also add cloud models while files download.</source>
-      <translation>Voeg hier een cloudmodel toe of kies Volgende om een lokaal model en eventueel GPU-versnelling in te stellen. Ook tijdens het downloaden kun je cloudmodellen toevoegen.</translation>
-    </message>
-    <message>
       <source>Add cloud model</source>
       <translation>Cloudmodel toevoegen</translation>
     </message>
@@ -1807,6 +1803,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Inspectie en diagnostiek</translation>
     </message>
     <message>
+      <source>Install CUDA for text recognition (about 1.3 GB)</source>
+      <translation>CUDA installeren voor tekstherkenning (ongeveer 1,3 GB)</translation>
+    </message>
+    <message>
       <source>Install runtime</source>
       <translation>Runtime installeren</translation>
     </message>
@@ -1997,6 +1997,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Layout heuristics only · No classifier calls.</source>
       <translation>Alleen lay-outheuristieken · Geen classifier-aanroepen.</translation>
+    </message>
+    <message>
+      <source>Leave None selected to skip the local model download.</source>
+      <translation>Laat ‘Geen’ geselecteerd om het downloaden van een lokaal model over te slaan.</translation>
     </message>
     <message>
       <source>Library checks passed. Model preparation happens after restart.</source>
@@ -2295,8 +2299,16 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Nieuwe API-sleutel…</translation>
     </message>
     <message>
+      <source>New cloud model…</source>
+      <translation>Nieuw cloudmodel…</translation>
+    </message>
+    <message>
       <source>Next</source>
       <translation>Volgende</translation>
+    </message>
+    <message>
+      <source>Next, choose which translation models to set up.</source>
+      <translation>Kies in de volgende stap welke vertaalmodellen je wilt instellen.</translation>
     </message>
     <message>
       <source>No</source>
@@ -2365,6 +2377,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>No windows found. Open a game or the demo, then refresh.</source>
       <translation>Geen vensters gevonden. Open een game of de demo en ververs.</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>Geen</translation>
     </message>
     <message>
       <source>None selected</source>
@@ -2995,6 +3011,10 @@ Modeldownloads: tot {size:.2f} GB; bestaande bestanden worden geverifieerd en he
       <translation>Opslaan</translation>
     </message>
     <message>
+      <source>Save and choose another</source>
+      <translation>Opslaan en een ander model kiezen</translation>
+    </message>
+    <message>
       <source>Save cancelled.</source>
       <translation>Opslaan geannuleerd.</translation>
     </message>
@@ -3423,6 +3443,10 @@ Modeldownloads: tot {size:.2f} GB; bestaande bestanden worden geverifieerd en he
     <message>
       <source>Text recognition is included with DanteTL.</source>
       <translation>Tekstherkenning is inbegrepen bij DanteTL.</translation>
+    </message>
+    <message>
+      <source>Text recognition is ready.</source>
+      <translation>Tekstherkenning is klaar voor gebruik.</translation>
     </message>
     <message>
       <source>Text recognition model files</source>
@@ -4229,6 +4253,10 @@ Architectuur: {architecture} · Formaat: {value}
     <message>
       <source>{name} · {label}</source>
       <translation>{name} · {label}</translation>
+    </message>
+    <message>
+      <source>{name} · {value:.0f} MB</source>
+      <translation>{name} · {value:.0f} MB</translation>
     </message>
     <message>
       <source>{name} · {value:.1f} MB received; total unknown</source>

@@ -570,11 +570,18 @@ turns; growth/corrections update a turn. A new capture or source language starts
 
 ## Ollama API
 
-One user-configured HTTP(S) origin serves translation through Ollama’s native API. Discovery can present the exact tag,
+One user-configured HTTP(S) origin serves translation through Ollama’s native API. The welcome guide
+and Settings each embed the same server field and model checklist. Discovery can present the exact tag,
 parameter count, quantization and model size. Discovery reads `/api/tags` on request. Save verifies
 selected models through `/api/show` and retains their display metadata for the next launch. Requests have deadlines and response limits, preserve TLS
 verification, and disable redirects and environment proxies. DanteTL contacts the selected origin only.
 Models must support text completion on that server. Model pulls and cloud-backed entries are excluded.
+The guide preserves choices across Local models, Ollama API and Cloud models tabs. Local defaults to
+the recommended translator when offered, or None otherwise. Next commits pending cloud and Ollama
+selections before planning downloads. Local translators have a separate acceleration step. With no local translator, the guide offers the
+NVIDIA runtime for OCR when compatible hardware is detected and CUDA OCR is unavailable. The review
+includes only missing OCR assets and the explicitly requested runtime. Bundled or installed OCR
+with no runtime change completes immediately. A failed provider save keeps its draft available for correction.
 
 Preferences store the server and selected tags and digests together. Assignments identify the server
 and tag. Cache entries also depend on the model digest, game hint, source and target languages,

@@ -237,10 +237,13 @@ def test_models_setup_saves_secret_off_gui_and_does_not_make_a_request(app, tmp_
         panel.deleteLater()
 
 
-@pytest.mark.parametrize("phase", ["welcome", "downloading", "finished-with-draft"])
-def test_welcome_shares_cloud_editor_and_preserves_pending_download_and_restart(
-    app, tmp_path, monkeypatch, phase
+@pytest.mark.parametrize("local", [False, True])
+def test_cloud_tab_saves_on_next_and_reviews_only_selected_downloads(
+    app, tmp_path, monkeypatch, local
 ):
+    from PySide6.QtCore import Qt
+    from test_ollama import MODEL, OllamaConfig, OllamaServices, Server
+
     from dantetl.runtime.hardware_values import Adapter, CudaDevice, HardwareStatus
     from dantetl.runtime.model_store import model_catalog
 
@@ -268,49 +271,74 @@ def test_welcome_shares_cloud_editor_and_preserves_pending_download_and_restart(
         replace(b, directory=tmp_path / b.key, bundled_directory=None) for b in model_catalog()
     )
     window = MainWindow(windows, Mock(), models=models, hardware=hardware, cloud=service)
+    server = Server()
+    app_owner(window).ollama = OllamaServices(OllamaConfig(), lambda: None, server.transport)
     window.show()
     window.offer_first_run()
     guide = window._setup_assistant
     assert guide
     try:
-        if phase != "welcome":
-            for _ in range(2):
-                guide.next.click()
-            guide.runtime.setCurrentIndex(
-                next(
-                    i
-                    for i in range(guide.runtime.count())
-                    if guide.runtime.itemData(i).key == "nvidia"
-                )
-            )
-            guide.next.click()
-            guide.next.click()
-            assert entered.wait(2) and guide.busy
-        guide.add_cloud.click()
-        panel = window_settings(window).models.cloud
-        editor = panel.editor
-        assert editor and editor.parentWidget() is guide and app.activeModalWidget() is editor
+        guide.next.click()
+        assert guide.model.currentData() == "gemma"
+        if not local:
+            guide.model.setCurrentIndex(guide.model.findData(""))
+        ollama_editor = guide.ollama
+        assert ollama_editor
+        if local:
+            guide.sources.setCurrentWidget(ollama_editor)
+            ollama_editor.find_button.click()
+            drain(app, lambda: ollama_editor.list.count() == 1)
+            ollama_editor.list.item(0).setCheckState(Qt.CheckState.Checked)
+            server.info = {"capabilities": ["embedding"]}
+        guide.sources.setCurrentWidget(guide.cloud_tab)
+        drain(app, lambda: guide.cloud_tab.editor is not None)
+        editor = guide.cloud_tab.editor
+        assert editor and editor.isVisible() and not editor.isWindow()
         editor.provider.setCurrentIndex(editor.provider.findData("deepseek"))
-        editor.key.setText("fixture-secret")
-        if phase == "finished-with-draft":
-            release.set()
-            drain(app, lambda: guide.next.text() == "Restart now")
-            assert app.activeModalWidget() is editor and editor.key.text() == "fixture-secret"
         editor.model.setCurrentIndex(1)
-        assert editor.save.isEnabled()
-        editor.save.click()
-        drain(app, lambda: panel.editor is None)
-        assert len(panel.profiles) == 1 and panel.profiles[0].provider == "deepseek"
-        assert service.allowance(panel.profiles[0].key).snapshot().requests == 0
-        assert guide.cloud_note.isVisible()
-        if phase == "welcome":
-            assert guide.skip.text() == "Finish" and not entered.is_set()
-        else:
-            if phase == "downloading":
-                assert guide.busy
-                release.set()
-            drain(app, lambda: isinstance(app.activeModalWidget(), QMessageBox))
-            app.activeModalWidget().reject()
+        # An invalid draft stays on the form and cannot start downloads.
+        guide.next.click()
+        drain(app, lambda: not service.busy and bool(editor.status.text()))
+        assert guide.cloud_tab.editor is editor and not service.profiles
+        editor.key.setText("fixture-secret")
+        if not local:
+            editor.save.click()
+            drain(
+                app, lambda: bool(guide.cloud_tab.editor and guide.cloud_tab.editor is not editor)
+            )
+            second = guide.cloud_tab.editor
+            assert second and not second.key.text() and not second.model.currentData()
+            second.provider.setCurrentIndex(second.provider.findData("openai"))
+            second.model.setCurrentIndex(1)
+            second.key.setText("second-fixture")
+        guide.sources.setCurrentIndex(0)
+        guide.next.click()
+        if local:
+            drain(app, lambda: bool(app_owner(window).ollama.snapshot().error))
+            assert ollama_editor.isVisible() and len(service.profiles) == 1
+            assert not entered.is_set()
+            server.info = {"capabilities": ["completion"]}
+            guide.next.click()
+        drain(app, lambda: guide.pages.currentIndex() in (2, 3))
+        assert {p.provider for p in service.profiles} == (
+            {"deepseek"} if local else {"deepseek", "openai"}
+        )
+        assert service.allowance(service.profiles[0].key).snapshot().requests == 0
+        if local:
+            assert app_owner(window).ollama.snapshot().config.models == (MODEL,)
+            assert guide.pages.currentIndex() == 2
+            guide.next.click()
+        review = guide._review
+        assert review and set(review.model_keys) == ({"ocr", "gemma"} if local else {"ocr"})
+        assert not entered.is_set()
+        if not local:
+            assert not review.install_runtime
+            guide.back.click()
+            guide.sources.setCurrentWidget(guide.cloud_tab)
+            assert guide.cloud_tab.choice.currentData() == next(
+                p.key for p in service.profiles if p.provider == "openai"
+            )
+            assert not guide.cloud_tab.editor
         guide.skip.click()
         assert not guide.isVisible() and app_owner(window).values.setup_seen
     finally:

@@ -233,10 +233,6 @@ Cartella riparazioni: {directory}</translation>
       <translation>Media effettiva della sessione / campioni richiesti al secondo.</translation>
     </message>
     <message>
-      <source>Add a cloud model here, or choose Next to set up a local model and optional GPU acceleration. You can also add cloud models while files download.</source>
-      <translation>Aggiungi qui un modello cloud oppure scegli Avanti per configurare un modello locale e, se vuoi, l’accelerazione GPU. Puoi aggiungere modelli cloud anche mentre i file vengono scaricati.</translation>
-    </message>
-    <message>
       <source>Add cloud model</source>
       <translation>Aggiungi modello cloud</translation>
     </message>
@@ -1807,6 +1803,10 @@ I dettagli sono in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Ispezione e diagnostica</translation>
     </message>
     <message>
+      <source>Install CUDA for text recognition (about 1.3 GB)</source>
+      <translation>Installa CUDA per il riconoscimento del testo (circa 1,3 GB)</translation>
+    </message>
+    <message>
       <source>Install runtime</source>
       <translation>Installa runtime</translation>
     </message>
@@ -1997,6 +1997,10 @@ I dettagli sono in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Layout heuristics only · No classifier calls.</source>
       <translation>Solo euristiche di layout · Nessuna chiamata al classificatore.</translation>
+    </message>
+    <message>
+      <source>Leave None selected to skip the local model download.</source>
+      <translation>Lascia selezionato «Nessuno» per saltare il download del modello locale.</translation>
     </message>
     <message>
       <source>Library checks passed. Model preparation happens after restart.</source>
@@ -2295,8 +2299,16 @@ I dettagli sono in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Nuova chiave API…</translation>
     </message>
     <message>
+      <source>New cloud model…</source>
+      <translation>Nuovo modello cloud…</translation>
+    </message>
+    <message>
       <source>Next</source>
       <translation>Avanti</translation>
+    </message>
+    <message>
+      <source>Next, choose which translation models to set up.</source>
+      <translation>Nel passaggio successivo, scegli i modelli di traduzione da configurare.</translation>
     </message>
     <message>
       <source>No</source>
@@ -2365,6 +2377,10 @@ I dettagli sono in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>No windows found. Open a game or the demo, then refresh.</source>
       <translation>Nessuna finestra trovata. Apri un gioco o la demo, poi aggiorna.</translation>
+    </message>
+    <message>
+      <source>None</source>
+      <translation>Nessuno</translation>
     </message>
     <message>
       <source>None selected</source>
@@ -2995,6 +3011,10 @@ Download dei modelli: fino a {size:.2f} GB; i file esistenti vengono verificati 
       <translation>Salva</translation>
     </message>
     <message>
+      <source>Save and choose another</source>
+      <translation>Salva e scegli un altro modello</translation>
+    </message>
+    <message>
       <source>Save cancelled.</source>
       <translation>Salvataggio annullato.</translation>
     </message>
@@ -3423,6 +3443,10 @@ Download dei modelli: fino a {size:.2f} GB; i file esistenti vengono verificati 
     <message>
       <source>Text recognition is included with DanteTL.</source>
       <translation>Il riconoscimento del testo è incluso in DanteTL.</translation>
+    </message>
+    <message>
+      <source>Text recognition is ready.</source>
+      <translation>Il riconoscimento del testo è pronto.</translation>
     </message>
     <message>
       <source>Text recognition model files</source>
@@ -4229,6 +4253,10 @@ Architettura: {architecture} · Formato: {value}
     <message>
       <source>{name} · {label}</source>
       <translation>{name} · {label}</translation>
+    </message>
+    <message>
+      <source>{name} · {value:.0f} MB</source>
+      <translation>{name} · {value:.0f} MB</translation>
     </message>
     <message>
       <source>{name} · {value:.1f} MB received; total unknown</source>
