@@ -267,7 +267,7 @@ wheels = [
 
 [[package]]
 name = "dantetl"
-version = "0.1.5"
+version = "0.1.6"
 source = { editable = "." }
 default-groups = ["cpu", "dev"]
 dependencies = [
