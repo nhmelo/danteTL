@@ -9,7 +9,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from dantetl.application.hotkeys import parse_shortcut
-from dantetl.application.preference_values import MAX_CAPTURE_RATE, Preferences
+from dantetl.application.preference_values import MAX_CAPTURE_RATE, Preferences, valid_executable_id
 from dantetl.file_lock import file_lock
 from dantetl.i18n import INTERFACE_LANGUAGES, tr
 from dantetl.languages.selection import SOURCE_LANGUAGES
@@ -56,6 +56,12 @@ def decode_preferences(value: object) -> Preferences:
                 defaults[key] = OllamaConfig()
             continue
         candidate = value.get(key, default)
+        if key == "favorite_executables":
+            if isinstance(candidate, (list, tuple)):
+                defaults[key] = tuple(
+                    sorted({entry for entry in candidate if valid_executable_id(entry)})
+                )
+            continue
         if type(candidate) is not type(default):
             continue
         if key in ranges and not ranges[key][0] <= candidate <= ranges[key][1]:
@@ -182,6 +188,14 @@ class PreferenceStore:
                 # Fill absent migrated fields; another version may know values we cannot decode.
                 record = {**asdict(current), **record}
                 record.update((k, v) for k, v in fields.items() if v != previous[k])
+                before, after = (
+                    set(previous["favorite_executables"]),
+                    set(value.favorite_executables),
+                )
+                if before != after:
+                    record["favorite_executables"] = sorted(
+                        (set(current.favorite_executables) - (before - after)) | (after - before)
+                    )
             data = json.dumps(record, indent=2).encode("utf-8")
             if len(data) > _MAX_BYTES:
                 raise ValueError(tr("Settings file is too large; defaults are being used."))

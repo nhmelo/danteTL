@@ -1,5 +1,6 @@
+import re
 from dataclasses import dataclass
-from typing import Protocol, TypedDict, Unpack
+from typing import Protocol, TypedDict, TypeGuard, Unpack
 
 from dantetl.application.hotkeys import DEFAULT_CAPTURE, DEFAULT_OVERLAY
 from dantetl.languages.target import ENGLISH
@@ -7,6 +8,10 @@ from dantetl.translation.ollama.values import OllamaConfig
 
 # Numeric targets use the full range supported by Qt's integer editor. Zero is unlimited.
 MAX_CAPTURE_RATE = 2**31 - 1
+
+
+def valid_executable_id(value: object) -> TypeGuard[str]:
+    return isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value) is not None
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,6 +50,7 @@ class Preferences:
     output_language: str = ENGLISH.code
     interface_language: str = ENGLISH.code
     inspection_enabled: bool = False
+    favorite_executables: tuple[str, ...] = ()
 
 
 class SettingsEdit(TypedDict, total=False):

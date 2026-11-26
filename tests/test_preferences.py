@@ -156,3 +156,16 @@ def test_preferences_validate_current_file_again_before_saving(tmp_path):
     store.save(replace(store.current, opacity=60))
     wait_idle(store)
     assert store.error and json.loads(path.read_text()) == {"version": 2}
+
+
+def test_favorite_edits_merge_across_instances_and_validate_saved_ids(tmp_path):
+    path = tmp_path / "prefs.json"
+    a, b, c = (letter * 64 for letter in "abc")
+    path.write_text(json.dumps({"version": 1, "favorite_executables": [a, 42, "title", a]}))
+    first, second = PreferenceStore(path), PreferenceStore(path)
+    assert first.initial.favorite_executables == (a,)
+    first.save(replace(first.initial, favorite_executables=(a, b)))
+    second.save(replace(second.initial, favorite_executables=(c,)))
+    wait_idle(first)
+    wait_idle(second)
+    assert PreferenceStore(path).initial.favorite_executables == (b, c)

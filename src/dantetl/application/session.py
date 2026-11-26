@@ -12,7 +12,7 @@ from dantetl.application.live_session import CaptureWorker, LiveSession
 from dantetl.application.model_inventory import ModelInventory, SourceModels
 from dantetl.application.notice import NoticeInput, Notices, project_notices
 from dantetl.application.ollama_services import OllamaServices
-from dantetl.application.preference_values import SettingsEdit
+from dantetl.application.preference_values import SettingsEdit, valid_executable_id
 from dantetl.application.preferences import PreferenceStore
 from dantetl.application.presentation import (
     ocr_status,
@@ -235,6 +235,17 @@ class ApplicationSession:
         if key != self.values.model:
             self.values = replace(self.values, model=key)
             self.persist()
+
+    def set_window_favorite(self, executable: str, favorite: bool) -> None:
+        if not valid_executable_id(executable):
+            raise ValueError("Invalid executable ID")
+        favorites = set(self.values.favorite_executables)
+        if favorite:
+            favorites.add(executable)
+        else:
+            favorites.discard(executable)
+        self.values = replace(self.values, favorite_executables=tuple(sorted(favorites)))
+        self.persist()
 
     def set_window_title(self, title: str) -> None:
         self.translation.set_game(
