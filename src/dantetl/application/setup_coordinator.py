@@ -20,6 +20,7 @@ from dantetl.runtime.setup_values import (
     ModelProgress,
     Progress,
     RuntimeStatus,
+    RuntimeTarget,
     SetupJob,
     SetupLane,
     SetupReview,
@@ -37,8 +38,8 @@ class SetupDependencies:
     save_import: Callable[[ImportedModel], None]
     probe: Callable[[Path, str, str, threading.Event], ImportTest]
     runtime_status: Callable[[], RuntimeStatus]
-    install_runtime: Callable[[str, Progress, threading.Event], None]
-    select_runtime: Callable[[Path], None]
+    install_runtime: Callable[[str, str, Progress, threading.Event], None]
+    select_runtime: Callable[[RuntimeTarget], None]
     run_setup: Callable[[SetupPlan, Progress, threading.Event], Path | None]
 
 
@@ -66,10 +67,10 @@ class SetupCoordinator:
         self._probe_result: ProbeResult | None = None
         self._runtime = RuntimeStatus()
         self._runtime_result: RuntimeStatus | None = None
-        self._installed_runtime: tuple[str, Path] | None = None
+        self._installed_runtime: tuple[str, RuntimeTarget] | None = None
         self._review: SetupReview | None = None
         self._plan: SetupPlan | None = None
-        self._guide_target: Path | None = None
+        self._guide_target: RuntimeTarget | None = None
         self._completed_review: int | None = None
 
     def set_models(self, models: tuple[ModelBundle, ...]) -> None:
@@ -112,6 +113,7 @@ class SetupCoordinator:
         action: str,
         key: str,
         work: Callable[[Progress, threading.Event], None],
+        gpu: str = "",
     ) -> bool:
         if (
             self._closed
@@ -122,7 +124,7 @@ class SetupCoordinator:
             return False
         self._serial += 1
         operation = self._dependencies.operation(work)
-        self._jobs[lane] = SetupJob(self._serial, action, key, True)
+        self._jobs[lane] = SetupJob(self._serial, action, key, True, gpu=gpu)
         self._operations[lane] = operation
         operation.start()
         return True
@@ -216,7 +218,7 @@ class SetupCoordinator:
         return self._runtime
 
     @property
-    def installed_runtime(self) -> tuple[str, Path] | None:
+    def installed_runtime(self) -> tuple[str, RuntimeTarget] | None:
         return self._installed_runtime
 
     def detect_runtime(self) -> bool:
@@ -226,30 +228,35 @@ class SetupCoordinator:
 
         return self._start(SetupLane.RUNTIME, "detect", "", work)
 
-    def install_runtime(self, key: str) -> bool:
-        if key not in {p.key for p in self.profiles}:
+    def install_runtime(self, key: str, gpu: str = "") -> bool:
+        if key not in {p.key for p in self.profiles} or (
+            gpu and not any(a.gpu_id(key) == gpu for a in self.runtime.adapters)
+        ):
             return False
 
         def work(progress: Progress, cancel: threading.Event) -> None:
-            self._dependencies.install_runtime(key, progress, cancel)
+            self._dependencies.install_runtime(key, gpu, progress, cancel)
             self._runtime_result = self._dependencies.runtime_status()
 
-        return self._start(SetupLane.RUNTIME, "install", key, work)
+        return self._start(SetupLane.RUNTIME, "install", key, work, gpu)
 
-    def use_next_launch(self, key: str) -> bool:
-        target = self._runtime.target(key)
+    def use_next_launch(self, key: str, gpu: str = "") -> bool:
+        target = self._runtime.target(key, gpu)
         if target is None:
             return False
 
         def work(progress: Progress, cancel: threading.Event) -> None:
             self._dependencies.select_runtime(target)
+            self._runtime_result = replace(self._runtime, saved=target)
             progress(
                 ModelProgress(tr("Selected for next launch. This session continues unchanged."))
             )
 
-        return self._start(SetupLane.RUNTIME, "select", key, work)
+        return self._start(SetupLane.RUNTIME, "select", key, work, gpu)
 
-    def review(self, model_key: str, runtime_key: str, hardware: HardwareStatus) -> SetupReview:
+    def review(
+        self, model_key: str, runtime_key: str, hardware: HardwareStatus, gpu: str = ""
+    ) -> SetupReview:
         if self.job(SetupLane.GUIDE).busy:
             raise ValueError(
                 tr("Wait for the active setup to finish before reviewing another plan.")
@@ -263,8 +270,13 @@ class SetupCoordinator:
         if issue := compatibility_issue(runtime_key, hardware.adapters):
             raise ValueError(issue)
         needs = needs_runtime(profile, hardware, upgrade=selected_file.upgrade)
+        if gpu and not any(a.gpu_id(runtime_key) == gpu for a in hardware.adapters):
+            raise ValueError(
+                tr("The selected GPU is unavailable. Choose another GPU in Acceleration.")
+            )
+        needs = needs or bool(gpu and gpu != hardware.active_gpu)
         plan = SetupPlan(
-            (() if files["ocr"].included else (ocr,)) + (model,), profile if needs else None
+            (() if files["ocr"].included else (ocr,)) + (model,), profile if needs else None, gpu
         )
         return self._review_plan(model_key, runtime_key, plan)
 
@@ -293,6 +305,7 @@ class SetupCoordinator:
             sum(m.size for m in plan.models if not files[m.key].present),
             bool(plan.runtime),
             tuple(m.key for m in plan.models),
+            plan.gpu,
         )
         return self._review
 
@@ -310,7 +323,8 @@ class SetupCoordinator:
         self._guide_target = None
 
         def work(progress: Progress, cancel: threading.Event) -> None:
-            self._guide_target = self._dependencies.run_setup(plan, progress, cancel)
+            path = self._dependencies.run_setup(plan, progress, cancel)
+            self._guide_target = RuntimeTarget(path, plan.gpu) if path else None
 
         return self._start(SetupLane.GUIDE, "setup", self._review.model, work)
 
@@ -319,7 +333,7 @@ class SetupCoordinator:
         return self._review
 
     @property
-    def guide_target(self) -> Path | None:
+    def guide_target(self) -> RuntimeTarget | None:
         job = self.job(SetupLane.GUIDE)
         return (
             self._guide_target
@@ -390,8 +404,8 @@ class SetupCoordinator:
                     self._installed_runtime = profile.name, self._guide_target
             if succeeded and lane == SetupLane.RUNTIME:
                 if job.action == "install":
-                    target = self._runtime.target(job.key)
-                    if target and target != self._runtime.current:
+                    target = self._runtime.target(job.key, job.gpu)
+                    if target and not self._runtime.in_use(job.key, job.gpu):
                         profile = next(p for p in self.profiles if p.key == job.key)
                         self._installed_runtime = profile.name, target
                 elif job.action == "select":

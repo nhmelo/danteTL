@@ -2,7 +2,6 @@
 
 from collections.abc import Callable
 from dataclasses import dataclass, replace
-from pathlib import Path
 from typing import Unpack
 
 from dantetl.application.cache_management import CacheManagement
@@ -46,6 +45,7 @@ from dantetl.ocr.models import ocr_model_for
 from dantetl.ocr.values import OcrState
 from dantetl.ocr.worker import OcrChoice
 from dantetl.runtime.hardware_values import HardwareStatus
+from dantetl.runtime.setup_values import RuntimeTarget
 from dantetl.translation.cloud.values import CloudProfile
 from dantetl.translation.dialogue.values import HistoryTurn
 from dantetl.translation.selection import AssignmentChange, OcrOption
@@ -379,7 +379,7 @@ class ApplicationSession:
         self.refresh_models()
 
     def setup_completed(
-        self, model: str, target: Path | None, *, defer_preparation: bool = False
+        self, model: str, target: RuntimeTarget | None, *, defer_preparation: bool = False
     ) -> None:
         self.values = replace(self.values, setup_seen=True, setup_model=model)
         self.persist()
@@ -435,7 +435,7 @@ class ApplicationSession:
                 return
         self._first_run_requested = False
 
-    def request_close(self, target: Path | None = None) -> None:
+    def request_close(self, target: RuntimeTarget | None = None) -> None:
         if self.shutdown.active:
             return
         self._setup_consent = None

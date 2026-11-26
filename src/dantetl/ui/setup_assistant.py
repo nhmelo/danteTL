@@ -1,7 +1,5 @@
 """Skippable guided setup; one explicit action owns one cancellable background operation."""
 
-from pathlib import Path
-
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
@@ -27,7 +25,7 @@ from dantetl.runtime.hardware_values import (
     compatibility_issue,
     recommended_profile,
 )
-from dantetl.runtime.setup_values import ModelProgress, SetupLane, SetupReview
+from dantetl.runtime.setup_values import ModelProgress, RuntimeTarget, SetupLane, SetupReview
 from dantetl.ui.cloud_settings import CloudSettings
 from dantetl.ui.cloud_setup_tab import CloudSetupTab
 from dantetl.ui.controls import Switch
@@ -39,6 +37,7 @@ from dantetl.ui.localization import (
 )
 from dantetl.ui.model_summary import ModelSummary
 from dantetl.ui.ollama_settings import OllamaSettings
+from dantetl.ui.runtime_gpus import RuntimeFields
 from dantetl.ui.runtime_restart_prompt import ask_restart
 from dantetl.ui.setup_progress import SetupProgressView
 
@@ -65,7 +64,7 @@ class SetupAssistant(QDialog):
         self.service = service
         self.cloud = cloud
         self._pending_save = ""
-        self._pending_restart: Path | None = None
+        self._pending_restart: RuntimeTarget | None = None
         self.models = {model.key: model for model in service.files}
         ocr = self.models["ocr"]
         self._completion = 0
@@ -152,12 +151,14 @@ class SetupAssistant(QDialog):
         self._model_changed()
         page.addStretch()
         page = self._page()
-        self.hardware_label = self._label(tr("Checking graphics hardware…"))
-        page.addWidget(self.hardware_label)
         self.runtime = QComboBox()
         for profile in sorted(service.profiles, key=lambda p: p.key != "cpu"):
             localized_item(self.runtime, profile.name, profile)
-        page.addWidget(self.runtime)
+        self.fields = RuntimeFields(self.runtime)
+        self.hardware_label = self.fields.hardware
+        self.gpu = self.fields.gpu
+        page.addLayout(self.fields)
+        self.gpu.activated.connect(self._show_runtime)
         self.runtime_help = self._label("")
         page.addWidget(self.runtime_help)
         self.runtime.currentIndexChanged.connect(self._runtime_changed)
@@ -286,14 +287,13 @@ class SetupAssistant(QDialog):
     def _show_hardware(self) -> None:
         status = self.hardware_status
         if status is None:
-            self.hardware_label.setText(tr("Checking graphics hardware…"))
+            self.hardware_label.set_adapters((), tr("Checking graphics hardware…"))
             return
-        self.hardware_label.setText(
+        self.hardware_label.set_adapters(
+            status.adapters,
             tr("Hardware detection failed. CPU is available; you can choose manually.")
             if status.error
-            else tr("Detected: ") + "; ".join(a.name for a in status.adapters)
-            if status.adapters
-            else tr("No supported GPU detected. CPU is available.")
+            else tr("No supported GPU detected. CPU is available."),
         )
 
     def _refresh_language(self) -> None:
@@ -352,6 +352,16 @@ class SetupAssistant(QDialog):
         profile = self.runtime.currentData()
         status = self.hardware_status
         issue = compatibility_issue(profile.key, status.adapters) if status else ""
+        preferred = self._review.gpu if self._review and self._review.runtime == profile.key else ""
+        if status and any(a.gpu_id(profile.key) == status.active_gpu for a in status.adapters):
+            preferred = preferred or status.active_gpu
+        self.fields.present(
+            profile.key,
+            status.adapters if status else (),
+            preferred,
+        )
+        if profile.key != "cpu" and not self.gpu.currentData():
+            issue = issue or tr("Choose a GPU")
         self.runtime_help.setText(issue or tr(profile.description))
         if self.pages.currentIndex() == 2:
             self.next.setEnabled(status is not None and not issue)
@@ -408,7 +418,10 @@ class SetupAssistant(QDialog):
             profile = self.runtime.currentData()
             ocr = self.models["ocr"]
             self._review = self.service.review(
-                self.model.currentData(), profile.key, self.hardware_status
+                self.model.currentData(),
+                profile.key,
+                self.hardware_status,
+                self.gpu.currentData() or "",
             )
             pending = self._review.download_bytes
             self.review.setText(
@@ -419,7 +432,12 @@ class SetupAssistant(QDialog):
                     ocr=ocr.name.split(" · ")[0],
                     included=tr(" · included, no download") if ocr.included else "",
                     model=self.model.currentText(),
-                    runtime=tr(profile.name),
+                    runtime=" · ".join(
+                        filter(
+                            None,
+                            (tr(profile.name), self.gpu.currentText() if self._review.gpu else ""),
+                        )
+                    ),
                     size=pending / 1e9,
                 )
                 + (
@@ -467,7 +485,7 @@ class SetupAssistant(QDialog):
         return self.service.job(SetupLane.GUIDE).busy
 
     @property
-    def target(self) -> Path | None:
+    def target(self) -> RuntimeTarget | None:
         return self.service.guide_target
 
     def cancel(self) -> None:
@@ -579,12 +597,12 @@ class SetupAssistant(QDialog):
             self._pending_restart = target
             self._prompt_if_ready()
 
-    def _finish(self, target: Path | None) -> None:
+    def _finish(self, target: RuntimeTarget | None) -> None:
         self._report_completion(target)
         self.hide()
         self.accept()
 
-    def _report_completion(self, target: Path | None) -> None:
+    def _report_completion(self, target: RuntimeTarget | None) -> None:
         self._reported = True
         if self._review is not None:
             deferred = self.target is not None and target is None

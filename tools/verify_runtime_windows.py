@@ -34,6 +34,7 @@ from dantetl.ui.hotkeys_windows import WindowsHotkeyEvents, WindowsHotkeyRegistr
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--gpu", help="Select a compatible adapter by the driver device UUID")
     parser.add_argument("--profile", choices=("nvidia", "amd", "cpu"), required=True)
     parser.add_argument(
         "--offline", action="store_true", help="Use already cached dependencies only"
@@ -127,6 +128,12 @@ def main() -> int:
                     if dialog.choice.itemData(i).key == args.profile
                 )
                 dialog.choice.setCurrentIndex(index)
+                if args.gpu:
+                    index = dialog.gpu.findData(args.gpu)
+                    assert index >= 0, "Requested GPU missing from the runtime picker"
+                    dialog.gpu.setCurrentIndex(index)
+                evidence["device"] = dialog.gpu.currentData() or ""
+                evidence["adapter"] = dialog.gpu.currentText()
                 dialog.grab().save(str(args.output / "offer.png"))
                 assert dialog.install.isEnabled()
                 dialog.install.click()
@@ -165,6 +172,7 @@ def main() -> int:
                     return
                 assert child and child.process.poll() is None
                 assert runtime_setup.selected_runtime(root) == child.target
+                assert runtime_setup.runtime_selection(root).gpu == evidence["device"]
                 evidence["restarted_pid"] = child.started_pid
                 evidence["selected_environment"] = str(runtime_setup.selected_runtime(root))
                 probe = WindowsHotkeyRegistrar()

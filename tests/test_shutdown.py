@@ -8,6 +8,7 @@ import pytest
 from dantetl.application.shutdown import ShutdownCoordinator
 from dantetl.application.values import ShutdownPhase
 from dantetl.runtime.restart import RestartSnapshot
+from dantetl.runtime.setup_values import RuntimeTarget
 
 
 def fixture():
@@ -33,9 +34,9 @@ def fixture():
 
 def test_shutdown_drains_every_owner_before_releasing_shortcuts_and_launching():
     owner, live, models, gates, cancel, release, restart, task = fixture()
-    target = Path("replacement")
+    target = RuntimeTarget(Path("replacement"))
     owner.request(target)
-    owner.request(Path("must-not-replace-pending-target"))
+    owner.request(RuntimeTarget(Path("must-not-replace-pending-target")))
     assert owner.active
     live.stop.assert_called_once()
     models.shutdown.assert_called_once()
@@ -85,7 +86,7 @@ def test_failed_restart_resumes_committed_models_only_after_cleanup_then_allows_
     live.drain.return_value = models.finish_shutdown.return_value = True
     if launch_failure:
         restart.side_effect = OSError("launch failed")
-    owner.request(Path("candidate"))
+    owner.request(RuntimeTarget(Path("candidate")))
     result = owner.advance()
     if not launch_failure:
         assert result.phase == ShutdownPhase.RESTARTING

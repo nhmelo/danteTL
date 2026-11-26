@@ -271,7 +271,9 @@ recover a truncated local HTTP response and request the remaining bytes.
 
 `tools/verify_runtime_windows.py --profile cpu|nvidia|amd --output ...` operates only in a disposable
 extracted distribution/state root. Use `--offline --cache-root <verified-cache>` when available.
-It installs/reuses a verified runtime, exercises restart acknowledgement and the normal launcher,
+Use `--gpu <device UUID>` to select a specific compatible adapter. Check the saved device and
+exercise a secondary GPU on multi-adapter hardware. The fixture installs or reuses a verified
+runtime, exercises restart acknowledgement and the normal launcher,
 and drains owned descendants on failure/cancel. Validate saved environment A after preparation of
 B and after failed/postponed B activation. Never repair/replace an active loaded environment.
 Containment tests must cover a child attempting to spawn before user code is allowed to run.

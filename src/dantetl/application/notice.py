@@ -2,12 +2,12 @@
 
 from dataclasses import dataclass, replace
 from functools import lru_cache
-from pathlib import Path
 
 from dantetl.application.setup_status import SetupAdvice, acceleration_advice
 from dantetl.i18n import display, mark, tr
 from dantetl.languages.target import ENGLISH, TargetLanguage
 from dantetl.runtime.hardware_values import HardwareStatus
+from dantetl.runtime.setup_values import RuntimeTarget
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.selection import AssignmentChange, ModelOption
 
@@ -34,7 +34,7 @@ class NoticeInput:
     ocr_model: str = "MeikiOCR"
     interface_language: str = ENGLISH.code
     discovering: bool = False
-    installed_runtime: tuple[str, Path] | None = None
+    installed_runtime: tuple[str, RuntimeTarget] | None = None
 
 
 @dataclass(frozen=True)

@@ -811,6 +811,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>选择 ChatGPT 模型并保存。</translation>
     </message>
     <message>
+      <source>Choose a GPU</source>
+      <translation>选择 GPU</translation>
+    </message>
+    <message>
       <source>Choose a model</source>
       <translation>选择模型</translation>
     </message>
@@ -1239,10 +1243,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>检测到的源文本</translation>
     </message>
     <message>
-      <source>Detected: </source>
-      <translation>检测到： </translation>
-    </message>
-    <message>
       <source>Device</source>
       <translation>设备</translation>
     </message>
@@ -1581,6 +1581,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>GGUF models (*.gguf)</source>
       <translation>GGUF 模型 (*.gguf)</translation>
+    </message>
+    <message>
+      <source>GPU</source>
+      <translation>GPU</translation>
     </message>
     <message>
       <source>GPU OCR fell back to CPU. </source>

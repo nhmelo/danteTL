@@ -18,6 +18,7 @@ from dantetl.ocr.values import OcrResult, OcrSnapshot, OcrState, TextRegion
 from dantetl.ocr.visual_values import VisualState
 from dantetl.ocr.worker import OcrChoice
 from dantetl.runtime.restart import RestartSnapshot
+from dantetl.runtime.setup_values import RuntimeTarget
 from dantetl.translation.backend import BackendChoice
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.selection import AssignmentChange
@@ -201,7 +202,7 @@ def test_failed_restart_releases_published_source_while_workers_drain(replay, tm
     observe(replay)
     publish(replay)
     assert replay.app.view.observation and replay.app.view.visual.frame
-    replay.app.request_close(tmp_path / "runtime")
+    replay.app.request_close(RuntimeTarget(tmp_path / "runtime"))
     reset = replay.app.view.reset
 
     def assert_cleared(view):

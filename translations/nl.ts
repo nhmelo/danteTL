@@ -811,6 +811,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Kies een ChatGPT-model en sla het op.</translation>
     </message>
     <message>
+      <source>Choose a GPU</source>
+      <translation>Kies een GPU</translation>
+    </message>
+    <message>
       <source>Choose a model</source>
       <translation>Kies een model</translation>
     </message>
@@ -1239,10 +1243,6 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Gedetecteerde brontekst</translation>
     </message>
     <message>
-      <source>Detected: </source>
-      <translation>Gedetecteerd: </translation>
-    </message>
-    <message>
       <source>Device</source>
       <translation>Apparaat</translation>
     </message>
@@ -1581,6 +1581,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>GGUF models (*.gguf)</source>
       <translation>GGUF-modellen (*.gguf)</translation>
+    </message>
+    <message>
+      <source>GPU</source>
+      <translation>GPU</translation>
     </message>
     <message>
       <source>GPU OCR fell back to CPU. </source>

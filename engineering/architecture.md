@@ -688,7 +688,9 @@ acceleration from local driver capabilities. Match devices to DXGI by Windows LU
 hardware GPU with Vulkan 1.2, a compute queue and 16-bit storage buffers. Run each driver query
 in a bounded child. Recommend the supported adapter with the most dedicated memory, preferring
 CUDA when it qualifies, then Vulkan, then CPU. Recheck before GPU installation and managed
-runtime handoff. Runtime activation saves
+runtime handoff. In Settings and the guide, the Runtime section shows detected adapters in a
+compact list that wraps to the available width. The GPU picker lists compatible adapters for the chosen runtime.
+Both the list and the picker mark the adapter driving the Windows primary display as Primary, using DXGI. Runtime activation saves
 the device UUID with the verified environment. Resolve it again on launch, including Vulkan's
 current physical index. Setup probes and inference see only that GPU. Discovery retains the
 original process visibility restrictions so users can switch cards again. An unavailable explicit

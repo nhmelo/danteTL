@@ -1,20 +1,24 @@
 """Graphics hardware presentation shared by Acceleration and the setup guide."""
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSignalBlocker, Qt
 from PySide6.QtGui import QIcon, QResizeEvent
 from PySide6.QtWidgets import (
+    QComboBox,
+    QFormLayout,
     QFrame,
     QHBoxLayout,
     QLabel,
     QScrollArea,
     QSizePolicy,
+    QVBoxLayout,
     QWidget,
 )
 
-from dantetl.i18n import tr
-from dantetl.runtime.hardware_values import Adapter
+from dantetl.i18n import mark, tr
+from dantetl.runtime.hardware_values import Adapter, compatible_adapters
 from dantetl.ui.controls import WrappingLayout
 from dantetl.ui.icons import ICON_DIR
+from dantetl.ui.localization import localized
 
 
 def _icon(adapter: Adapter) -> QIcon:
@@ -100,3 +104,52 @@ class GraphicsList(QScrollArea):
                 else Qt.ScrollBarPolicy.ScrollBarAlwaysOff
             )
             self.setFixedHeight(max(0, min(height, limit)))
+
+
+class RuntimeFields(QVBoxLayout):
+    """Runtime section with detected hardware and a device draft for each profile."""
+
+    def __init__(self, runtime: QComboBox) -> None:
+        super().__init__()
+        self.setSpacing(6)
+        heading = localized(QLabel(), text=mark("Runtime"))
+        heading.setObjectName("sectionTitle")
+        self.addWidget(heading)
+        self.hardware = GraphicsList()
+        self.addWidget(self.hardware)
+
+        self.gpu = QComboBox()
+        self._profile = ""
+        self._choices: dict[str, str] = {}
+        self.gpu.activated.connect(self._remember)
+        self._form = QFormLayout()
+        self._form.setContentsMargins(0, 4, 0, 0)
+        self._form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+        runtime_label = localized(QLabel(), text=mark("Acceleration"))
+        runtime_label.setBuddy(runtime)
+        self._form.addRow(runtime_label, runtime)
+        label = localized(QLabel(), text=mark("GPU"))
+        label.setBuddy(self.gpu)
+        self._form.addRow(label, self.gpu)
+        self.addLayout(self._form)
+
+    def _remember(self) -> None:
+        self._choices[self._profile] = self.gpu.currentData() or ""
+
+    def present(self, profile: str, adapters: tuple[Adapter, ...], preferred: str = "") -> None:
+        devices = compatible_adapters(profile, adapters)
+        desired = self._choices.get(profile, preferred)
+        if not desired and devices:
+            desired = devices[0].gpu_id(profile)
+        self._profile = profile
+        with QSignalBlocker(self.gpu):
+            self.gpu.clear()
+            for adapter in devices:
+                name = _adapter_name(adapter, adapters)
+                if adapter.primary:
+                    name = f"{name} · {tr('Primary')}"
+                self.gpu.addItem(_icon(adapter), name, adapter.gpu_id(profile))
+            self.gpu.setCurrentIndex(self.gpu.findData(desired))
+        self._form.setRowVisible(self.gpu, profile in ("nvidia", "amd"))
+        self.gpu.setPlaceholderText(tr("Choose a GPU"))
+        self.gpu.setEnabled(bool(devices))

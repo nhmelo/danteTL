@@ -1,5 +1,6 @@
 """Production dependency assembly. Views never discover accounts or construct services."""
 
+import os
 import sys
 from collections.abc import Callable
 from functools import partial
@@ -130,8 +131,13 @@ def setup_coordinator(inventory: ModelInventory, models: tuple[ModelBundle, ...]
     from dantetl.runtime.llama import installed_device
     from dantetl.runtime.model_store import ModelOperation, install_model
     from dantetl.runtime.ocr import gpu_runtime_installed
-    from dantetl.runtime.setup import install_runtime, ready_runtime, select_runtime
-    from dantetl.runtime.setup_values import RuntimeStatus
+    from dantetl.runtime.setup import (
+        install_runtime,
+        ready_runtime,
+        runtime_selection,
+        select_runtime,
+    )
+    from dantetl.runtime.setup_values import RuntimeStatus, RuntimeTarget
     from dantetl.runtime.values import PROFILES
     from dantetl.translation.models.gguf import save_registration
     from dantetl.translation.models.probe import ImportTest
@@ -139,12 +145,15 @@ def setup_coordinator(inventory: ModelInventory, models: tuple[ModelBundle, ...]
     def status() -> RuntimeStatus:
         adapters = detect_adapters()
         hardware = HardwareStatus(adapters, gpu_runtime_installed(), installed_device())
+        saved = runtime_selection(root)
         return RuntimeStatus(
             adapters,
             tuple((p.key, ready_runtime(root, p.key)) for p in PROFILES),
             Path(sys.prefix).resolve(),
             recommended_profile(adapters),
             next((p.key for p in PROFILES if not needs_runtime(p, hardware, upgrade=False)), ""),
+            os.environ.get("DANTETL_GPU_UUID", ""),
+            RuntimeTarget(saved.target, saved.gpu) if saved.target else None,
         )
 
     return SetupCoordinator(
@@ -158,10 +167,10 @@ def setup_coordinator(inventory: ModelInventory, models: tuple[ModelBundle, ...]
             save_registration,
             ImportTest,
             status,
-            lambda key, progress, cancel: install_runtime(
-                root, next(p for p in PROFILES if p.key == key), progress, cancel
+            lambda key, gpu, progress, cancel: install_runtime(
+                root, next(p for p in PROFILES if p.key == key), progress, cancel, gpu
             ),
-            partial(select_runtime, root),
+            lambda target: select_runtime(root, target.path, target.gpu),
             lambda plan, progress, cancel: run_setup(plan, root, progress, cancel),
         ),
     )

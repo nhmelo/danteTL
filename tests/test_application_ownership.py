@@ -22,6 +22,7 @@ from dantetl.ocr.observation import CandidateReview
 from dantetl.ocr.values import OcrResult, OcrSnapshot, OcrState, TextRegion
 from dantetl.ocr.visual_values import VisualState
 from dantetl.runtime.restart import RestartSnapshot
+from dantetl.runtime.setup_values import RuntimeTarget
 from dantetl.translation.backend import BackendChoice
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.selection import AssignmentChange
@@ -265,7 +266,7 @@ def test_new_lazy_factories_do_not_change_catalog_identity():
 
 
 def test_failed_restart_reopens_setup_and_inventory(replay):
-    replay.app.request_close(Path("runtime"))
+    replay.app.request_close(RuntimeTarget(Path("runtime")))
     replay.app.advance(1)
     assert replay.app.close_status.phase == ShutdownPhase.RESTARTING
     replay.restart.finished = True

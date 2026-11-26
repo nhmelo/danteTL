@@ -13,7 +13,13 @@ from PySide6.QtWidgets import QFrame, QMessageBox, QWidget  # noqa: E402
 from test_setup_ownership import configured  # noqa: E402
 
 from dantetl.runtime.hardware_values import Adapter, CudaDevice, HardwareStatus, VulkanDevice  # noqa: E402
-from dantetl.runtime.setup_values import DownloadProgress, ModelProgress, RuntimeStatus, SetupLane  # noqa: E402
+from dantetl.runtime.setup_values import (  # noqa: E402
+    DownloadProgress,
+    ModelProgress,
+    RuntimeStatus,
+    RuntimeTarget,
+    SetupLane,
+)
 from dantetl.translation.models.values import ImportedModel, ProbeResult  # noqa: E402
 from dantetl.ui.cloud_settings import CloudSettings  # noqa: E402
 from dantetl.ui.model_import_dialog import ModelImportDialog  # noqa: E402
@@ -72,7 +78,10 @@ def test_runtime_picker_opens_on_active_profile_and_surfaces_verified_switch(app
         detect.return_value = replace(status, targets=(("amd", target),))
         finish()
         assert not view.restart.isHidden() and "Vulkan" in view.status.text()
-        assert replay.setup.installed_runtime == (view.choice.currentData().name, target)
+        assert replay.setup.installed_runtime == (
+            view.choice.currentData().name,
+            RuntimeTarget(target, "b" * 32),
+        )
         assert app.activeModalWidget() is None
         model_download.finish()
         replay.setup.advance()
@@ -87,10 +96,10 @@ def test_runtime_picker_opens_on_active_profile_and_surfaces_verified_switch(app
         prompt = app.activeModalWidget()
         assert isinstance(prompt, QMessageBox)
         prompt.defaultButton().click()
-        assert emitted == [target]
+        assert emitted == [RuntimeTarget(target, "b" * 32)]
         view.later.click()
         finish()
-        select.assert_called_once_with(target)
+        select.assert_called_once_with(RuntimeTarget(target, "b" * 32))
         assert replay.setup.installed_runtime is None
     finally:
         shiboken6.delete(view)
@@ -293,6 +302,69 @@ def test_recreated_import_preserves_successful_probe_until_registration(app, tmp
         assert replay.setup.probe_result is None
         assert not replay.setup.job(SetupLane.MODELS).busy
     finally:
+        replay.close()
+
+
+def test_multi_gpu_picker_filters_and_can_switch_cards_in_active_runtime(app, tmp_path):
+    replay = configured(tmp_path)
+    path = tmp_path / ("nvidia-" + "0" * 32)
+    primary = Adapter(
+        "Twin RTX",
+        0x10DE,
+        16 << 30,
+        CudaDevice(13000, 12, 0, "a" * 32),
+        VulkanDevice("a" * 32, 2),
+        primary=True,
+    )
+    secondary = replace(primary, primary=False, cuda=CudaDevice(13000, 8, 6, "b" * 32), vulkan=None)
+    legacy = Adapter(
+        "Older NVIDIA",
+        0x10DE,
+        cuda=CudaDevice(13000, 6, 1, "c" * 32),
+        vulkan=VulkanDevice("c" * 32, 0),
+    )
+    intel = Adapter("Intel Arc", 0x8086, vulkan=VulkanDevice("d" * 32, 1))
+    detect, select = replay.dependencies.runtime_status, replay.dependencies.select_runtime
+    assert isinstance(detect, Mock) and isinstance(select, Mock)
+    detect.return_value = RuntimeStatus(
+        (primary, secondary, legacy, intel), (("nvidia", path),), path, "nvidia", "nvidia", "a" * 32
+    )
+    view = RuntimeSetupDialog(replay.setup)
+
+    def finish():
+        job = replay.operations[-1]
+        job.work(lambda _: None, threading.Event())
+        job.finish()
+        replay.setup.advance()
+        view.refresh_view()
+
+    try:
+        finish()
+        assert view.hardware.accessibleDescription().count("Primary") == 1
+        assert view.gpu.count() == 2
+        assert view.gpu.currentText() == "Twin RTX · GPU 0 · Primary"
+        assert view.gpu.currentData() == "a" * 32 and view.restart.isHidden()
+        view.gpu.setCurrentIndex(1)
+        assert view.gpu.currentText() == "Twin RTX · GPU 1"
+        assert view.restart.isEnabled() and view.later.isEnabled()
+        view.later.click()
+        finish()
+        select.assert_called_once_with(RuntimeTarget(path, "b" * 32))
+        for profile, ids in (("amd", {"a", "c", "d"}), ("cpu", set())):
+            view.choice.setCurrentIndex(
+                next(
+                    i for i in range(view.choice.count()) if view.choice.itemData(i).key == profile
+                )
+            )
+            assert {view.gpu.itemData(i) for i in range(view.gpu.count())} == {i * 32 for i in ids}
+            assert all(
+                view.gpu.itemText(i).endswith(" · Primary") == (view.gpu.itemData(i) == "a" * 32)
+                for i in range(view.gpu.count())
+            )
+            assert view.gpu.isHidden() == (profile == "cpu")
+        assert app.activeModalWidget() is None
+    finally:
+        shiboken6.delete(view)
         replay.close()
 
 

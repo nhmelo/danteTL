@@ -1,7 +1,5 @@
 """Explicit runtime installation UI; detection, processes and disk work stay on a worker."""
 
-from pathlib import Path
-
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
@@ -17,9 +15,9 @@ from PySide6.QtWidgets import (
 from dantetl.application.services import SetupCommands
 from dantetl.i18n import mark, tr
 from dantetl.runtime.hardware_values import compatibility_issue
-from dantetl.runtime.setup_values import SetupLane
+from dantetl.runtime.setup_values import RuntimeTarget, SetupLane
 from dantetl.ui.localization import localized, localized_item, on_language_change
-from dantetl.ui.runtime_gpus import GraphicsList
+from dantetl.ui.runtime_gpus import RuntimeFields
 from dantetl.ui.runtime_restart_prompt import ask_restart
 from dantetl.ui.setup_progress import SetupProgressView
 
@@ -38,7 +36,7 @@ class RuntimeSetupDialog(QDialog):
         self.service = service
         self._completion = 0
         self._install_after_detection: str | None = None
-        self._pending_restart: Path | None = None
+        self._pending_restart: RuntimeTarget | None = None
         self._install_token = 0
         localized(self, windowTitle=mark("Runtime setup"))
         self.resize(660, 460)
@@ -46,18 +44,16 @@ class RuntimeSetupDialog(QDialog):
         if not service.job(SetupLane.RUNTIME).token:
             service.detect_runtime()
         layout = QVBoxLayout(self)
-        self.hardware = GraphicsList()
-        layout.addWidget(self.hardware)
-        layout.addSpacing(12)
-        runtime_label = localized(QLabel(), text=mark("Runtime"))
-        runtime_label.setObjectName("sectionTitle")
-        layout.addWidget(runtime_label)
-        self.choice = QComboBox()
-        runtime_label.setBuddy(self.choice)
+        self.choice = localized(QComboBox(), accessibleName=mark("Runtime"))
         for profile in service.profiles:
             localized_item(self.choice, profile.name, profile)
         self.choice.setEnabled(False)
-        layout.addWidget(self.choice)
+        self.fields = RuntimeFields(self.choice)
+        self.hardware = self.fields.hardware
+        self.gpu = self.fields.gpu
+        layout.addLayout(self.fields)
+        self.gpu.currentIndexChanged.connect(self._selected)
+        self.gpu.activated.connect(self._offer_restart)
         self.description = QLabel()
         self.description.setWordWrap(True)
         layout.addWidget(self.description)
@@ -92,12 +88,15 @@ class RuntimeSetupDialog(QDialog):
         if embedded:
             localized(self.cancel_button, text=mark("Cancel setup"))
         layout.addWidget(self.cancel_button)
-        self.choice.currentIndexChanged.connect(self._selected)
-        self.choice.activated.connect(self._offer_restart)
+        self.choice.currentIndexChanged.connect(self._profile_changed)
+        self.choice.activated.connect(
+            lambda: self._offer_restart() if self.gpu.count() <= 1 else None
+        )
         active = service.job(SetupLane.RUNTIME)
         if active.key:
             self._select_profile(active.key)
-        self._selected()
+        self._show_hardware()
+        self._profile_changed()
         self.refresh_view()
         on_language_change(self, self._refresh_language)
 
@@ -126,10 +125,21 @@ class RuntimeSetupDialog(QDialog):
             else tr("No supported GPU detected. CPU is available."),
         )
 
-    def _refresh_language(self) -> None:
-        if self.choice.isEnabled():
-            self._show_hardware()
+    def _profile_changed(self) -> None:
+        profile = self.choice.currentData()
+        if profile is None:
+            return
+        runtime = self.service.runtime
+        job = self.service.job(SetupLane.RUNTIME)
+        preferred = (job.gpu if job.key == profile.key else "") or runtime.preferred_gpu(
+            profile.key
+        )
+        self.fields.present(profile.key, runtime.adapters, preferred)
         self._selected()
+
+    def _refresh_language(self) -> None:
+        self._show_hardware()
+        self._profile_changed()
 
     @property
     def busy(self) -> bool:
@@ -140,20 +150,27 @@ class RuntimeSetupDialog(QDialog):
         if profile is None:
             return
         self.description.setText(tr(profile.description))
-        ready = self.service.runtime.target(profile.key)
-        current = (
-            ready == self.service.runtime.current
-            if ready
-            else profile.key == self.service.runtime.active_profile
-        )
+        gpu = self.gpu.currentData() or ""
+        ready = self.service.runtime.target(profile.key, gpu)
+        current = self.service.runtime.in_use(profile.key, gpu)
         idle = not self.busy
         issue = compatibility_issue(profile.key, self.service.runtime.adapters)
+        if profile.key != "cpu" and not gpu:
+            issue = issue or tr("Choose a GPU")
+        self.gpu.setEnabled(idle and self.gpu.count() > 0)
         self.install.setEnabled(idle and not issue)
         self.install.setText(
             tr("Verify / repair runtime") if ready or current else tr("Install runtime")
         )
-        self.restart.setEnabled(idle and bool(ready) and not current)
-        self.later.setEnabled(self.restart.isEnabled())
+        self.restart.setEnabled(idle and bool(ready) and not current and not issue)
+        saved = self.service.runtime.saved
+        self.later.setEnabled(
+            idle
+            and not issue
+            and ready is not None
+            and ready != saved
+            and (not current or saved is not None)
+        )
         self.restart.setVisible(self.restart.isEnabled())
         self.later.setVisible(self.later.isEnabled())
         self.progress.setVisible(not idle)
@@ -181,7 +198,8 @@ class RuntimeSetupDialog(QDialog):
         if (
             profile is None
             or compatibility_issue(profile.key, self.service.runtime.adapters)
-            or not self.service.install_runtime(profile.key)
+            or (profile.key != "cpu" and not self.gpu.currentData())
+            or not self.service.install_runtime(profile.key, self.gpu.currentData() or "")
         ):
             return
         self._pending_restart = None
@@ -189,6 +207,7 @@ class RuntimeSetupDialog(QDialog):
         self._closing = False
         self.error_message = ""
         self.choice.setEnabled(False)
+        self.gpu.setEnabled(False)
         self.install.setEnabled(False)
         self.restart.setEnabled(False)
         self.later.setEnabled(False)
@@ -210,14 +229,17 @@ class RuntimeSetupDialog(QDialog):
             else (value.error or value.message)[-1800:]
         )
         if job.busy:
+            self.choice.setEnabled(False)
+            self.gpu.setEnabled(False)
             return
         self._completion = job.token
         self.error_message = value.error
         self.progress.setRange(0, 1)
         self.progress.setValue(0 if value.error or value.cancelled else 1)
         self.choice.setEnabled(True)
+        self._show_hardware()
+        self._profile_changed()
         if job.action == "detect":
-            self._show_hardware()
             requested = self._install_after_detection
             self._install_after_detection = None
             runtime = self.service.runtime
@@ -247,7 +269,9 @@ class RuntimeSetupDialog(QDialog):
             self._offer_restart()
 
     def _offer_restart(self) -> None:
-        self._pending_restart = self.service.runtime.target(self.choice.currentData().key)
+        self._pending_restart = self.service.runtime.target(
+            self.choice.currentData().key, self.gpu.currentData() or ""
+        )
         self._prompt_when_ready()
 
     def _prompt_when_ready(self) -> None:
@@ -257,15 +281,17 @@ class RuntimeSetupDialog(QDialog):
             return
         self._pending_restart = None
         profile = self.choice.currentData()
-        if (
-            target == self.service.runtime.target(profile.key)
-            and target != self.service.runtime.current
-        ):
-            ask_restart(self, profile.name, lambda: self._restart(target))
+        if target == self.service.runtime.target(
+            profile.key, self.gpu.currentData() or ""
+        ) and not self.service.runtime.in_use(profile.key, target.gpu):
+            name = " · ".join(
+                filter(None, (tr(profile.name), self.gpu.currentText() if target.gpu else ""))
+            )
+            ask_restart(self, name, lambda: self._restart(target))
 
-    def _restart(self, expected: Path | None = None) -> None:
+    def _restart(self, expected: RuntimeTarget | None = None) -> None:
         profile = self.choice.currentData()
-        ready = self.service.runtime.target(profile.key)
+        ready = self.service.runtime.target(profile.key, self.gpu.currentData() or "")
         if ready and not self.busy and (expected is None or expected == ready):
             self._pending_restart = None
             if not self._embedded:
@@ -274,7 +300,9 @@ class RuntimeSetupDialog(QDialog):
 
     def _later(self) -> None:
         profile = self.choice.currentData()
-        if profile is not None and self.service.use_next_launch(profile.key):
+        if profile is not None and self.service.use_next_launch(
+            profile.key, self.gpu.currentData() or ""
+        ):
             self._pending_restart = None
             self._selected()
 

@@ -811,6 +811,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Chọn mô hình ChatGPT và lưu lại.</translation>
     </message>
     <message>
+      <source>Choose a GPU</source>
+      <translation>Chọn GPU</translation>
+    </message>
+    <message>
       <source>Choose a model</source>
       <translation>Chọn mô hình</translation>
     </message>
@@ -1239,10 +1243,6 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Văn bản nguồn đã phát hiện</translation>
     </message>
     <message>
-      <source>Detected: </source>
-      <translation>Đã phát hiện: </translation>
-    </message>
-    <message>
       <source>Device</source>
       <translation>Thiết bị</translation>
     </message>
@@ -1581,6 +1581,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>GGUF models (*.gguf)</source>
       <translation>Mô hình GGUF (*.gguf)</translation>
+    </message>
+    <message>
+      <source>GPU</source>
+      <translation>GPU</translation>
     </message>
     <message>
       <source>GPU OCR fell back to CPU. </source>

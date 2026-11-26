@@ -811,6 +811,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>Выберите модель ChatGPT и сохраните её.</translation>
     </message>
     <message>
+      <source>Choose a GPU</source>
+      <translation>Выберите GPU</translation>
+    </message>
+    <message>
       <source>Choose a model</source>
       <translation>Выберите модель</translation>
     </message>
@@ -1239,10 +1243,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>Обнаруженный исходный текст</translation>
     </message>
     <message>
-      <source>Detected: </source>
-      <translation>Обнаружено: </translation>
-    </message>
-    <message>
       <source>Device</source>
       <translation>Устройство</translation>
     </message>
@@ -1581,6 +1581,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>GGUF models (*.gguf)</source>
       <translation>Модели GGUF (*.gguf)</translation>
+    </message>
+    <message>
+      <source>GPU</source>
+      <translation>GPU</translation>
     </message>
     <message>
       <source>GPU OCR fell back to CPU. </source>

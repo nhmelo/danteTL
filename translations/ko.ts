@@ -811,6 +811,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>ChatGPT 모델을 선택하고 저장하세요.</translation>
     </message>
     <message>
+      <source>Choose a GPU</source>
+      <translation>GPU 선택</translation>
+    </message>
+    <message>
       <source>Choose a model</source>
       <translation>모델 선택</translation>
     </message>
@@ -1239,10 +1243,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>감지된 원문</translation>
     </message>
     <message>
-      <source>Detected: </source>
-      <translation>감지됨: </translation>
-    </message>
-    <message>
       <source>Device</source>
       <translation>장치</translation>
     </message>
@@ -1581,6 +1581,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>GGUF models (*.gguf)</source>
       <translation>GGUF 모델 (*.gguf)</translation>
+    </message>
+    <message>
+      <source>GPU</source>
+      <translation>GPU</translation>
     </message>
     <message>
       <source>GPU OCR fell back to CPU. </source>

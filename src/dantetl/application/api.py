@@ -1,6 +1,5 @@
 """The desktop's application port: commands and read-only snapshots only."""
 
-from pathlib import Path
 from typing import Protocol, Unpack
 
 from dantetl.application.notice import Notices
@@ -14,6 +13,7 @@ from dantetl.application.values import (
     ShutdownSnapshot,
 )
 from dantetl.domain import WindowTarget
+from dantetl.runtime.setup_values import RuntimeTarget
 from dantetl.translation.dialogue.values import HistoryTurn
 from dantetl.translation.selection import AssignmentChange, OcrOption
 
@@ -64,9 +64,9 @@ class ApplicationCommands(Protocol):
     def offer_first_run(self) -> None: ...
     def setup_skipped(self) -> None: ...
     def setup_completed(
-        self, model: str, target: Path | None, *, defer_preparation: bool = False
+        self, model: str, target: RuntimeTarget | None, *, defer_preparation: bool = False
     ) -> None: ...
-    def request_close(self, target: Path | None = None) -> None: ...
+    def request_close(self, target: RuntimeTarget | None = None) -> None: ...
     def foreground_target(self) -> WindowTarget | None: ...
     def start_capture(self, target: WindowTarget, now: float) -> bool: ...
     def stop(self, message: str = "Capture stopped.") -> None: ...

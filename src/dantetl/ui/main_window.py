@@ -5,7 +5,6 @@ import subprocess
 import time
 from functools import partial
 from importlib.metadata import version
-from pathlib import Path
 from typing import Unpack
 
 from PySide6.QtCore import QSignalBlocker, QSize, Qt, QTimer, QUrl
@@ -38,6 +37,7 @@ from dantetl.domain import WindowTarget
 from dantetl.i18n import display, mark, tr
 from dantetl.paths import gui_executable, module_command
 from dantetl.runtime.hardware_values import HardwareReader
+from dantetl.runtime.setup_values import RuntimeTarget
 from dantetl.translation.selection import ModelOption
 from dantetl.ui.about import AboutDialog
 from dantetl.ui.bug_reports import error_dialog
@@ -577,7 +577,7 @@ class MainWindow(QMainWindow):
     def _setup_skipped(self) -> None:
         self.application.setup_skipped()
 
-    def _setup_completed(self, model: str, target: Path | None, deferred: bool) -> None:
+    def _setup_completed(self, model: str, target: RuntimeTarget | None, deferred: bool) -> None:
         self.application.setup_completed(model, target, defer_preparation=deferred)
         self.driver.refresh(inspect=False)
 
@@ -887,7 +887,7 @@ class MainWindow(QMainWindow):
             return
         self.driver.refresh(inspect=False)
 
-    def _request_restart(self, target: Path) -> None:
+    def _request_restart(self, target: RuntimeTarget) -> None:
         self.application.request_close(target)
         self._settings.hide()
         if central := self.centralWidget():

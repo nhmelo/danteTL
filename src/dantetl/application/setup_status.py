@@ -1,10 +1,10 @@
 """Actionable hardware advice, separate from model downloads and inference readiness."""
 
 from dataclasses import dataclass
-from pathlib import Path
 
 from dantetl.i18n import mark, tr
 from dantetl.runtime.hardware_values import HardwareStatus
+from dantetl.runtime.setup_values import RuntimeTarget
 
 
 @dataclass(frozen=True, slots=True)
@@ -12,7 +12,7 @@ class SetupAdvice:
     message: str = ""
     destination: str = "runtime"
     action: str = mark("Set up acceleration")
-    restart_target: Path | None = None
+    restart_target: RuntimeTarget | None = None
 
 
 def acceleration_advice(

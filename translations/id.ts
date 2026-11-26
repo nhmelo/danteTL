@@ -811,6 +811,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Pilih model ChatGPT dan simpan.</translation>
     </message>
     <message>
+      <source>Choose a GPU</source>
+      <translation>Pilih GPU</translation>
+    </message>
+    <message>
       <source>Choose a model</source>
       <translation>Pilih model</translation>
     </message>
@@ -1239,10 +1243,6 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Teks sumber terdeteksi</translation>
     </message>
     <message>
-      <source>Detected: </source>
-      <translation>Terdeteksi: </translation>
-    </message>
-    <message>
       <source>Device</source>
       <translation>Perangkat</translation>
     </message>
@@ -1581,6 +1581,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>GGUF models (*.gguf)</source>
       <translation>Model GGUF (*.gguf)</translation>
+    </message>
+    <message>
+      <source>GPU</source>
+      <translation>GPU</translation>
     </message>
     <message>
       <source>GPU OCR fell back to CPU. </source>

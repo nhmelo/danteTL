@@ -22,6 +22,7 @@ from dantetl.runtime.setup import (
     select_runtime,
     verified_runtime,
 )
+from dantetl.runtime.setup_values import RuntimeTarget
 
 
 def acknowledge_startup() -> None:
@@ -136,7 +137,11 @@ class RestartOperation:
     """Own launch, acknowledgement and all native draining away from the GUI thread."""
 
     def __init__(
-        self, root: Path, target: Path, *, create: Callable[..., RuntimeRestart] = RuntimeRestart
+        self,
+        root: Path,
+        target: RuntimeTarget,
+        *,
+        create: Callable[..., RuntimeRestart] = RuntimeRestart,
     ) -> None:
         self._lock = threading.Lock()
         self._snapshot = RestartSnapshot()
@@ -164,9 +169,13 @@ class RestartOperation:
     def _draining(self) -> None:
         self._set(RestartSnapshot("draining", tr("Stopping the unsuccessful replacement app…")))
 
-    def _run(self, root: Path, target: Path, create: Callable[..., RuntimeRestart]) -> None:
+    def _run(
+        self, root: Path, target: RuntimeTarget, create: Callable[..., RuntimeRestart]
+    ) -> None:
         try:
-            restart = create(root, target, on_cleanup=self._draining, cancel=self._cancelled)
+            restart = create(
+                root, target.path, gpu=target.gpu, on_cleanup=self._draining, cancel=self._cancelled
+            )
             while True:
                 if self._cancelled.is_set():
                     restart.cancel()

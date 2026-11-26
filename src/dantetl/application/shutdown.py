@@ -1,7 +1,6 @@
 """Application close/restart ordering, independent of Qt and native process ownership."""
 
 from collections.abc import Callable
-from pathlib import Path
 from typing import Protocol
 
 from dantetl.application.live_session import LiveSession
@@ -9,6 +8,7 @@ from dantetl.application.model_lifecycle import ModelLifecycle
 from dantetl.application.values import ShutdownPhase, ShutdownSnapshot
 from dantetl.i18n import tr
 from dantetl.runtime.restart import RestartSnapshot
+from dantetl.runtime.setup_values import RuntimeTarget
 
 
 class RestartTask(Protocol):
@@ -34,14 +34,14 @@ class ShutdownCoordinator:
         preferences_idle: Callable[[], bool],
         hardware_finished: Callable[[], bool],
         release_hotkeys: Callable[[], None],
-        restart: Callable[[Path], RestartTask],
+        restart: Callable[[RuntimeTarget], RestartTask],
     ) -> None:
         self._live, self._models = live, models
         self._setup_busy, self._cancel_setup = setup_busy, cancel_setup
         self._preferences_idle, self._hardware_finished = preferences_idle, hardware_finished
         self._release_hotkeys, self._start_restart = release_hotkeys, restart
         self._snapshot = ShutdownSnapshot()
-        self._target: Path | None = None
+        self._target: RuntimeTarget | None = None
         self._restart: RestartTask | None = None
 
     @property
@@ -51,7 +51,7 @@ class ShutdownCoordinator:
     def snapshot(self) -> ShutdownSnapshot:
         return self._snapshot
 
-    def request(self, target: Path | None = None) -> None:
+    def request(self, target: RuntimeTarget | None = None) -> None:
         if self.active:
             return
         self._target, self._restart = target, None

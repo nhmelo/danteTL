@@ -811,6 +811,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>একটি ChatGPT মডেল চয়ন করুন এবং তা সংরক্ষণ করুন।</translation>
     </message>
     <message>
+      <source>Choose a GPU</source>
+      <translation>একটি GPU বেছে নিন</translation>
+    </message>
+    <message>
       <source>Choose a model</source>
       <translation>একটি মডেল চয়ন করুন</translation>
     </message>
@@ -1239,10 +1243,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>শনাক্তকৃত উৎস পাঠ্য</translation>
     </message>
     <message>
-      <source>Detected: </source>
-      <translation>শনাক্তকৃত: </translation>
-    </message>
-    <message>
       <source>Device</source>
       <translation>ডিভাইস</translation>
     </message>
@@ -1581,6 +1581,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>GGUF models (*.gguf)</source>
       <translation>GGUF মডেল (*.gguf)</translation>
+    </message>
+    <message>
+      <source>GPU</source>
+      <translation>GPU</translation>
     </message>
     <message>
       <source>GPU OCR fell back to CPU. </source>

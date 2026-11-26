@@ -51,6 +51,13 @@ class SetupJob:
     busy: bool = False
     cancelling: bool = False
     progress: ModelProgress = field(default_factory=ModelProgress)
+    gpu: str = ""
+
+
+@dataclass(frozen=True)
+class RuntimeTarget:
+    path: Path
+    gpu: str = ""
 
 
 @dataclass(frozen=True)
@@ -60,11 +67,28 @@ class RuntimeStatus:
     current: Path | None = None
     recommendation: str = "cpu"
     active_profile: str = ""
+    active_gpu: str = ""
+    saved: RuntimeTarget | None = None
 
-    def target(self, key: str) -> Path | None:
+    def target(self, key: str, gpu: str = "") -> RuntimeTarget | None:
         if compatibility_issue(key, self.adapters):
             return None
-        return next((path for name, path in self.targets if name == key), None)
+        if key != "cpu" and not gpu:
+            return None
+        if gpu and not any(a.gpu_id(key) == gpu for a in self.adapters):
+            return None
+        path = next((path for name, path in self.targets if name == key), None)
+        return RuntimeTarget(path, gpu) if path else None
+
+    def preferred_gpu(self, key: str) -> str:
+        if self.saved and self.saved.path.name.split("-", 1)[0] == key:
+            return self.saved.gpu
+        return self.active_gpu if self.active_profile == key else ""
+
+    def in_use(self, key: str, gpu: str) -> bool:
+        target = self.target(key, gpu)
+        active = target.path == self.current if target else key == self.active_profile
+        return active and (not gpu or gpu == self.active_gpu)
 
 
 @dataclass(frozen=True)
@@ -75,3 +99,4 @@ class SetupReview:
     download_bytes: int
     install_runtime: bool
     model_keys: tuple[str, ...]
+    gpu: str = ""

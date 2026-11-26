@@ -17,7 +17,7 @@ from ui_fixtures import (
 
 from dantetl.languages.target import ENGLISH
 from dantetl.ocr.observation import CandidateReview
-from dantetl.runtime.setup_values import SetupLane
+from dantetl.runtime.setup_values import RuntimeTarget, SetupLane
 from dantetl.ui.setup_assistant import SetupAssistant
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -1274,7 +1274,7 @@ def test_runtime_setup_detects_without_installing_and_close_waits_for_cancel(
         lambda: (Adapter("RTX", 0x10DE, 16 * 2**30, cuda=CudaDevice(13000, 8, 6, "a" * 32)),),
     )
 
-    def install(root, profile, progress, cancel):
+    def install(root, profile, progress, cancel, gpu=""):
         calls.append(threading.get_ident())
         entered.set()
         assert cancel.wait(2)
@@ -1521,7 +1521,7 @@ def test_runtime_restart_waits_for_translation_and_recovers_if_launch_fails(
 
     restart = Mock(side_effect=fail_restart)
     monkeypatch.setattr("dantetl.composition.RuntimeRestart", restart)
-    settings(window).restart_requested.emit(tmp_path)
+    settings(window).restart_requested.emit(RuntimeTarget(tmp_path))
     assert application.shutdown.active
     assert worker.stops
     restart.assert_not_called()
@@ -1547,7 +1547,7 @@ def test_restart_cleanup_cannot_block_gui_or_report_finished_before_draining(
     owners = []
 
     class Restart:
-        def __init__(self, root, target, *, on_cleanup, cancel):
+        def __init__(self, root, target, *, gpu, on_cleanup, cancel):
             owners.append(threading.get_ident())
             self.on_cleanup = on_cleanup
 
@@ -1563,7 +1563,7 @@ def test_restart_cleanup_cannot_block_gui_or_report_finished_before_draining(
     application = app_owner(window)
     monkeypatch.setattr("dantetl.composition.RuntimeRestart", Restart)
     try:
-        settings(window).restart_requested.emit(tmp_path)
+        settings(window).restart_requested.emit(RuntimeTarget(tmp_path))
         drain(window, entered.is_set)
         assert owners and owners[0] != threading.get_ident()
         for _ in range(20):
