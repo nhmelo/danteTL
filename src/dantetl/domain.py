@@ -110,14 +110,14 @@ def sample_box(width: int, height: int) -> Rect:
 def overlay_ready(
     snapshot: CaptureSnapshot,
     geometry: WindowGeometry | None,
-    foreground: bool,
+    focus_allows_overlay: bool,
 ) -> bool:
-    """Only display a valid current-size image on the selected foreground window."""
+    """Require a current-size frame and the selected overlay visibility policy."""
     return bool(
         snapshot.state == CaptureState.RUNNING
         and snapshot.frame is not None
         and geometry is not None
         and not geometry.minimized
-        and foreground
+        and focus_allows_overlay
         and snapshot.frame.geometry.client.size == geometry.client.size
     )

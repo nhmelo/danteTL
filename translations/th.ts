@@ -1935,6 +1935,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>ให้การตั้งค่ายังทำงานต่อหลังปิดหน้าต่างการตั้งค่าหรือไม่?</translation>
     </message>
     <message>
+      <source>Keep translations visible on the game when you switch to another window. Windows in front of the game cover its translations.</source>
+      <translation>คำแปลยังคงแสดงบนเกมเมื่อคุณสลับไปหน้าต่างอื่น หน้าต่างที่อยู่ด้านหน้าเกมจะบังคำแปลในส่วนนั้นด้วย</translation>
+    </message>
+    <message>
       <source>Keeps detected boxes steady when OCR jitters. Turn off only to inspect raw OCR boxes. Translation always uses stable tracking.</source>
       <translation>รักษากรอบที่ตรวจพบให้มั่นคงเมื่อ OCR สั่น ปิดเฉพาะเมื่อต้องการตรวจกรอบ OCR ดิบ การแปลใช้การติดตามที่เสถียรเสมอ</translation>
     </message>
@@ -3247,6 +3251,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Show or hide game rendering. Capture and translation keep their state. Hotkey: {overlay_key}</source>
       <translation>แสดงหรือซ่อนการเรนเดอร์เกม การจับภาพและคำแปลยังคงสถานะเดิม ปุ่มลัด: {overlay_key}</translation>
+    </message>
+    <message>
+      <source>Show overlay when unfocused</source>
+      <translation>แสดงโอเวอร์เลย์เมื่อเกมไม่ได้โฟกัส</translation>
     </message>
     <message>
       <source>Sign in and choose an available account model first.</source>

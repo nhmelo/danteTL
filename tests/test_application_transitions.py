@@ -140,6 +140,8 @@ def test_stop_intent_survives_delayed_capture_acknowledgement(replay):
 
 @pytest.mark.parametrize("cause", ["minimized", "resized", "window_error", "ocr_error"])
 def test_invalid_capture_revokes_scene_and_english(replay, cause):
+    replay.app.configure(show_unfocused_overlay=True)
+    replay.windows.is_foreground.return_value = False
     replay.app.start_capture(replay.capture.target, 0)
     observe(replay)
     publish(replay)
@@ -156,6 +158,7 @@ def test_invalid_capture_revokes_scene_and_english(replay, cause):
     replay.app.advance(2)
     assert not replay.app.view.english and not replay.app.view.scene.tracks
     assert replay.app.view.overlay_bounds is None
+    assert replay.app.view.overlay_anchor is None
     if cause in ("minimized", "resized"):
         assert replay.ocr.invalidations > 0
         assert set(replay.ocr.acknowledged) == {1}
@@ -229,12 +232,28 @@ def test_hidden_overlay_and_focus_loss_preserve_the_processing_scene(replay):
     english = publish(replay)
     before = replay.app.view.scene
     replay.windows.is_foreground.return_value = False
-    replay.app.advance(2)
-    assert replay.app.view.overlay_bounds is None
+    view = replay.app.advance(2.1)
+    assert view.overlay_bounds == frame(1).geometry.client
+    assert view.overlay_anchor == replay.capture.target and view.english == (english,)
+    for tick, focused in enumerate((True, False, True, False), start=1):
+        replay.windows.is_foreground.return_value = focused
+        view = replay.app.advance(2.1 + tick * 0.01)
+        assert view.overlay_bounds == frame(1).geometry.client
+        assert view.overlay_anchor == (None if focused else replay.capture.target)
+        assert view.scene == before and view.english == (english,)
+    replay.app.configure(show_unfocused_overlay=False)
+    assert replay.app.advance(2.2).overlay_bounds is None
     assert replay.app.view.scene == before and replay.app.view.english == (english,)
-    replay.app.configure(show_overlay=False)
+    replay.app.configure(show_unfocused_overlay=True)
+    replay.windows.supports_background_overlay = False
+    assert replay.app.advance(2.3).overlay_bounds is None
     replay.windows.is_foreground.return_value = True
+    view = replay.app.advance(2.4)
+    assert view.overlay_bounds == frame(1).geometry.client and view.overlay_anchor is None
+    assert view.english == (english,)
+    replay.app.configure(show_overlay=False)
     replay.app.advance(3)
+    assert replay.app.view.overlay_bounds is None and replay.app.view.overlay_anchor is None
     assert replay.app.view.scene == before and set(replay.ocr.acknowledged) == {1}
 
 

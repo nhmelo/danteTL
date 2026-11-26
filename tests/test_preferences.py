@@ -16,6 +16,7 @@ def wait_idle(store):
 
 def test_new_install_defaults_and_bad_individual_values_are_safe():
     defaults = Preferences()
+    assert defaults.show_unfocused_overlay
     assert defaults.stabilize and defaults.automatic_size and defaults.group_dialogue
     assert defaults.capture_rate == 8 and defaults.model == "auto"
     decoded = decode_preferences(
@@ -52,6 +53,7 @@ def test_preferences_roundtrip_with_no_handles_paths_or_session_debug_state(tmp_
         capture_rate=400,
         model="gemma",
         translation=False,
+        show_unfocused_overlay=False,
         include_overlay_in_capture=False,
         overlay_hotkey="Ctrl+Shift+F7",
         capture_hotkey="",

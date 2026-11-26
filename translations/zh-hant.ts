@@ -1935,6 +1935,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>關閉設定後要繼續執行安裝嗎？</translation>
     </message>
     <message>
+      <source>Keep translations visible on the game when you switch to another window. Windows in front of the game cover its translations.</source>
+      <translation>切換到其他視窗時，譯文仍會顯示在遊戲上。位於遊戲前方的視窗也會遮住該處的譯文。</translation>
+    </message>
+    <message>
       <source>Keeps detected boxes steady when OCR jitters. Turn off only to inspect raw OCR boxes. Translation always uses stable tracking.</source>
       <translation>在 OCR 抖動時保持偵測框穩定。僅在檢視原始 OCR 框時才關閉。翻譯一律使用穩定追蹤。</translation>
     </message>
@@ -3247,6 +3251,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Show or hide game rendering. Capture and translation keep their state. Hotkey: {overlay_key}</source>
       <translation>顯示或隱藏遊戲畫面。擷取與翻譯會維持原有狀態。快速鍵：{overlay_key}</translation>
+    </message>
+    <message>
+      <source>Show overlay when unfocused</source>
+      <translation>遊戲失去焦點時仍顯示覆疊層</translation>
     </message>
     <message>
       <source>Sign in and choose an available account model first.</source>

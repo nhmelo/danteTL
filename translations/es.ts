@@ -1935,6 +1935,10 @@ Los detalles están en %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>¿Mantener la configuración en ejecución tras cerrar Ajustes?</translation>
     </message>
     <message>
+      <source>Keep translations visible on the game when you switch to another window. Windows in front of the game cover its translations.</source>
+      <translation>Mantén visibles las traducciones en el juego al cambiar de ventana. Las ventanas que estén delante del juego también cubrirán las traducciones.</translation>
+    </message>
+    <message>
       <source>Keeps detected boxes steady when OCR jitters. Turn off only to inspect raw OCR boxes. Translation always uses stable tracking.</source>
       <translation>Mantiene estables los cuadros detectados cuando el OCR oscila. Desactívalo solo para inspeccionar los cuadros de OCR sin procesar. La traducción siempre usa seguimiento estable.</translation>
     </message>
@@ -3247,6 +3251,10 @@ Descargas de modelos: hasta {size:.2f} GB; los archivos existentes se verifican 
     <message>
       <source>Show or hide game rendering. Capture and translation keep their state. Hotkey: {overlay_key}</source>
       <translation>Mostrar u ocultar el renderizado del juego. La captura y la traducción conservan su estado. Atajo: {overlay_key}</translation>
+    </message>
+    <message>
+      <source>Show overlay when unfocused</source>
+      <translation>Mostrar la superposición al perder el foco</translation>
     </message>
     <message>
       <source>Sign in and choose an available account model first.</source>

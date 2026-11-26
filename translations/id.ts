@@ -1935,6 +1935,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Lanjutkan penyiapan setelah menutup Pengaturan?</translation>
     </message>
     <message>
+      <source>Keep translations visible on the game when you switch to another window. Windows in front of the game cover its translations.</source>
+      <translation>Terjemahan tetap terlihat pada game saat Anda beralih ke jendela lain. Jendela di depan game juga menutupi terjemahannya.</translation>
+    </message>
+    <message>
       <source>Keeps detected boxes steady when OCR jitters. Turn off only to inspect raw OCR boxes. Translation always uses stable tracking.</source>
       <translation>Menjaga kotak terdeteksi tetap stabil saat OCR bergetar. Matikan hanya untuk memeriksa kotak OCR mentah. Terjemahan selalu menggunakan pelacakan stabil.</translation>
     </message>
@@ -3247,6 +3251,10 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
     <message>
       <source>Show or hide game rendering. Capture and translation keep their state. Hotkey: {overlay_key}</source>
       <translation>Tampilkan atau sembunyikan rendering game. Tangkapan dan terjemahan mempertahankan statusnya. Tombol pintas: {overlay_key}</translation>
+    </message>
+    <message>
+      <source>Show overlay when unfocused</source>
+      <translation>Tampilkan overlay saat game tidak aktif</translation>
     </message>
     <message>
       <source>Sign in and choose an available account model first.</source>

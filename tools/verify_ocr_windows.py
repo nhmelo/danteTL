@@ -683,7 +683,7 @@ def main() -> int:
                 assert window.inspector.result is frozen, "Pause replaced the reviewed frame"
                 # The fixture deliberately does not steal foreground focus. Exercise
                 # pause rendering with foreground eligibility controlled independently.
-                with patch.object(windows, "is_foreground", return_value=True):
+                with patch.object(windows, "is_foreground", return_value=True) as foreground:
                     window._tick()
                     assert window._overlay.isVisible(), "Inspector pause hid the live overlay"
                     workers = (
@@ -693,6 +693,16 @@ def main() -> int:
                         application.translation.lifecycle.publication,
                     )
                     english = window._overlay._translations
+                    window.unfocused_overlay_check.setChecked(True)
+                    for focused in (False, True, False, True):
+                        foreground.return_value = focused
+                        window._tick()
+                        assert window._overlay.isVisible()
+                        assert window._overlay._translations == english
+                        style, _ = windows.overlay_properties(int(window._overlay.winId()))
+                        assert bool(style & 8) == focused, "Wrong placement after focus change"
+                    window.unfocused_overlay_check.setChecked(False)
+                    evidence["refocusing_restores_topmost_overlay"] = True
                     window.overlay_check.setChecked(False)
                     window._tick()
                     assert not window._overlay.isVisible()

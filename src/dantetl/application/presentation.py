@@ -29,6 +29,7 @@ def reset_scene(view: ApplicationView) -> ApplicationView:
         visual=VisualState(),
         assignments=(),
         overlay_bounds=None,
+        overlay_anchor=None,
         reset=view.reset + 1,
     )
 

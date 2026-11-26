@@ -119,6 +119,10 @@ def main() -> int:
                 assert window.capture_overlay_check.isChecked()
                 QTest.keyClick(window.capture_overlay_check, Qt.Key.Key_Space)
                 assert not window.capture_overlay_check.isChecked()
+                assert window.sections.game.isAncestorOf(window.unfocused_overlay_check)
+                assert window.unfocused_overlay_check.isChecked()
+                QTest.keyClick(window.unfocused_overlay_check, Qt.Key.Key_Space)
+                assert not window.unfocused_overlay_check.isChecked()
                 evidence["compact_size"] = [window.width(), window.height()]
                 assert window.sections.game.isAncestorOf(window.status)
                 assert window.start_button.property("tone") == "idle"
@@ -392,6 +396,7 @@ def main() -> int:
                 assert saved.opacity == 62 and saved.text_size == 24 and not saved.automatic_size
                 assert not saved.show_border
                 assert not saved.include_overlay_in_capture
+                assert not saved.show_unfocused_overlay
                 evidence["capture_inclusion_preference_saved"] = True
                 evidence["border_preference_saved"] = True
                 evidence.update(

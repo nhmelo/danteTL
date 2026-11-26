@@ -705,7 +705,7 @@ class ApplicationSession:
     def _advance_capture(self, now: float) -> None:
         step = self.capture.poll()
         if step.phase == CapturePhase.IDLE:
-            self.view = replace(self.view, capture=None, overlay_bounds=None)
+            self.view = replace(self.view, capture=None, overlay_bounds=None, overlay_anchor=None)
             self._translate(False, now=now)
             return
         if step.phase in (CapturePhase.STOPPING, CapturePhase.DRAINING):
@@ -730,6 +730,9 @@ class ApplicationSession:
             return
         assert step.snapshot is not None and step.geometry is not None
         snapshot, geometry, foreground = step.snapshot, step.geometry, step.foreground
+        focus_allows_overlay = foreground or (
+            self.values.show_unfocused_overlay and self.windows.supports_background_overlay
+        )
         frame = snapshot.frame if step.phase == CapturePhase.ACTIVE else None
         if step.phase == CapturePhase.ACTIVE:
             assert frame is not None
@@ -743,7 +746,7 @@ class ApplicationSession:
             self._update_ocr(frame, now)
             message = (
                 tr("Capturing. The overlay appears on the selected window when ready.")
-                if foreground and self.values.show_overlay
+                if focus_allows_overlay and self.values.show_overlay
                 else tr("Capturing. Switch to the selected window to see the overlay.")
                 if self.values.show_overlay
                 else tr("Capturing. Game overlay is hidden.")
@@ -779,8 +782,12 @@ class ApplicationSession:
                 and (self.values.translation or self.raw_boxes or self.debug)
                 and (scene.tracks or self.debug)
                 and frame is not None
-                and overlay_ready(snapshot, geometry, foreground)
+                and overlay_ready(snapshot, geometry, focus_allows_overlay)
             )
             else None
         )
-        self.view = replace(self.view, overlay_bounds=bounds)
+        self.view = replace(
+            self.view,
+            overlay_bounds=bounds,
+            overlay_anchor=step.target if bounds and not foreground else None,
+        )

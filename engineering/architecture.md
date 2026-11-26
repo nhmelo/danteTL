@@ -177,8 +177,17 @@ frame in one mailbox, and OCR keeps its independent request cadence and coverage
 Capture copies packed BGRA rows from the mapped client area. The owned frame excludes row
 padding and window chrome and remains valid after the native callback returns.
 
-The overlay is nonactivating/input-transparent; hide on focus loss, minimize, stop, source failure or
-size mismatch. Border edits reopen only the same native source while retaining processing owners and
+The overlay is nonactivating and input-transparent. While the selected game has focus, the overlay
+uses its normal topmost placement. Game & overlay → Show overlay when unfocused defaults on.
+Disabling it hides the overlay on focus loss. With it enabled, losing focus places the text and its native blur surfaces
+directly above the game in desktop stacking order. Focus changes reposition the existing text and
+blur surfaces together, keeping painted labels visible. Windows in front of the unfocused game
+cover both. If the native stacking APIs are unavailable, capture continues with a focused-only
+overlay. The desktop refresh
+checks the order of visible windows even when the game is stationary. Hidden helper windows are
+skipped during placement. Hidden or cloaked targets suppress the anchored
+overlay. Both modes hide on minimize, stop, source failure or size mismatch.
+Border edits reopen only the same native source while retaining processing owners and
 sequence. Screen-capture inclusion changes overlay affinity only; report failure and restore settings.
 If first-show native configuration fails, keep the surface hidden and report the failure once.
 Retry on request, when the overlay is re-enabled, or when the recording preference changes.

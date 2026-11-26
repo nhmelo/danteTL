@@ -261,6 +261,15 @@ class MainWindow(QMainWindow):
             ),
         )
         self.capture_overlay_check = localized(Switch(), text=mark("Include in screen capture"))
+        self.unfocused_overlay_check = localized(
+            Switch(),
+            text=mark("Show overlay when unfocused"),
+            toolTip=mark(
+                "Keep translations visible on the game when you switch to another window. "
+                "Windows in front of the game cover its translations."
+            ),
+        )
+        self.unfocused_overlay_check.setChecked(preferences.show_unfocused_overlay)
         self.capture_overlay_check.setChecked(preferences.include_overlay_in_capture)
         localized(
             self.capture_overlay_check,
@@ -276,6 +285,7 @@ class MainWindow(QMainWindow):
                 self.translate_check,
                 self.border_check,
                 self.capture_overlay_check,
+                self.unfocused_overlay_check,
             )
         )
         self.capture_status = StatusBanner()
@@ -378,6 +388,9 @@ class MainWindow(QMainWindow):
         self.advanced.toggled.connect(self._advanced_changed)
         self._set_inspection_enabled(preferences.inspection_enabled)
         self.overlay_check.toggled.connect(self._overlay_visibility_changed)
+        self.unfocused_overlay_check.toggled.connect(
+            lambda enabled: self._edit_settings(show_unfocused_overlay=enabled)
+        )
         self.border_check.toggled.connect(self._border_changed)
         self.capture_overlay_check.toggled.connect(self._capture_visibility_changed)
         self.translate_check.toggled.connect(lambda value: self._edit_settings(translation=value))
@@ -1026,7 +1039,7 @@ class MainWindow(QMainWindow):
             else None
         )
         if value.overlay_bounds is not None:
-            if error := self._overlay.align(value.overlay_bounds):
+            if error := self._overlay.align(value.overlay_bounds, anchor=value.overlay_anchor):
                 self._show_overlay_error(error)
         else:
             self._overlay.hide()

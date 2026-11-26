@@ -1935,6 +1935,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Tiếp tục thiết lập sau khi đóng Cài đặt?</translation>
     </message>
     <message>
+      <source>Keep translations visible on the game when you switch to another window. Windows in front of the game cover its translations.</source>
+      <translation>Bản dịch vẫn hiển thị trên trò chơi khi bạn chuyển sang cửa sổ khác. Cửa sổ nằm trước trò chơi sẽ che cả bản dịch ở phần bị che.</translation>
+    </message>
+    <message>
       <source>Keeps detected boxes steady when OCR jitters. Turn off only to inspect raw OCR boxes. Translation always uses stable tracking.</source>
       <translation>Giữ các hộp phát hiện ổn định khi OCR bị rung. Chỉ tắt để xem hộp OCR thô. Dịch luôn dùng theo dõi ổn định.</translation>
     </message>
@@ -3247,6 +3251,10 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
     <message>
       <source>Show or hide game rendering. Capture and translation keep their state. Hotkey: {overlay_key}</source>
       <translation>Hiện hoặc ẩn hiển thị trò chơi. Chụp và dịch giữ nguyên trạng thái. Phím tắt: {overlay_key}</translation>
+    </message>
+    <message>
+      <source>Show overlay when unfocused</source>
+      <translation>Hiện lớp phủ khi cửa sổ trò chơi mất tiêu điểm</translation>
     </message>
     <message>
       <source>Sign in and choose an available account model first.</source>

@@ -15,6 +15,8 @@ from dantetl.translation.values import TranslationWorker
 
 
 class WindowAccess(Protocol):
+    @property
+    def supports_background_overlay(self) -> bool: ...
     def is_target(self, target: WindowTarget) -> bool: ...
     def geometry(self, target: WindowTarget) -> WindowGeometry: ...
     def is_foreground(self, target: WindowTarget) -> bool: ...
@@ -37,6 +39,7 @@ class CaptureStep:
     snapshot: CaptureSnapshot | None = None
     geometry: WindowGeometry | None = None
     foreground: bool = False
+    target: WindowTarget | None = None
 
 
 class CaptureLifecycle:
@@ -128,7 +131,7 @@ class CaptureLifecycle:
                 phase = CapturePhase.ACTIVE
         if geometry.minimized:
             phase = CapturePhase.MINIMIZED
-        return CaptureStep(phase, snapshot, geometry, foreground)
+        return CaptureStep(phase, snapshot, geometry, foreground, capture.target)
 
     def drain(self, *, translation_drained: bool, snapshot: CaptureSnapshot) -> str:
         if not translation_drained:

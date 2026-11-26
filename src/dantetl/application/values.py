@@ -5,7 +5,7 @@ from enum import StrEnum
 from typing import Literal
 
 from dantetl.application.translation_activity import TranslationMode
-from dantetl.domain import CapturedFrame, CaptureSnapshot, Rect
+from dantetl.domain import CapturedFrame, CaptureSnapshot, Rect, WindowTarget
 from dantetl.i18n import mark
 from dantetl.ocr.observation import TextTrack
 from dantetl.ocr.values import OcrResult, OcrSnapshot
@@ -72,6 +72,7 @@ class ApplicationView:
     ocr: OcrSnapshot | None = None
     translation: TranslationSnapshot | None = None
     overlay_bounds: Rect | None = None
+    overlay_anchor: WindowTarget | None = None
     reset: int = 0
     english_reset: int = 0
     capture: CaptureSnapshot | None = None

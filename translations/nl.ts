@@ -1935,6 +1935,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Installatie op de achtergrond laten doorlopen na sluiten van Instellingen?</translation>
     </message>
     <message>
+      <source>Keep translations visible on the game when you switch to another window. Windows in front of the game cover its translations.</source>
+      <translation>De vertalingen blijven op het spel zichtbaar wanneer je naar een ander venster schakelt. Vensters vóór het spel bedekken ook de vertalingen.</translation>
+    </message>
+    <message>
       <source>Keeps detected boxes steady when OCR jitters. Turn off only to inspect raw OCR boxes. Translation always uses stable tracking.</source>
       <translation>Houdt gedetecteerde vakken stabiel wanneer OCR schommelt. Schakel alleen uit om onbewerkte OCR-vakken te inspecteren. Vertaling gebruikt altijd stabiele tracking.</translation>
     </message>
@@ -3247,6 +3251,10 @@ Modeldownloads: tot {size:.2f} GB; bestaande bestanden worden geverifieerd en he
     <message>
       <source>Show or hide game rendering. Capture and translation keep their state. Hotkey: {overlay_key}</source>
       <translation>Game-weergave tonen of verbergen. Vastleggen en vertalen behouden hun status. Sneltoets: {overlay_key}</translation>
+    </message>
+    <message>
+      <source>Show overlay when unfocused</source>
+      <translation>Overlay tonen als het spel geen focus heeft</translation>
     </message>
     <message>
       <source>Sign in and choose an available account model first.</source>

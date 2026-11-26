@@ -1935,6 +1935,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>सेटिंग्स बंद करने के बाद सेटअप चालू रखें?</translation>
     </message>
     <message>
+      <source>Keep translations visible on the game when you switch to another window. Windows in front of the game cover its translations.</source>
+      <translation>दूसरी विंडो पर जाने पर भी गेम में अनुवाद दिखाई देते हैं। गेम के सामने की विंडो उसके अनुवाद भी ढक देती हैं।</translation>
+    </message>
+    <message>
       <source>Keeps detected boxes steady when OCR jitters. Turn off only to inspect raw OCR boxes. Translation always uses stable tracking.</source>
       <translation>OCR के हिलने पर पहचाने गए बॉक्स स्थिर रखता है। केवल कच्चे OCR बॉक्स देखने के लिए बंद करें। अनुवाद हमेशा स्थिर ट्रैकिंग का उपयोग करता है।</translation>
     </message>
@@ -3247,6 +3251,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Show or hide game rendering. Capture and translation keep their state. Hotkey: {overlay_key}</source>
       <translation>गेम रेंडरिंग दिखाएँ या छिपाएँ। कैप्चर और अनुवाद अपनी स्थिति बनाए रखते हैं। हॉटकी: {overlay_key}</translation>
+    </message>
+    <message>
+      <source>Show overlay when unfocused</source>
+      <translation>गेम पर फ़ोकस न होने पर भी ओवरले दिखाएँ</translation>
     </message>
     <message>
       <source>Sign in and choose an available account model first.</source>

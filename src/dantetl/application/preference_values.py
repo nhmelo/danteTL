@@ -17,6 +17,7 @@ def valid_executable_id(value: object) -> TypeGuard[str]:
 @dataclass(frozen=True, slots=True)
 class Preferences:
     show_overlay: bool = True
+    show_unfocused_overlay: bool = True
     show_border: bool = True
     include_overlay_in_capture: bool = True
     translation: bool = True
@@ -57,6 +58,7 @@ class SettingsEdit(TypedDict, total=False):
     """User-editable settings. Assignment, source changes and setup have dedicated commands."""
 
     show_overlay: bool
+    show_unfocused_overlay: bool
     show_border: bool
     include_overlay_in_capture: bool
     translation: bool
