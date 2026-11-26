@@ -15,7 +15,7 @@ from PySide6.QtWidgets import QWidget
 
 from dantetl.capture.backdrop import LabelBackdrops
 from dantetl.capture.windows import Windows
-from dantetl.domain import Rect, sample_box
+from dantetl.domain import Rect, WindowTarget, sample_box
 from dantetl.ocr.observation import TextTrack
 from dantetl.translation.grouping import TextBlock
 from dantetl.translation.values import TranslatedText, TranslationRequest
@@ -30,7 +30,6 @@ class OverlayWindow(QWidget):
             None,
             Qt.WindowType.FramelessWindowHint
             | Qt.WindowType.Tool
-            | Qt.WindowType.WindowStaysOnTopHint
             | Qt.WindowType.WindowTransparentForInput
             | Qt.WindowType.WindowDoesNotAcceptFocus,
         )
@@ -40,6 +39,7 @@ class OverlayWindow(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self._windows = windows
         self._bounds = Rect(0, 0, 1, 1)
+        self._anchor: WindowTarget | None = None
         self._opacity = 0.85
         self._configured = False
         self._configuration_failed = False
@@ -219,7 +219,7 @@ class OverlayWindow(QWidget):
         self._configured = True
         self._configuration_failed = False
 
-    def align(self, bounds: Rect) -> str | None:
+    def align(self, bounds: Rect, *, anchor: WindowTarget | None = None) -> str | None:
         """Place the surface, reporting a first-show failure once per explicit attempt."""
         if self._configuration_failed:
             return None
@@ -231,6 +231,8 @@ class OverlayWindow(QWidget):
                 self._configuration_failed = True
                 self.hide()
                 return str(error)
+        anchor_changed = self._anchor != anchor
+        self._anchor = anchor
         changed = self._bounds != bounds
         resized = self._bounds.size != bounds.size
         if changed:
@@ -240,13 +242,25 @@ class OverlayWindow(QWidget):
         if resized and self._english_mode:
             self._layout_english()
         showing = not self.isVisible()
+
+        def place() -> bool:
+            if anchor is None and not (showing or changed or anchor_changed):
+                return True
+            handles = self._backdrops.visible_handles if self._backdrops else frozenset()
+            area = bounds if changed or showing else None
+            if anchor is not None:
+                return self._windows.align_to_game(hwnd, anchor, area, handles)
+            return self._windows.place_overlay(hwnd, area, handles)
+
+        if not place():
+            self.hide()
+            return None
         if showing:
-            self._windows.place_overlay(hwnd, bounds)
             self.show()
             # Qt may apply its pending show geometry; enforce physical bounds afterwards.
-            self._windows.place_overlay(hwnd, bounds)
-        elif changed:
-            self._windows.place_overlay(hwnd, bounds)
+            if not place():
+                self.hide()
+                return None
         if changed or showing:
             self.update()
         return None

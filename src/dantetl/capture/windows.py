@@ -36,6 +36,15 @@ class Windows:
         self.user = ctypes.WinDLL("user32", use_last_error=True)
         self.dwm = ctypes.WinDLL("dwmapi", use_last_error=True)
         self._enum_callback = ctypes.WINFUNCTYPE(wt.BOOL, wt.HWND, wt.LPARAM)
+        position_args = [
+            wt.HWND,
+            wt.HWND,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            wt.UINT,
+        ]
         signatures = {
             "EnumWindows": ([self._enum_callback, wt.LPARAM], wt.BOOL),
             "IsWindow": ([wt.HWND], wt.BOOL),
@@ -55,12 +64,18 @@ class Windows:
             "SetWindowLongPtrW": ([wt.HWND, ctypes.c_int, ctypes.c_ssize_t], ctypes.c_ssize_t),
             "SetWindowDisplayAffinity": ([wt.HWND, wt.DWORD], wt.BOOL),
             "GetWindowDisplayAffinity": ([wt.HWND, ctypes.POINTER(wt.DWORD)], wt.BOOL),
-            "SetWindowPos": (
-                [wt.HWND, wt.HWND, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, wt.UINT],
-                wt.BOOL,
-            ),
+            "SetWindowPos": (position_args, wt.BOOL),
             "SetProcessDpiAwarenessContext": ([ctypes.c_void_p], wt.BOOL),
         }
+        overlay_order = {
+            "GetWindow": ([wt.HWND, wt.UINT], wt.HWND),
+            "BeginDeferWindowPos": ([ctypes.c_int], wt.HANDLE),
+            "DeferWindowPos": ([wt.HANDLE, *position_args], wt.HANDLE),
+            "EndDeferWindowPos": ([wt.HANDLE], wt.BOOL),
+        }
+        self.supports_background_overlay = all(hasattr(self.user, name) for name in overlay_order)
+        if self.supports_background_overlay:
+            signatures.update(overlay_order)
         for name, (args, result) in signatures.items():
             function = getattr(self.user, name)
             function.argtypes = args
@@ -256,12 +271,90 @@ class Windows:
                 tr("Windows could not change whether screen capture includes the overlay.")
             )
 
-    def place_overlay(self, hwnd: int, bounds: Rect) -> None:
-        # Physical desktop coordinates avoid Qt's virtual-desktop DPI conversion.
-        if not self.user.SetWindowPos(
-            hwnd, ctypes.c_void_p(-1), bounds.x, bounds.y, bounds.width, bounds.height, 0x0010
-        ):  # HWND_TOPMOST, SWP_NOACTIVATE
-            raise ctypes.WinError(ctypes.get_last_error())
+    def place_overlay(
+        self, hwnd: int, bounds: Rect | None, backdrops: frozenset[int] = frozenset()
+    ) -> bool:
+        return self._position_surfaces(hwnd, -1, bounds, backdrops)  # HWND_TOPMOST
+
+    def _position_surfaces(
+        self,
+        hwnd: int,
+        after: int,
+        bounds: Rect | None,
+        backdrops: frozenset[int],
+        *,
+        keep_order: bool = False,
+    ) -> bool:
+        flags = 0x0010 | (0x0004 if keep_order else 0)  # NOACTIVATE, optionally NOZORDER
+        if bounds is None:
+            flags |= 0x0003  # NOMOVE | NOSIZE
+        area = bounds or Rect(0, 0, 0, 0)
+        position = (hwnd, after, area.x, area.y, area.width, area.height, flags)
+        if not backdrops or not self.supports_background_overlay:
+            return bool(self.user.SetWindowPos(*position))
+        # Commit the text and all visible blur windows in one screen update.
+        batch = self.user.BeginDeferWindowPos(1 + len(backdrops))
+        if not batch:
+            return False
+        # Each HWND needs the destination band explicitly. Using the text HWND as
+        # the insert-after handle here would use its band before the batch commits.
+        # Insert the text last so it ends up in front of the backdrops.
+        for backdrop in backdrops:
+            batch = self.user.DeferWindowPos(batch, backdrop, after, 0, 0, 0, 0, 0x0013)
+            if not batch:
+                return False
+        batch = self.user.DeferWindowPos(batch, *position)
+        return bool(batch and self.user.EndDeferWindowPos(batch))
+
+    def align_to_game(
+        self, hwnd: int, target: WindowTarget, bounds: Rect | None, backdrops: frozenset[int]
+    ) -> bool:
+        """Keep our text and visible blur surfaces directly above the exact game window."""
+        cloaked = wt.DWORD()
+        if (
+            not self.supports_background_overlay
+            or not self.is_target(target)
+            or not self.user.IsWindowVisible(target.hwnd)
+            or self.user.IsIconic(target.hwnd)
+            or self.dwm.DwmGetWindowAttribute(
+                target.hwnd, 14, ctypes.byref(cloaked), ctypes.sizeof(cloaked)
+            )
+            or cloaked.value
+        ):
+            return False
+
+        game_topmost = bool(self.user.GetWindowLongPtrW(target.hwnd, -20) & 8)
+        text_topmost = bool(self.user.GetWindowLongPtrW(hwnd, -20) & 8)
+        # Hidden foreign helpers (including IME windows) can be inaccessible as
+        # SetWindowPos insertion handles. They have no bearing on visible stacking.
+        remaining = set(backdrops)
+        above = target.hwnd
+        ordered = False
+        for _ in range(len(backdrops) + 256):
+            above = self.user.GetWindow(above, 3)  # GW_HWNDPREV
+            if not above:
+                break
+            if above == hwnd:
+                ordered = not remaining and game_topmost == text_topmost
+                if ordered:
+                    break
+            elif above in remaining:
+                remaining.remove(above)
+            elif self.user.IsWindowVisible(above):
+                break
+        else:
+            return False  # No reliable placement on this pass through a changing stack.
+        if ordered and bounds is None:
+            return True
+        # At the boundary between the two bands, inserting after a topmost window
+        # can itself make the text topmost. Choose the top of the game's band.
+        if ordered:
+            above = 0  # Ignored with NOZORDER.
+        elif not above or (not game_topmost and self.user.GetWindowLongPtrW(above, -20) & 8):
+            above = -1 if game_topmost else (-2 if text_topmost else 0)
+        return self._position_surfaces(
+            hwnd, above, bounds, frozenset() if ordered else backdrops, keep_order=ordered
+        )
 
     def overlay_properties(self, hwnd: int) -> tuple[int, int]:
         """Read back native flags for the live verification harness."""

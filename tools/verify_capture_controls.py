@@ -5,11 +5,13 @@ import json
 import os
 import time
 from collections.abc import Callable
+from ctypes import wintypes as wt
 from pathlib import Path
 
 import shiboken6
 from PySide6.QtCore import QPoint, Qt
 from PySide6.QtGui import QBrush, QColor, QImage, QPainter, QPalette, QPixmap
+from PySide6.QtTest import QSignalSpy
 from PySide6.QtWidgets import QApplication, QWidget
 
 from dantetl.capture.windows import Windows
@@ -25,6 +27,8 @@ from dantetl.ui.overlay import OverlayWindow
 def verify_menu_blur(
     demo: DemoWindow,
     overlay: OverlayWindow,
+    target: WindowTarget,
+    windows: Windows,
     client: Rect,
     grab: Callable[[], QImage],
     pump: Callable[[float], None],
@@ -87,6 +91,54 @@ def verify_menu_blur(
                 assert max(values) - min(values) > 120, f"Stale blur at menu label {i + 1}"
         if count == len(tracks):
             image.save(str(output / "dense-menu.png"))
+        if count == 16:
+            assert overlay._backdrops is not None
+            handles = overlay._backdrops.visible_handles
+            assert len(handles) == count
+            visibility = QSignalSpy(overlay.windowHandle().visibleChanged)
+            # Stay within the opaque topmost fixture. An independent striped cover
+            # exposes leaked blur as lost contrast and leaked text as changed pixels.
+            cover = QWidget(
+                None, Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint
+            )
+            cover.setPalette(palette)
+            cover.setAutoFillBackground(True)
+            cover.resize(demo.width() // 2, demo.height())
+            cover.move(demo.mapToGlobal(QPoint(0, 0)))
+            cover.show()
+            cover.raise_()
+            try:
+                overlay.align(client, anchor=target)
+                pump(0.5)
+                # Force a reorder between the existing labels and blur surfaces.
+                assert windows.user.SetWindowPos(
+                    int(cover.winId()), int(overlay.winId()), 0, 0, 0, 0, 0x13
+                )
+                overlay.align(client, anchor=target)
+                pump(0.1)
+                composed = grab()
+                reference = cover.grab().toImage()
+                area = tracks[1].bounds
+                assert composed.copy(area.x, area.y, area.width, area.height).convertToFormat(
+                    QImage.Format.Format_RGB32
+                ) == reference.copy(area.x, area.y, area.width, area.height).convertToFormat(
+                    QImage.Format.Format_RGB32
+                ), "Text or blur leaked onto the covering window"
+                assert blurred(stripe_values(composed, tracks[7].bounds))
+                windows.user.WindowFromPoint.argtypes = [wt.POINT]
+                windows.user.WindowFromPoint.restype = wt.HWND
+                for label, expected in ((1, int(cover.winId())), (7, target.hwnd)):
+                    box = tracks[label].bounds
+                    point = wt.POINT(client.x + box.x + 6, client.y + box.y + 6)
+                    assert windows.user.WindowFromPoint(point) == expected, "Overlay blocked input"
+                composed.save(str(output / "partially-covered.png"))
+            finally:
+                cover.close()
+            overlay.align(client)
+            pump(0.4)
+            assert visibility.count() == 0, "Focus changes hid the translation surface"
+            assert overlay._backdrops.visible_handles == handles, "Focus changes replaced the blur"
+            assert all(windows.user.IsWindowVisible(hwnd) for hwnd in handles)
     return counts
 
 
@@ -217,7 +269,14 @@ def main() -> None:
         assert evidence["border_visibly_disabled"], evidence
         if args.menu_blur:
             evidence["verified_blurred_label_counts"] = verify_menu_blur(
-                demo, overlay, restored.geometry.client, client_image, pump, args.output
+                demo,
+                overlay,
+                target,
+                windows,
+                restored.geometry.client,
+                client_image,
+                pump,
+                args.output,
             )
     finally:
         session.request_stop()

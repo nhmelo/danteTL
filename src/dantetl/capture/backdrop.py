@@ -67,12 +67,17 @@ class LabelBackdrops:
         self._handles.clear()
         self._visible.clear()
 
-    def _create(self, included: bool) -> int:
+    @property
+    def visible_handles(self) -> frozenset[int]:
+        return frozenset(self._visible.values())
+
+    def _create(self, included: bool, overlay: int) -> int:
         user = self._windows.user
-        # WS_EX_NOACTIVATE | LAYERED | TOOLWINDOW | TRANSPARENT | TOPMOST.
+        # Use the text window's topmost band for new surfaces.
+        style = 0x080800A0 | (user.GetWindowLongPtrW(overlay, -20) & 8)
         # SS_BLACKRECT paints COLOR_3DDKSHADOW, which the color key makes transparent.
         hwnd = user.CreateWindowExW(
-            0x080800A8, "Static", "", 0x80000004, 0, 0, 0, 0, None, None, None, None
+            style, "Static", "", 0x80000004, 0, 0, 0, 0, None, None, None, None
         )
         if not hwnd:
             raise ctypes.WinError(ctypes.get_last_error())
@@ -111,7 +116,7 @@ class LabelBackdrops:
             for box in requested:
                 if box in self._visible:
                     continue
-                hwnd = spare.pop() if spare else self._create(included)
+                hwnd = spare.pop() if spare else self._create(included, overlay)
                 if not self._windows.user.SetWindowPos(
                     hwnd,
                     overlay,

@@ -8,9 +8,10 @@ import json
 import os
 import sys
 import time
+import traceback
 
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QWidget
 
 from dantetl.capture.windows import Windows
 from dantetl.capture.worker import CaptureSession
@@ -18,6 +19,14 @@ from dantetl.domain import CaptureState, WindowTarget, overlay_ready, sample_box
 from dantetl.ui.demo import DemoWindow
 from dantetl.ui.inspection import frame_image
 from dantetl.ui.overlay import OverlayWindow
+
+
+def visible_above(windows: Windows, hwnd: int) -> int | None:
+    for _ in range(512):
+        hwnd = windows.user.GetWindow(hwnd, 3)
+        if not hwnd or windows.user.IsWindowVisible(hwnd):
+            return hwnd
+    raise AssertionError("Could not inspect the fixture's visible window order")
 
 
 def main() -> int:
@@ -129,6 +138,37 @@ def main() -> int:
                     "Resize alignment failed"
                 )
                 assert not overlay_ready(snapshot, geometry, False), "Focus loss must hide overlay"
+                # A normal (non-topmost) game and an overlapping independent window.
+                # Change their stacking order without changing the game rectangle.
+                cover = QWidget()
+                cover.setGeometry(demo.geometry().adjusted(0, 0, -demo.width() // 2, 0))
+                cover.show()
+                cover.raise_()
+                cover.activateWindow()
+                app.processEvents()
+                try:
+                    cover_hwnd = int(cover.winId())
+                    text_hwnd = int(overlay.winId())
+                    foreground = windows.user.GetForegroundWindow()
+                    assert foreground != target.hwnd, "Fixture game still has focus"
+                    overlay.align(geometry.client, anchor=target)
+                    assert overlay.isVisible() and not windows.overlay_properties(text_hwnd)[0] & 8
+                    assert visible_above(windows, target.hwnd) == text_hwnd
+                    assert windows.user.GetForegroundWindow() == foreground, "Overlay took focus"
+                    # Put our cover directly between the text and the game, without activation.
+                    assert windows.user.SetWindowPos(cover_hwnd, text_hwnd, 0, 0, 0, 0, 0x13)
+                    overlay.align(geometry.client, anchor=target)
+                    assert visible_above(windows, target.hwnd) == text_hwnd
+                    assert visible_above(windows, text_hwnd) == cover_hwnd
+                    overlay.align(geometry.client, anchor=WindowTarget(target.hwnd, 0, "Stale"))
+                    assert not overlay.isVisible(), "A stale target kept the overlay visible"
+                    overlay.align(geometry.client, anchor=target)
+                    assert overlay.isVisible()
+                    overlay.align(geometry.client)
+                    assert windows.overlay_properties(text_hwnd)[0] & 8
+                    evidence["unfocused_game_covered_without_activation"] = True
+                finally:
+                    cover.close()
                 demo.showMinimized()
                 overlay.hide()
                 stage = 4
@@ -141,7 +181,7 @@ def main() -> int:
                 stage = 7
         except Exception as error:
             failure = error
-            print(f"FAIL: {failure!r}", flush=True)
+            traceback.print_exc()
             session.request_stop()
             stage = 99
 
