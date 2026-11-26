@@ -254,8 +254,11 @@ or a surviving stroke pattern at least as recent as a miss preserve the track. P
 still use their own confirmation rules. Coarse thumbnails screen changes; compressed long/vertical lines need overlapping,
 aspect-preserving glyph-scale tiles before they can be declared unchanged. Reference pixels have
 per-line and aggregate budgets. Exhausted or ambiguous fine evidence allows ordinary OCR confirmation;
-it must not freeze a confident old reading. Fine comparison checks a new source-matched OCR review
-and verifies suspected clearing of a compressed line.
+it must not freeze a confident old reading. OCR review compares compressed lines directly at glyph
+scale. Fine comparison also verifies suspected clearing of a compressed line.
+For a short label with nearly uniform luminance and visible color strokes, OCR review compares
+the shape of those strokes inside the accepted box. Recoloring the same outline preserves the
+reading. A changed outline or exhausted reference budget defers to ordinary OCR confirmation.
 Fine evidence may confirm unchanged glyphs despite a changed coarse thumbnail. Uniformly colored
 rows with complete character locations can also use a foreground-color projection to reject neutral
 background glints. Every letter/digit and reliable punctuation must contain that color; mixed text

@@ -450,6 +450,12 @@ def _native_edges(pixels: Bytes, bounds: Rect, limit: int) -> Bytes | None:
     return cv2.morphologyEx(area, cv2.MORPH_GRADIENT, np.ones((5, 5), np.uint8))
 
 
+def _color_strokes(pixels: Bytes, bounds: Rect) -> Mask:
+    area = pixels[bounds.y : bounds.y + bounds.height, bounds.x : bounds.x + bounds.width, :3]
+    edges = cv2.morphologyEx(area, cv2.MORPH_GRADIENT, np.ones((3, 3), np.uint8))
+    return np.max(edges, axis=2) >= 32
+
+
 @dataclass(slots=True)
 class _Anchor:
     value: TextTrack
@@ -476,6 +482,8 @@ class _Anchor:
     content: _GlyphReference = field(init=False)
     fine_required: bool = False
     fine: _FineReference | None = None
+    color_strokes_required: bool = field(init=False)
+    color_strokes: Mask | None = None
 
     def __post_init__(self) -> None:
         self.content = _GlyphReference(self.reference)
@@ -483,14 +491,38 @@ class _Anchor:
         strength = np.maximum(np.abs(self.x), np.abs(self.y))
         self.mask = strength >= max(35, float(np.percentile(strength, 80)))
         self.stroke_count = int(self.mask.sum())
+        self.color_strokes_required = not self.fine_required and float(np.ptp(self.reference)) <= 8
+
+    @property
+    def reference_pixels(self) -> int:
+        if self.fine is not None:
+            return self.fine.pixels
+        return self.color_strokes.size if self.color_strokes is not None else 0
+
+    def prepare_color_strokes(self, source: Bytes, budget: int) -> None:
+        if self.reference.size <= budget:
+            strokes = _color_strokes(source, self.value.bounds)
+            self.color_strokes_required = int(np.count_nonzero(strokes)) >= 12
+            if self.color_strokes_required:
+                self.color_strokes = strokes
+
+    def _coarse_matches(self, pixels: Bytes, crop: Gray) -> bool | None:
+        same = self.content.matches(crop)
+        if same is not True or not self.color_strokes_required:
+            return same
+        # Equal luminance can hide a digit edit. Defer to OCR when the color
+        # outline changes or the source mask exceeded the reference budget.
+        if self.color_strokes is None:
+            return None
+        strokes = _color_strokes(pixels, self.value.bounds)
+        return True if np.count_nonzero(self.color_strokes ^ strokes) < 8 else None
 
     def content_matches(self, pixels: Bytes) -> bool | None:
-        crop = _crop(pixels, self.value.bounds)
-        same = None if crop is None else self.content.matches(crop)
-        if crop is not None and self.fine_required:
-            # Fine glyph evidence is authoritative. An aliased thumbnail can disagree
-            # because of background particles even when every fine glyph still matches.
+        if self.fine_required:
             same = self.fine.matches(pixels, self.value) if self.fine is not None else None
+        else:
+            crop = _crop(pixels, self.value.bounds)
+            same = None if crop is None else self._coarse_matches(pixels, crop)
         if same is True and self.extension is not None and self.extension_bounds is not None:
             extension = _crop(pixels, self.extension_bounds, wide=True)
             # The accepted box was already checked above. Contrast gains inside it
@@ -570,8 +602,10 @@ class _Anchor:
 
     def _strokes_replaced(self, current: Gray) -> bool:
         """Require loss across the old line, even when the new menu has its own edges."""
+        if self.content.faint is None:
+            self.content.faint = _FaintReference.prepare(self.reference)
         source = self.content.faint
-        if source is None or not source.valid:
+        if not source.valid:
             return False
         detail = current - cv2.GaussianBlur(current, (0, 0), 2)
         old = source.detail
@@ -629,7 +663,7 @@ class _Anchor:
         elif self.cleared and self.fine_required:
             glyph_match = self.fine.matches(pixels, self.value) if self.fine is not None else None
         else:
-            glyph_match = self.content.matches(current)
+            glyph_match = self._coarse_matches(pixels, current)
         if glyph_match is True:
             self.glyphs_match = self.present = True
             self.replacement = None
@@ -848,9 +882,10 @@ class VisualAnalyzer:
             for key, region in zip(job.assignments, cleaned, strict=False)
             if key is not None
         }
-        fine_budget = _FINE_PIXELS - sum(a.fine.pixels for a in self._anchors.values() if a.fine)
+        fine_budget = _FINE_PIXELS - sum(a.reference_pixels for a in self._anchors.values())
         reference_layout = layout if result.frame is job.frame else None
         color_candidates: list[tuple[_FineReference, TextTrack, TextRegion, Rect]] = []
+        short_color_candidates: list[_Anchor] = []
         for track in job.tracks[:128]:
             region = by_id.get(track.track_id)
             anchor = self._anchors.get(track)
@@ -863,8 +898,7 @@ class VisualAnalyzer:
                 and region.text == track.text
             ):
                 # A positive reading from inside the clear interval supersedes its template.
-                if anchor.fine is not None:
-                    fine_budget += anchor.fine.pixels
+                fine_budget += anchor.reference_pixels
                 del self._anchors[track]
             if track not in self._anchors and region is not None and region.text == track.text:
                 crop = _crop(source, track.bounds)
@@ -886,7 +920,7 @@ class VisualAnalyzer:
                         fine_budget -= fine.pixels
                         color_candidates.append((fine, track, region, area))
                     clear_since = dismissed.get(track.track_id)
-                    self._anchors[track] = _Anchor(
+                    anchor = _Anchor(
                         track,
                         crop,
                         reference_layout,
@@ -899,6 +933,9 @@ class VisualAnalyzer:
                         cleared=clear_since is not None,
                         clear_since=clear_since,
                     )
+                    self._anchors[track] = anchor
+                    if anchor.color_strokes_required:
+                        short_color_candidates.append(anchor)
         # Optional color must never consume another line's basic glyph evidence.
         for fine, track, region, area in color_candidates:
             before = fine.pixels
@@ -911,6 +948,9 @@ class VisualAnalyzer:
                 anchor = self._anchors[track]
                 anchor.extension_bounds = edge
                 anchor.extension = _crop(source, edge, wide=True)
+        for anchor in short_color_candidates:
+            anchor.prepare_color_strokes(source, fine_budget)
+            fine_budget -= anchor.reference_pixels
         if result.frame.sequence == self._ocr_sequence:
             return
         self._ocr_sequence = result.frame.sequence

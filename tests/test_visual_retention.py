@@ -149,6 +149,50 @@ class Replay:
         return state
 
 
+@pytest.mark.parametrize(
+    "edit, recolor, exhaust_budget",
+    [(True, False, False), (True, True, False), (False, True, False), (True, False, True)],
+)
+def test_equal_luminance_counter_edit_and_hover_through_publication(
+    edit, recolor, exhaust_budget, monkeypatch
+):
+    if exhaust_budget:
+        monkeypatch.setattr("dantetl.ocr.visual._FINE_PIXELS", 0)
+
+    def observation(sequence, digit, color, reading):
+        bgra = np.full((120, 320, 4), (76, 76, 76, 255), np.uint8)
+        mask = np.zeros(bgra.shape[:2], np.uint8)
+        cv2.putText(mask, f"HP {digit}", (25, 62), 0, 0.95, 255, 2)
+        bgra[mask >= 128] = color
+        assert np.ptp(cv2.cvtColor(bgra, cv2.COLOR_BGRA2GRAY)) == 0
+        viewport = Rect(0, 0, 320, 120)
+        frame = CapturedFrame(
+            sequence,
+            sequence * 0.25,
+            WindowGeometry(viewport, viewport, viewport, 96),
+            bgra.tobytes(),
+        )
+        row = TextRegion(f"残り{reading}回", Rect(20, 30, 160, 40), line_confidence=0.98)
+        return OcrResult(frame, (row,), 15, frame.captured_at + 0.015)
+
+    red, green = (0, 0, 254, 255), (0, 129, 0, 255)
+    replay = Replay(observation(1, 4, red, 4))
+    presentation = EnglishPresentation()
+    block = TextBlock(replay.tracks)
+    initial_reply = TranslatedText(TranslationRequest.from_block(block), "Remaining 4")
+    assert presentation.update((block,), (initial_reply,))[0].translation == initial_reply
+    original = replay.tracks[0]
+    for sequence in range(2, 5):
+        # OCR also reports 5 during a hover-only recolor, where it must be ignored.
+        replay.step(observation(sequence, 5 if edit else 4, green if recolor else red, 5))
+    assert replay.tracks[0].track_id == original.track_id
+    expected = "5" if edit else "4"
+    assert replay.tracks[0].text == f"残り{expected}回"
+    block = TextBlock(replay.tracks)
+    reply = TranslatedText(TranslationRequest.from_block(block), f"Remaining {expected}")
+    assert presentation.update((block,), (reply,) if edit else ())[0].translation == reply
+
+
 def long_line(
     sequence, width, *, reading="体力3204", digit="4", vertical=False, brightness=0, font=0.6
 ):
