@@ -245,6 +245,10 @@ Repairs folder: {directory}</source>
       <translation>Добавить модель</translation>
     </message>
     <message>
+      <source>Add to favorites</source>
+      <translation>Добавить в избранное</translation>
+    </message>
+    <message>
       <source>Advanced</source>
       <translation>Дополнительно</translation>
     </message>
@@ -581,6 +585,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Catalog refresh</source>
       <translation>Обновление каталога</translation>
+    </message>
+    <message>
+      <source>Category heading</source>
+      <translation>Заголовок категории</translation>
     </message>
     <message>
       <source>Change game text language</source>
@@ -1467,6 +1475,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>Быстро переводит диалоги. Качество перевода игровых характеристик и терминов варьируется.</translation>
     </message>
     <message>
+      <source>Favorites</source>
+      <translation>Избранное</translation>
+    </message>
+    <message>
       <source>Features under development. Results may be inaccurate or incomplete.</source>
       <translation>Функции в разработке. Результаты могут быть неточными или неполными.</translation>
     </message>
@@ -2159,10 +2171,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>Вызов модели</translation>
     </message>
     <message>
-      <source>Model category; not selectable</source>
-      <translation>Категория модели; недоступна для выбора</translation>
-    </message>
-    <message>
       <source>Model chat template produced an oversized prompt.</source>
       <translation>Шаблон чата модели создал слишком большой промпт.</translation>
     </message>
@@ -2521,6 +2529,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Optional game name</source>
       <translation>Название игры (необязательно)</translation>
+    </message>
+    <message>
+      <source>Other windows</source>
+      <translation>Другие окна</translation>
     </message>
     <message>
       <source>Output language</source>
@@ -2887,6 +2899,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Remove cloud model?</source>
       <translation>Удалить облачную модель?</translation>
+    </message>
+    <message>
+      <source>Remove from favorites</source>
+      <translation>Удалить из избранного</translation>
     </message>
     <message>
       <source>Remove from list</source>
@@ -4309,10 +4325,6 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{title}  ·  PID {process_id}</source>
       <translation>{title}  ·  PID {process_id}</translation>
-    </message>
-    <message>
-      <source>{title} · PID {process_id}</source>
-      <translation>{title} · PID {process_id}</translation>
     </message>
     <message>
       <source>{value:.0f} MB</source>

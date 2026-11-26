@@ -3,12 +3,13 @@
 import logging
 import subprocess
 import time
+from functools import partial
 from importlib.metadata import version
 from pathlib import Path
 from typing import Unpack
 
 from PySide6.QtCore import QSignalBlocker, QSize, Qt, QTimer, QUrl
-from PySide6.QtGui import QCloseEvent, QDesktopServices, QIcon
+from PySide6.QtGui import QCloseEvent, QDesktopServices, QIcon, QImage
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
@@ -50,6 +51,7 @@ from dantetl.ui.controls import (
 )
 from dantetl.ui.desktop_driver import DesktopDriver
 from dantetl.ui.diagnostics import debug_display
+from dantetl.ui.game_window_combo import GameWindowCombo
 from dantetl.ui.history_panel import HistoryPanel
 from dantetl.ui.icons import APP_ICON, ICON_DIR
 from dantetl.ui.inspection import OcrInspector
@@ -111,8 +113,6 @@ class MainWindow(QMainWindow):
         self._routing_changed()
         driver.bind(application, self._render_application, self)
         self.refresh_windows()
-        if self.windows_combo.count():
-            self.windows_combo.setCurrentIndex(0)
         if self._hotkeys:
             self._hotkeys.activated = self._hotkey_activated
         self._settings.hotkeys.activate()
@@ -205,15 +205,26 @@ class MainWindow(QMainWindow):
         game_layout = self.sections.game_layout
         game_layout.addWidget(localized(QLabel(), text=mark("Game window")))
         selection = QHBoxLayout()
-        self.windows_combo = QComboBox()
+        self.windows_combo = GameWindowCombo(
+            partial(self._windows.read_process_details, copy=getattr(QImage, "fromHICON", None)),
+            preferences.favorite_executables,
+        )
         localized(self.windows_combo, accessibleName=mark("Game window"))
         self.windows_combo.setMinimumContentsLength(16)
         self.windows_combo.setSizeAdjustPolicy(
             QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
         )
+        self.windows_combo.opening.connect(lambda: self._list_windows(refresh=False))
+        self.favorite_button = QPushButton()
+        self.favorite_button.setObjectName("favoriteWindow")
+        self.favorite_button.setCheckable(True)
+        self.favorite_button.setFixedWidth(38)
+        self.favorite_button.clicked.connect(self._toggle_favorite)
+        self.windows_combo.favorite_state_changed.connect(self._show_favorite)
         self.refresh_button = localized(QPushButton(), text=mark("Refresh"))
         self.refresh_button.clicked.connect(self.refresh_windows)
         selection.addWidget(self.windows_combo, 1)
+        selection.addWidget(self.favorite_button)
         selection.addWidget(self.refresh_button)
         game_layout.addLayout(selection)
         self.start_button = CaptureButton()
@@ -393,7 +404,24 @@ class MainWindow(QMainWindow):
         self._font_style_changed()
         self._update_notice()
 
+    def _show_favorite(self) -> None:
+        executable = self.windows_combo.selected_executable
+        checked = executable in self.application.values.favorite_executables
+        self.favorite_button.setEnabled(bool(executable))
+        self.favorite_button.setChecked(checked)
+        self.favorite_button.setText("★" if checked else "☆")
+        action = tr("Remove from favorites") if checked else tr("Add to favorites")
+        self.favorite_button.setAccessibleName(action)
+        self.favorite_button.setToolTip(action)
+
+    def _toggle_favorite(self, checked: bool) -> None:
+        executable = self.windows_combo.selected_executable
+        if executable:
+            self.application.set_window_favorite(executable, checked)
+            self.windows_combo.set_favorites(self.application.values.favorite_executables)
+
     def _game_window_changed(self) -> None:
+        self._show_favorite()
         target = self.windows_combo.currentData()
         if not self.application.controls.capture_active:
             self.start_button.setEnabled(
@@ -703,9 +731,11 @@ class MainWindow(QMainWindow):
             )
 
     def refresh_windows(self) -> None:
+        self._list_windows(refresh=True)
+
+    def _list_windows(self, *, refresh: bool) -> None:
         if self.application.controls.capture_active:
             return
-        current = self.windows_combo.currentData()
         try:
             targets = self._windows.list_targets()
         except OSError as error:
@@ -714,30 +744,10 @@ class MainWindow(QMainWindow):
         else:
             if not targets:
                 self.status.setText(tr("No windows found. Open a game or the demo, then refresh."))
-        with QSignalBlocker(self.windows_combo):
-            self.windows_combo.clear()
-            selected = -1
-            for target in targets:
-                label = tr(
-                    "{title}  ·  PID {process_id}", title=target.title, process_id=target.process_id
-                )
-                if (
-                    sum(
-                        item.title == target.title and item.process_id == target.process_id
-                        for item in targets
-                    )
-                    > 1
-                ):
-                    label += tr("  ·  HWND {hwnd:#x}", hwnd=target.hwnd)
-                self.windows_combo.addItem(label, target)
-                if (
-                    isinstance(current, WindowTarget)
-                    and current.hwnd == target.hwnd
-                    and current.process_id == target.process_id
-                ):
-                    selected = self.windows_combo.count() - 1
-            self.windows_combo.setCurrentIndex(selected)
-        self._game_window_changed()
+        previous = self.windows_combo.currentData()
+        self.windows_combo.set_targets(targets, refresh=refresh)
+        if refresh or self.windows_combo.currentData() != previous:
+            self._game_window_changed()
 
     def _toggle_capture(self) -> None:
         if self.application.closing or not self.start_button.isEnabled():
@@ -745,6 +755,7 @@ class MainWindow(QMainWindow):
         if self.application.controls.capture_active:
             self._stop(tr("Capture stopped."))
             return
+        self.windows_combo.keep_selection()
         target = self.windows_combo.currentData()
         if isinstance(target, WindowTarget) and self.application.start_capture(
             target, time.monotonic()
@@ -830,20 +841,8 @@ class MainWindow(QMainWindow):
         self._settings.show_runtime()
 
     def _select_target(self, target: WindowTarget) -> None:
-        label = tr("{title} · PID {process_id}", title=target.title, process_id=target.process_id)
-        for i in range(self.windows_combo.count()):
-            candidate = self.windows_combo.itemData(i)
-            if isinstance(candidate, WindowTarget) and (candidate.hwnd, candidate.process_id) == (
-                target.hwnd,
-                target.process_id,
-            ):
-                self.windows_combo.setItemText(i, label)
-                self.windows_combo.setItemData(i, target)
-                self.windows_combo.setCurrentIndex(i)
-                break
-        else:
-            self.windows_combo.addItem(label, target)
-            self.windows_combo.setCurrentIndex(self.windows_combo.count() - 1)
+        self.windows_combo.select_target(target)
+        self._game_window_changed()
         self.start_button.setEnabled(True)
 
     def _change_source(self, picker: SourceLanguageCombo) -> None:
@@ -1058,7 +1057,7 @@ class MainWindow(QMainWindow):
             process = subprocess.Popen(module_command(python, "dantetl.ui.demo", "--dialogue"))
             self._demo_processes.append(process)
             self.status.setText(tr("Demo opened. Refresh the window list and select DanteTL Demo."))
-            QTimer.singleShot(1200, self.refresh_windows)
+            QTimer.singleShot(1200, self, lambda: self._list_windows(refresh=False))
         except OSError as error:
             self.status.setText(tr("Could not open the demo: {error}", error=error))
 

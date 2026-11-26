@@ -724,6 +724,7 @@ def test_hotkeys_keep_selected_window_and_respect_stop_close_and_modal_guards(
     target = WindowTarget(101, 202, "Our fixture")
     windows = Mock()
     windows.list_targets.return_value = [target]
+    windows.read_process_details.return_value = None
     capture = Mock()
     capture.return_value.finished = False
     capture.return_value.snapshot.return_value = CaptureSnapshot(CaptureState.RUNNING, frame(1))
@@ -795,6 +796,235 @@ def test_native_hotkey_filter_accepts_both_qt_routes_and_rejects_stale_messages(
     events.close()
 
 
+def test_game_window_icons_follow_refreshed_rows_while_old_lookup_is_busy(app):
+    from PySide6.QtGui import QColor, QImage
+
+    from dantetl.domain import WindowTarget
+
+    original = WindowTarget(101, 202, "Game")
+    other_process = replace(original, process_id=303)
+    available = WindowTarget(102, 404, "Second game")
+    started, release = threading.Event(), threading.Event()
+
+    def read(target, *, copy):
+        if target == other_process:
+            raise PermissionError("Process details denied")
+        if target == original:
+            started.set()
+            assert release.wait(5)
+        image = QImage(32, 32, QImage.Format.Format_ARGB32)
+        image.fill(QColor("red" if target == original else "blue"))
+        return "a" * 64, image
+
+    windows = Mock()
+    windows.list_targets.return_value = [original]
+    windows.read_process_details.side_effect = read
+    window = MainWindow(windows, Mock())
+    combo = window.windows_combo
+    try:
+        assert started.wait(2)
+        windows.list_targets.return_value = [other_process, available]
+        window.refresh_button.click()
+        window.refresh_button.click()
+        combo.setCurrentIndex(0)
+        assert window.start_button.isEnabled() and combo.currentData() == other_process
+    finally:
+        release.set()
+    deadline = time.monotonic() + 3
+    while combo.itemIcon(1).isNull():
+        assert time.monotonic() < deadline
+        app.processEvents()
+        time.sleep(0.001)
+    assert combo.itemIcon(0).isNull() and combo.currentData() == other_process
+    assert combo.itemIcon(1).pixmap(16).toImage().pixelColor(8, 8) == QColor("blue")
+    assert windows.read_process_details.call_count == 3
+    window.close()
+
+
+@pytest.mark.parametrize("failure", ["worker", "heading"])
+def test_plain_window_list_preserves_capture_target_and_recovers(
+    app, tmp_path, monkeypatch, failure
+):
+    import json
+
+    from dantetl.domain import WindowTarget
+    from dantetl.ui import game_window_combo
+
+    first = WindowTarget(11, 42, "Game")
+    second = replace(first, hwnd=12)
+    other = WindowTarget(20, 24, "Another window")
+    windows = Mock()
+    windows.list_targets.return_value = [first, second, other]
+    windows.read_process_details.side_effect = lambda t, **_: (
+        ("a" if t.process_id == first.process_id else "b") * 64,
+        None,
+    )
+    path = tmp_path / "prefs.json"
+    path.write_text(json.dumps({"version": 1, "favorite_executables": ["a" * 64]}))
+    window = MainWindow(windows, Mock(), preferences_path=path)
+    combo = window.windows_combo
+
+    def wait_for(predicate):
+        deadline = time.monotonic() + 3
+        while not predicate():
+            assert time.monotonic() < deadline
+            app.processEvents()
+            time.sleep(0.001)
+
+    wait_for(lambda: combo.count() == 5)
+    assert combo.currentData() == first and window.favorite_button.isChecked()
+    combo.setCurrentIndex(2)
+    window.refresh_button.click()
+    window.refresh_button.click()  # The previous refresh may still be resolving this favorite.
+    wait_for(lambda: combo.count() == 5)
+    assert combo.currentData() == second
+    heading_failed = threading.Event()
+    with monkeypatch.context() as patch:
+        if failure == "worker":
+            pool = Mock()
+            pool.globalInstance.return_value.start.side_effect = RuntimeError("Pool unavailable")
+            patch.setattr(game_window_combo, "QThreadPool", pool)
+        else:
+            add_section = game_window_combo.add_combo_section
+
+            def fail_second_heading(combo, label):
+                if label == "Other windows":
+                    heading_failed.set()
+                    raise RuntimeError("Heading unavailable")
+                add_section(combo, label)
+
+            patch.setattr(game_window_combo, "add_combo_section", fail_second_heading)
+        window.refresh_button.click()
+        if failure == "heading":
+            wait_for(heading_failed.is_set)
+        assert [combo.itemData(i) for i in range(combo.count())] == [other, first, second]
+        assert "HWND" in combo.itemText(1) and "HWND" in combo.itemText(2)
+        assert combo.currentData() == second and not window.favorite_button.isEnabled()
+        start = Mock(return_value=False)
+        patch.setattr(app_owner(window), "start_capture", start)
+        window.start_button.click()
+        assert start.call_args.args[0] == second
+    window.refresh_button.click()
+    wait_for(lambda: combo.count() == 5)
+    assert combo.currentData() == second and window.favorite_button.isChecked()
+    window.close()
+
+
+@pytest.mark.parametrize("action", ["choose", "start"])
+@pytest.mark.parametrize("manual_refresh", [False, True])
+def test_late_favorite_keeps_window_chosen_or_used_for_capture(
+    app, tmp_path, monkeypatch, action, manual_refresh
+):
+    import json
+
+    from dantetl.domain import WindowTarget
+
+    fallback = WindowTarget(1, 10, "A")
+    favorite = WindowTarget(2, 20, "B")
+    manual = WindowTarget(3, 30, "C")
+    release = threading.Event()
+
+    def details(target, **_):
+        if target == favorite:
+            assert release.wait(3)
+            return "a" * 64, None
+        return None
+
+    windows = Mock()
+    windows.list_targets.return_value = (
+        [fallback] if manual_refresh else [manual, favorite, fallback]
+    )
+    windows.read_process_details.side_effect = details
+    path = tmp_path / "prefs.json"
+    path.write_text(json.dumps({"version": 1, "favorite_executables": ["a" * 64]}))
+    window = MainWindow(windows, Mock(), preferences_path=path)
+    combo = window.windows_combo
+    try:
+        if manual_refresh:
+            windows.list_targets.return_value = [manual, favorite, fallback]
+            window.refresh_button.click()
+        assert combo.currentData() == fallback
+        if action == "choose":
+            combo.setCurrentIndex(2)
+            assert combo.currentData() == manual
+        else:
+            start = Mock(return_value=True)
+            monkeypatch.setattr(app_owner(window), "start_capture", start)
+            window.start_button.click()
+            assert start.call_args.args[0] == fallback
+    finally:
+        release.set()
+    deadline = time.monotonic() + 3
+    while combo.count() != 5:
+        assert time.monotonic() < deadline
+        app.processEvents()
+        time.sleep(0.001)
+    assert combo.itemData(1) == favorite
+    assert combo.currentData() == (manual if action == "choose" else fallback)
+    window.close()
+
+
+def test_favorite_windows_group_by_executable_and_return_after_restart(app, tmp_path):
+    from PySide6.QtCore import Qt
+
+    from dantetl.application.preferences import PreferenceStore
+    from dantetl.domain import WindowTarget
+
+    def until(condition):
+        deadline = time.monotonic() + 3
+        while not condition():
+            assert time.monotonic() < deadline
+            app.processEvents()
+            time.sleep(0.001)
+
+    settings_path = tmp_path / "preferences.json"
+    other = WindowTarget(1, 10, "Another game")
+    game = WindowTarget(2, 20, "Game")
+    second = replace(game, hwnd=3)
+    windows = Mock()
+    windows.list_targets.return_value = [other, game, second]
+    windows.read_process_details.side_effect = lambda t, **_: (
+        ("b" if t == other else "a") * 64,
+        None,
+    )
+    window = MainWindow(windows, Mock(), preferences_path=settings_path)
+    combo, star = window.windows_combo, window.favorite_button
+    combo.setCurrentIndex(2)
+    until(star.isEnabled)
+    assert not star.isChecked() and star.accessibleName() == "Add to favorites"
+    star.click()
+    assert star.isChecked() and combo.currentData() == second
+    assert [combo.itemData(i) for i in range(combo.count())] == [None, game, second, None, other]
+    assert "HWND" in combo.itemText(1) and "HWND" in combo.itemText(2)
+    assert [combo.itemText(i) for i in (0, 3)] == ["Favorites", "Other windows"]
+    assert all(
+        combo.model().flags(combo.model().index(i, 0)) == Qt.ItemFlag.NoItemFlags for i in (0, 3)
+    )
+    combo.setCurrentIndex(4)
+    assert not star.isChecked()
+    until(lambda: PreferenceStore(settings_path).initial.favorite_executables == ("a" * 64,))
+    window.close()
+
+    windows.list_targets.return_value = [other]
+    reopened = MainWindow(windows, Mock(), preferences_path=settings_path)
+    combo, star = reopened.windows_combo, reopened.favorite_button
+    assert combo.count() == 1 and combo.currentData() == other
+    relaunched = WindowTarget(4, 30, "New title")
+    windows.list_targets.return_value = [other, relaunched]
+    combo.showPopup()
+    until(lambda: combo.count() == 4)
+    combo.hidePopup()
+    assert combo.itemData(1) == relaunched and combo.currentData() == other
+    reopened.refresh_button.click()
+    until(lambda: combo.count() == 4)
+    assert combo.currentData() == relaunched
+    assert star.isChecked() and star.accessibleName() == "Remove from favorites"
+    star.click()
+    assert not star.isChecked() and combo.count() == 2 and combo.currentData() == relaunched
+    until(lambda: PreferenceStore(settings_path).initial.favorite_executables == ())
+    reopened.close()
+
+
 @pytest.mark.parametrize("reused_handle", [False, True])
 def test_window_refresh_preserves_only_the_selected_process_and_handle(app, reused_handle):
     from dantetl.domain import WindowTarget
@@ -803,6 +1033,7 @@ def test_window_refresh_preserves_only_the_selected_process_and_handle(app, reus
     other = WindowTarget(102, 202, "Other")
     windows = Mock()
     windows.list_targets.return_value = [selected, other]
+    windows.read_process_details.return_value = None
     window = MainWindow(windows, Mock())
     renamed = replace(selected, title="Renamed")
     windows.list_targets.return_value = [other, renamed]
@@ -833,6 +1064,7 @@ def test_capture_hotkey_picks_focused_window_but_never_retargets_running_capture
     target = WindowTarget(101, 202, "New focused game")
     windows = Mock()
     windows.list_targets.return_value = []  # The initial list can be empty or stale.
+    windows.read_process_details.return_value = None
     windows.foreground_target.return_value = target
     capture = Mock()
     monkeypatch.setattr("dantetl.composition.CaptureSession", capture)

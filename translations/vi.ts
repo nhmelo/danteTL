@@ -245,6 +245,10 @@ Thư mục sửa chữa: {directory}</translation>
       <translation>Thêm mô hình</translation>
     </message>
     <message>
+      <source>Add to favorites</source>
+      <translation>Thêm vào mục yêu thích</translation>
+    </message>
+    <message>
       <source>Advanced</source>
       <translation>Nâng cao</translation>
     </message>
@@ -581,6 +585,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Catalog refresh</source>
       <translation>Làm mới danh mục</translation>
+    </message>
+    <message>
+      <source>Category heading</source>
+      <translation>Tiêu đề danh mục</translation>
     </message>
     <message>
       <source>Change game text language</source>
@@ -1467,6 +1475,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Dịch hội thoại nhanh. Chất lượng dịch chỉ số và thuật ngữ trong game không đồng đều.</translation>
     </message>
     <message>
+      <source>Favorites</source>
+      <translation>Yêu thích</translation>
+    </message>
+    <message>
       <source>Features under development. Results may be inaccurate or incomplete.</source>
       <translation>Các tính năng đang phát triển. Kết quả có thể không chính xác hoặc không đầy đủ.</translation>
     </message>
@@ -2159,10 +2171,6 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Gọi mô hình</translation>
     </message>
     <message>
-      <source>Model category; not selectable</source>
-      <translation>Danh mục mô hình; không thể chọn</translation>
-    </message>
-    <message>
       <source>Model chat template produced an oversized prompt.</source>
       <translation>Mẫu chat của mô hình đã tạo ra một prompt quá lớn.</translation>
     </message>
@@ -2521,6 +2529,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Optional game name</source>
       <translation>Tên trò chơi (tùy chọn)</translation>
+    </message>
+    <message>
+      <source>Other windows</source>
+      <translation>Các cửa sổ khác</translation>
     </message>
     <message>
       <source>Output language</source>
@@ -2887,6 +2899,10 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
     <message>
       <source>Remove cloud model?</source>
       <translation>Xóa mô hình đám mây?</translation>
+    </message>
+    <message>
+      <source>Remove from favorites</source>
+      <translation>Xóa khỏi mục yêu thích</translation>
     </message>
     <message>
       <source>Remove from list</source>
@@ -4309,10 +4325,6 @@ Kiến trúc: {architecture} · Định dạng: {value}
     <message>
       <source>{title}  ·  PID {process_id}</source>
       <translation>{title}  ·  PID {process_id}</translation>
-    </message>
-    <message>
-      <source>{title} · PID {process_id}</source>
-      <translation>{title} · PID {process_id}</translation>
     </message>
     <message>
       <source>{value:.0f} MB</source>

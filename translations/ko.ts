@@ -245,6 +245,10 @@ Repairs folder: {directory}</source>
       <translation>모델 추가</translation>
     </message>
     <message>
+      <source>Add to favorites</source>
+      <translation>즐겨찾기에 추가</translation>
+    </message>
+    <message>
       <source>Advanced</source>
       <translation>고급</translation>
     </message>
@@ -581,6 +585,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Catalog refresh</source>
       <translation>카탈로그 새로 고침</translation>
+    </message>
+    <message>
+      <source>Category heading</source>
+      <translation>범주 제목</translation>
     </message>
     <message>
       <source>Change game text language</source>
@@ -1467,6 +1475,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>대사를 빠르게 번역합니다. 게임 능력치와 용어의 번역 품질은 일정하지 않습니다.</translation>
     </message>
     <message>
+      <source>Favorites</source>
+      <translation>즐겨찾기</translation>
+    </message>
+    <message>
       <source>Features under development. Results may be inaccurate or incomplete.</source>
       <translation>개발 중인 기능입니다. 결과가 부정확하거나 불완전할 수 있습니다.</translation>
     </message>
@@ -2159,10 +2171,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>모델 호출</translation>
     </message>
     <message>
-      <source>Model category; not selectable</source>
-      <translation>모델 카테고리; 선택할 수 없음</translation>
-    </message>
-    <message>
       <source>Model chat template produced an oversized prompt.</source>
       <translation>모델 채팅 템플릿이 너무 큰 프롬프트를 생성했습니다.</translation>
     </message>
@@ -2521,6 +2529,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Optional game name</source>
       <translation>선택적 게임 이름</translation>
+    </message>
+    <message>
+      <source>Other windows</source>
+      <translation>다른 창</translation>
     </message>
     <message>
       <source>Output language</source>
@@ -2887,6 +2899,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Remove cloud model?</source>
       <translation>클라우드 모델을 제거할까요?</translation>
+    </message>
+    <message>
+      <source>Remove from favorites</source>
+      <translation>즐겨찾기에서 제거</translation>
     </message>
     <message>
       <source>Remove from list</source>
@@ -4309,10 +4325,6 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{title}  ·  PID {process_id}</source>
       <translation>{title}  ·  PID {process_id}</translation>
-    </message>
-    <message>
-      <source>{title} · PID {process_id}</source>
-      <translation>{title} · PID {process_id}</translation>
     </message>
     <message>
       <source>{value:.0f} MB</source>

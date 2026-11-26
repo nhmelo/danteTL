@@ -245,6 +245,10 @@ Repairs folder: {directory}</source>
       <translation>إضافة نموذج</translation>
     </message>
     <message>
+      <source>Add to favorites</source>
+      <translation>إضافة إلى المفضلة</translation>
+    </message>
+    <message>
       <source>Advanced</source>
       <translation>متقدم</translation>
     </message>
@@ -581,6 +585,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Catalog refresh</source>
       <translation>تحديث الفهرس</translation>
+    </message>
+    <message>
+      <source>Category heading</source>
+      <translation>عنوان الفئة</translation>
     </message>
     <message>
       <source>Change game text language</source>
@@ -1467,6 +1475,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>ترجمة سريعة للحوارات. تتفاوت النتائج عند ترجمة إحصاءات اللعبة ومصطلحاتها.</translation>
     </message>
     <message>
+      <source>Favorites</source>
+      <translation>المفضلة</translation>
+    </message>
+    <message>
       <source>Features under development. Results may be inaccurate or incomplete.</source>
       <translation>ميزات قيد التطوير. قد تكون النتائج غير دقيقة أو غير مكتملة.</translation>
     </message>
@@ -2159,10 +2171,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>استدعاء النموذج</translation>
     </message>
     <message>
-      <source>Model category; not selectable</source>
-      <translation>فئة النموذج؛ غير قابلة للاختيار</translation>
-    </message>
-    <message>
       <source>Model chat template produced an oversized prompt.</source>
       <translation>أنتج قالب محادثة النموذج موجهًا بحجم كبير جدًا.</translation>
     </message>
@@ -2521,6 +2529,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Optional game name</source>
       <translation>اسم اللعبة اختياري</translation>
+    </message>
+    <message>
+      <source>Other windows</source>
+      <translation>النوافذ الأخرى</translation>
     </message>
     <message>
       <source>Output language</source>
@@ -2887,6 +2899,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Remove cloud model?</source>
       <translation>إزالة نموذج السحابة؟</translation>
+    </message>
+    <message>
+      <source>Remove from favorites</source>
+      <translation>إزالة من المفضلة</translation>
     </message>
     <message>
       <source>Remove from list</source>
@@ -4309,10 +4325,6 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{title}  ·  PID {process_id}</source>
       <translation>{title}  ·  PID {process_id}</translation>
-    </message>
-    <message>
-      <source>{title} · PID {process_id}</source>
-      <translation>{title} · PID {process_id}</translation>
     </message>
     <message>
       <source>{value:.0f} MB</source>

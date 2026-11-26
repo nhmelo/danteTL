@@ -245,6 +245,10 @@ Folder perbaikan: {directory}</translation>
       <translation>Tambah model</translation>
     </message>
     <message>
+      <source>Add to favorites</source>
+      <translation>Tambahkan ke favorit</translation>
+    </message>
+    <message>
       <source>Advanced</source>
       <translation>Lanjutan</translation>
     </message>
@@ -581,6 +585,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Catalog refresh</source>
       <translation>Segarkan katalog</translation>
+    </message>
+    <message>
+      <source>Category heading</source>
+      <translation>Judul kategori</translation>
     </message>
     <message>
       <source>Change game text language</source>
@@ -1467,6 +1475,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Cepat menerjemahkan dialog. Hasil terjemahan statistik dan istilah gim bervariasi.</translation>
     </message>
     <message>
+      <source>Favorites</source>
+      <translation>Favorit</translation>
+    </message>
+    <message>
       <source>Features under development. Results may be inaccurate or incomplete.</source>
       <translation>Fitur dalam pengembangan. Hasil mungkin tidak akurat atau tidak lengkap.</translation>
     </message>
@@ -2159,10 +2171,6 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Panggilan model</translation>
     </message>
     <message>
-      <source>Model category; not selectable</source>
-      <translation>Kategori model; tidak dapat dipilih</translation>
-    </message>
-    <message>
       <source>Model chat template produced an oversized prompt.</source>
       <translation>Templat obrolan model menghasilkan prompt yang terlalu besar.</translation>
     </message>
@@ -2521,6 +2529,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Optional game name</source>
       <translation>Nama game opsional</translation>
+    </message>
+    <message>
+      <source>Other windows</source>
+      <translation>Jendela lain</translation>
     </message>
     <message>
       <source>Output language</source>
@@ -2887,6 +2899,10 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
     <message>
       <source>Remove cloud model?</source>
       <translation>Hapus model cloud?</translation>
+    </message>
+    <message>
+      <source>Remove from favorites</source>
+      <translation>Hapus dari favorit</translation>
     </message>
     <message>
       <source>Remove from list</source>
@@ -4309,10 +4325,6 @@ Arsitektur: {architecture} · Format: {value}
     <message>
       <source>{title}  ·  PID {process_id}</source>
       <translation>{title}  ·  PID {process_id}</translation>
-    </message>
-    <message>
-      <source>{title} · PID {process_id}</source>
-      <translation>{title} · PID {process_id}</translation>
     </message>
     <message>
       <source>{value:.0f} MB</source>

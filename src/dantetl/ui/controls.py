@@ -39,8 +39,8 @@ from dantetl.languages.target import TARGET_LANGUAGES
 from dantetl.ui.localization import localized, localized_item
 
 
-def add_model_section(combo: QComboBox, label: str) -> None:
-    """A consistent, non-selectable category in any model selector."""
+def add_combo_section(combo: QComboBox, label: str) -> None:
+    """A consistent, non-selectable category in a picker."""
     model = combo.model()
     assert isinstance(model, QStandardItemModel)
     heading = QStandardItem(label)
@@ -51,7 +51,7 @@ def add_model_section(combo: QComboBox, label: str) -> None:
     heading.setForeground(QColor("#9baabc"))
     heading.setBackground(QColor("#101922"))
     heading.setSizeHint(QSize(0, max(32, combo.fontMetrics().height() + 14)))
-    heading.setAccessibleDescription(tr("Model category; not selectable"))
+    heading.setAccessibleDescription(tr("Category heading"))
     model.appendRow(heading)
 
 

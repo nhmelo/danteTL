@@ -245,6 +245,10 @@ Repairs folder: {directory}</source>
       <translation>添加模型</translation>
     </message>
     <message>
+      <source>Add to favorites</source>
+      <translation>添加到收藏夹</translation>
+    </message>
+    <message>
       <source>Advanced</source>
       <translation>高级</translation>
     </message>
@@ -581,6 +585,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Catalog refresh</source>
       <translation>刷新目录</translation>
+    </message>
+    <message>
+      <source>Category heading</source>
+      <translation>类别标题</translation>
     </message>
     <message>
       <source>Change game text language</source>
@@ -1467,6 +1475,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>对话翻译速度快。游戏数值和术语的翻译质量参差不齐。</translation>
     </message>
     <message>
+      <source>Favorites</source>
+      <translation>收藏夹</translation>
+    </message>
+    <message>
       <source>Features under development. Results may be inaccurate or incomplete.</source>
       <translation>功能开发中。结果可能不准确或不完整。</translation>
     </message>
@@ -2159,10 +2171,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>模型调用</translation>
     </message>
     <message>
-      <source>Model category; not selectable</source>
-      <translation>模型类别；不可选择</translation>
-    </message>
-    <message>
       <source>Model chat template produced an oversized prompt.</source>
       <translation>模型聊天模板生成了超大提示。</translation>
     </message>
@@ -2521,6 +2529,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Optional game name</source>
       <translation>可选游戏名称</translation>
+    </message>
+    <message>
+      <source>Other windows</source>
+      <translation>其他窗口</translation>
     </message>
     <message>
       <source>Output language</source>
@@ -2887,6 +2899,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Remove cloud model?</source>
       <translation>移除云模型？</translation>
+    </message>
+    <message>
+      <source>Remove from favorites</source>
+      <translation>从收藏夹移除</translation>
     </message>
     <message>
       <source>Remove from list</source>
@@ -4309,10 +4325,6 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{title}  ·  PID {process_id}</source>
       <translation>{title}  ·  PID {process_id}</translation>
-    </message>
-    <message>
-      <source>{title} · PID {process_id}</source>
-      <translation>{title} · PID {process_id}</translation>
     </message>
     <message>
       <source>{value:.0f} MB</source>

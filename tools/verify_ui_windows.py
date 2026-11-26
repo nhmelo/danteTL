@@ -2,10 +2,12 @@
 
 import argparse
 import json
+import os
 import time
 from dataclasses import replace
 from importlib.metadata import version
 from pathlib import Path
+from unittest.mock import patch
 
 import shiboken6
 from PySide6.QtCore import QPoint, Qt, QTimer
@@ -20,6 +22,7 @@ from dantetl.application.model_factories import create_recognizer, ocr_backends
 from dantetl.application.preferences import PreferenceStore
 from dantetl.application.updates import Updates
 from dantetl.capture.windows import Windows
+from dantetl.domain import WindowTarget
 from dantetl.runtime.hardware import HardwareCheck
 from dantetl.runtime.model_store import model_catalog
 from dantetl.translation.cache import TranslationCache
@@ -56,21 +59,21 @@ def main() -> int:
             for b in models
         )
     updates = Updates("0.1.0", args.output, fetch=lambda cancel: None, install=None)
-    window = MainWindow(
-        windows,
-        create_recognizer,
-        () if args.missing_models else translation_backends(),
-        models=models,
-        ocr_backends=ocr_backends(),
-        preferences_path=preferences_path,
-        cache_path=cache_path,
-        hardware=hardware,
-        updates=updates,
-    )
+    target = WindowTarget(int(demo.winId()), os.getpid(), demo.windowTitle())
+    # Exercise the normal picker with only the owned fixture in screenshots.
+    with patch.object(windows, "list_targets", return_value=[target]):
+        window = MainWindow(
+            windows,
+            create_recognizer,
+            () if args.missing_models else translation_backends(),
+            models=models,
+            ocr_backends=ocr_backends(),
+            preferences_path=preferences_path,
+            cache_path=cache_path,
+            hardware=hardware,
+            updates=updates,
+        )
     application = app_owner(window)
-    # Show only our fixture name in screenshots, never another application's title.
-    window.windows_combo.clear()
-    window.windows_combo.addItem("DanteTL Demo · 日本語のテスト")
     window.show()
     started, stage = time.monotonic(), 0
     failed = False
@@ -97,6 +100,10 @@ def main() -> int:
                 routing.advanced.setChecked(False)
                 stage = 0 if stage == 80 else 8
             if stage == 0:
+                if window.windows_combo.itemIcon(0).isNull():
+                    return
+                assert window.windows_combo.currentData() == target
+                evidence["selected_window_process_icon"] = True
                 if not hardware.finished:
                     return
                 assert not window.advanced.isVisible() and not window.advanced_panel.isVisible()
@@ -117,7 +124,19 @@ def main() -> int:
                 assert window.start_button.property("tone") == "idle"
                 assert not window.start_button.icon().isNull()
                 evidence["capture_icon_and_idle_state"] = True
+                star, picker = window.favorite_button, window.windows_combo
+                assert star.isEnabled() and not star.isChecked()
+                star.click()
+                assert star.isChecked() and picker.currentData() == target
+                assert picker.itemText(0) == "Favorites" and picker.count() == 2
                 window.grab().save(str(args.output / "main.png"))
+                with patch.object(windows, "list_targets", return_value=[target]):
+                    picker.showPopup()
+                picker.view().window().grab().save(str(args.output / "favorites.png"))
+                picker.hidePopup()
+                star.click()
+                assert not star.isChecked() and picker.count() == 1
+                evidence["favorite_star_and_section"] = True
                 if args.missing_models:
                     assert (
                         window.onboarding.isVisible() and "not downloaded" in window.notice.text()

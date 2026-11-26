@@ -9,6 +9,10 @@ STYLE = """
             QPushButton, QComboBox { background: #243142; border: 1px solid #3c4c60;
                 border-radius: 6px; padding: 9px 12px; }
             QPushButton:hover { background: #304259; }
+            QPushButton#favoriteWindow {
+                color: #aab8c8; font: 14pt 'Segoe UI Symbol'; padding: 4px; }
+            QPushButton#favoriteWindow:checked { color: #ffd35c; }
+            QPushButton#favoriteWindow:disabled { color: #64748b; }
             QPushButton:disabled, QComboBox:disabled { color: #64748b; }
             QPushButton#primary { background: #257c73; border-color: #359c90; }
             QPushButton#primary:hover { background: #2d9185; }

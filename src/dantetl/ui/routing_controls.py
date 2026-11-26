@@ -20,7 +20,7 @@ from dantetl.i18n import display, mark, tr
 from dantetl.translation.cloud.values import PROVIDERS
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.selection import AssignmentChange, ModelOption
-from dantetl.ui.controls import InfoButton, StatusBanner, Switch, add_model_section
+from dantetl.ui.controls import InfoButton, StatusBanner, Switch, add_combo_section
 from dantetl.ui.localization import localized, on_language_change
 
 
@@ -240,7 +240,7 @@ class RoutingControls(QWidget):
         combo.blockSignals(True)
         combo.clear()
         if self._backends:
-            add_model_section(combo, tr("Local models"))
+            add_combo_section(combo, tr("Local models"))
             for backend in self._backends:
                 combo.addItem(display(backend.name) + tr(" · Local"), backend)
         for provider, label in (("ollama", "Ollama"), *PROVIDERS.items()):
@@ -251,7 +251,7 @@ class RoutingControls(QWidget):
                     if provider != "chatgpt"
                     else tr(label)
                 )
-                add_model_section(combo, label)
+                add_combo_section(combo, label)
                 for profile in profiles:
                     combo.addItem(profile.name + " · " + label, profile)
         index = next(

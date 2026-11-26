@@ -245,6 +245,10 @@ Repairs folder: {directory}</source>
       <translation>মডেল যোগ করুন</translation>
     </message>
     <message>
+      <source>Add to favorites</source>
+      <translation>পছন্দের তালিকায় যোগ করুন</translation>
+    </message>
+    <message>
       <source>Advanced</source>
       <translation>উন্নত</translation>
     </message>
@@ -581,6 +585,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Catalog refresh</source>
       <translation>ক্যাটালগ রিফ্রেশ</translation>
+    </message>
+    <message>
+      <source>Category heading</source>
+      <translation>বিভাগের শিরোনাম</translation>
     </message>
     <message>
       <source>Change game text language</source>
@@ -1467,6 +1475,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>সংলাপ দ্রুত অনুবাদ করে। গেমের পরিসংখ্যান ও পরিভাষা অনুবাদে ফলাফল মিশ্র।</translation>
     </message>
     <message>
+      <source>Favorites</source>
+      <translation>পছন্দের তালিকা</translation>
+    </message>
+    <message>
       <source>Features under development. Results may be inaccurate or incomplete.</source>
       <translation>উন্নয়নাধীন বৈশিষ্ট্য। ফলাফল ভুল বা অসম্পূর্ণ হতে পারে।</translation>
     </message>
@@ -2159,10 +2171,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>মডেল কল</translation>
     </message>
     <message>
-      <source>Model category; not selectable</source>
-      <translation>মডেল বিভাগ; নির্বাচনযোগ্য নয়</translation>
-    </message>
-    <message>
       <source>Model chat template produced an oversized prompt.</source>
       <translation>মডেল চ্যাট টেমপ্লেট একটি অতিরিক্ত বড় প্রম্পট তৈরি করেছে।</translation>
     </message>
@@ -2521,6 +2529,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Optional game name</source>
       <translation>ঐচ্ছিক গেমের নাম</translation>
+    </message>
+    <message>
+      <source>Other windows</source>
+      <translation>অন্যান্য উইন্ডো</translation>
     </message>
     <message>
       <source>Output language</source>
@@ -2887,6 +2899,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Remove cloud model?</source>
       <translation>ক্লাউড মডেল সরাবেন?</translation>
+    </message>
+    <message>
+      <source>Remove from favorites</source>
+      <translation>পছন্দের তালিকা থেকে সরান</translation>
     </message>
     <message>
       <source>Remove from list</source>
@@ -4309,10 +4325,6 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{title}  ·  PID {process_id}</source>
       <translation>{title}  ·  PID {process_id}</translation>
-    </message>
-    <message>
-      <source>{title} · PID {process_id}</source>
-      <translation>{title} · PID {process_id}</translation>
     </message>
     <message>
       <source>{value:.0f} MB</source>

@@ -245,6 +245,10 @@ Repairs folder: {directory}</source>
       <translation>モデルを追加</translation>
     </message>
     <message>
+      <source>Add to favorites</source>
+      <translation>お気に入りに追加</translation>
+    </message>
+    <message>
       <source>Advanced</source>
       <translation>詳細</translation>
     </message>
@@ -581,6 +585,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Catalog refresh</source>
       <translation>カタログ更新</translation>
+    </message>
+    <message>
+      <source>Category heading</source>
+      <translation>カテゴリの見出し</translation>
     </message>
     <message>
       <source>Change game text language</source>
@@ -1467,6 +1475,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>会話を高速に翻訳します。ゲームの能力値や用語の訳にはばらつきがあります。</translation>
     </message>
     <message>
+      <source>Favorites</source>
+      <translation>お気に入り</translation>
+    </message>
+    <message>
       <source>Features under development. Results may be inaccurate or incomplete.</source>
       <translation>開発中の機能 結果が不正確または不完全な場合があります。</translation>
     </message>
@@ -2159,10 +2171,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>モデルの呼び出し</translation>
     </message>
     <message>
-      <source>Model category; not selectable</source>
-      <translation>モデルカテゴリ; 選択不可</translation>
-    </message>
-    <message>
       <source>Model chat template produced an oversized prompt.</source>
       <translation>モデルのチャットテンプレートが大きすぎるプロンプトを生成しました。</translation>
     </message>
@@ -2521,6 +2529,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Optional game name</source>
       <translation>ゲーム名（任意）</translation>
+    </message>
+    <message>
+      <source>Other windows</source>
+      <translation>その他のウィンドウ</translation>
     </message>
     <message>
       <source>Output language</source>
@@ -2887,6 +2899,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Remove cloud model?</source>
       <translation>クラウドモデルを削除しますか？</translation>
+    </message>
+    <message>
+      <source>Remove from favorites</source>
+      <translation>お気に入りから削除</translation>
     </message>
     <message>
       <source>Remove from list</source>
@@ -4308,10 +4324,6 @@ Architecture: {architecture} · Format: {value}
     </message>
     <message>
       <source>{title}  ·  PID {process_id}</source>
-      <translation>{title} · PID {process_id}</translation>
-    </message>
-    <message>
-      <source>{title} · PID {process_id}</source>
       <translation>{title} · PID {process_id}</translation>
     </message>
     <message>

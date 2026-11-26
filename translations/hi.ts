@@ -245,6 +245,10 @@ Repairs folder: {directory}</source>
       <translation>मॉडल जोड़ें</translation>
     </message>
     <message>
+      <source>Add to favorites</source>
+      <translation>पसंदीदा में जोड़ें</translation>
+    </message>
+    <message>
       <source>Advanced</source>
       <translation>उन्नत</translation>
     </message>
@@ -581,6 +585,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Catalog refresh</source>
       <translation>कैटलॉग रीफ़्रेश</translation>
+    </message>
+    <message>
+      <source>Category heading</source>
+      <translation>श्रेणी का शीर्षक</translation>
     </message>
     <message>
       <source>Change game text language</source>
@@ -1467,6 +1475,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>संवादों का तेज़ अनुवाद। गेम के आँकड़ों और शब्दावली के अनुवाद में मिले-जुले नतीजे।</translation>
     </message>
     <message>
+      <source>Favorites</source>
+      <translation>पसंदीदा</translation>
+    </message>
+    <message>
       <source>Features under development. Results may be inaccurate or incomplete.</source>
       <translation>विकासाधीन सुविधाएँ। परिणाम गलत या अपूर्ण हो सकते हैं।</translation>
     </message>
@@ -2159,10 +2171,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>मॉडल कॉल</translation>
     </message>
     <message>
-      <source>Model category; not selectable</source>
-      <translation>मॉडल श्रेणी; चयन योग्य नहीं</translation>
-    </message>
-    <message>
       <source>Model chat template produced an oversized prompt.</source>
       <translation>मॉडल चैट टेम्पलेट ने अत्यधिक बड़ा प्रॉम्प्ट बनाया।</translation>
     </message>
@@ -2521,6 +2529,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Optional game name</source>
       <translation>वैकल्पिक गेम नाम</translation>
+    </message>
+    <message>
+      <source>Other windows</source>
+      <translation>अन्य विंडो</translation>
     </message>
     <message>
       <source>Output language</source>
@@ -2887,6 +2899,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Remove cloud model?</source>
       <translation>क्लाउड मॉडल हटाएँ?</translation>
+    </message>
+    <message>
+      <source>Remove from favorites</source>
+      <translation>पसंदीदा से हटाएँ</translation>
     </message>
     <message>
       <source>Remove from list</source>
@@ -4309,10 +4325,6 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{title}  ·  PID {process_id}</source>
       <translation>{title}  ·  PID {process_id}</translation>
-    </message>
-    <message>
-      <source>{title} · PID {process_id}</source>
-      <translation>{title} · PID {process_id}</translation>
     </message>
     <message>
       <source>{value:.0f} MB</source>

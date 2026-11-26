@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
 
 from dantetl.i18n import mark, tr
 from dantetl.translation.dialogue.values import HistoryTurn
-from dantetl.ui.controls import CopyTextButton, add_model_section
+from dantetl.ui.controls import CopyTextButton, add_combo_section
 from dantetl.ui.localization import localized, on_language_change
 
 
@@ -253,7 +253,7 @@ class HistoryPanel(QDialog):
             )
             if section != group:
                 group = section
-                add_model_section(self.model, section)
+                add_combo_section(self.model, section)
             self.model.addItem(label if available else label + tr(" · Setup needed"), key)
             model.item(self.model.count() - 1).setEnabled(available)
         if selected and self.model.findData(selected) < 0:

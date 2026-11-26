@@ -245,6 +245,10 @@ Repairs folder: {directory}</source>
       <translation>เพิ่มโมเดล</translation>
     </message>
     <message>
+      <source>Add to favorites</source>
+      <translation>เพิ่มในรายการโปรด</translation>
+    </message>
+    <message>
       <source>Advanced</source>
       <translation>ขั้นสูง</translation>
     </message>
@@ -581,6 +585,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Catalog refresh</source>
       <translation>รีเฟรชแคตตาล็อก</translation>
+    </message>
+    <message>
+      <source>Category heading</source>
+      <translation>หัวข้อหมวดหมู่</translation>
     </message>
     <message>
       <source>Change game text language</source>
@@ -1467,6 +1475,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>แปลบทสนทนาได้รวดเร็ว คุณภาพการแปลค่าสถานะและศัพท์ในเกมแตกต่างกันไป</translation>
     </message>
     <message>
+      <source>Favorites</source>
+      <translation>รายการโปรด</translation>
+    </message>
+    <message>
       <source>Features under development. Results may be inaccurate or incomplete.</source>
       <translation>ฟีเจอร์ที่อยู่ระหว่างการพัฒนา ผลลัพธ์อาจไม่แม่นยำหรือไม่สมบูรณ์</translation>
     </message>
@@ -2159,10 +2171,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>การเรียกโมเดล</translation>
     </message>
     <message>
-      <source>Model category; not selectable</source>
-      <translation>หมวดหมู่โมเดล; ไม่สามารถเลือกได้</translation>
-    </message>
-    <message>
       <source>Model chat template produced an oversized prompt.</source>
       <translation>เทมเพลตแชตของโมเดลสร้างพรอมต์ที่มีขนาดใหญ่เกินไป</translation>
     </message>
@@ -2521,6 +2529,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Optional game name</source>
       <translation>ชื่อเกม (ไม่บังคับ)</translation>
+    </message>
+    <message>
+      <source>Other windows</source>
+      <translation>หน้าต่างอื่น ๆ</translation>
     </message>
     <message>
       <source>Output language</source>
@@ -2887,6 +2899,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Remove cloud model?</source>
       <translation>ลบโมเดลคลาวด์?</translation>
+    </message>
+    <message>
+      <source>Remove from favorites</source>
+      <translation>นำออกจากรายการโปรด</translation>
     </message>
     <message>
       <source>Remove from list</source>
@@ -4309,10 +4325,6 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{title}  ·  PID {process_id}</source>
       <translation>{title}  ·  PID {process_id}</translation>
-    </message>
-    <message>
-      <source>{title} · PID {process_id}</source>
-      <translation>{title} · PID {process_id}</translation>
     </message>
     <message>
       <source>{value:.0f} MB</source>

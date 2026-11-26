@@ -140,6 +140,18 @@ Enabling it reveals a collapsed section. Disabling it closes inspection and clea
 diagnostic overlays. Inspection expands without changing maximized state. Simple/advanced routing preserves assignments.
 Model selectors share styled nonselectable category headings. Unchanged lists preserve popup focus;
 missing selections never choose replacements. Persist validated IDs/values, never HWNDs, pause or debug.
+The Game window picker reads process identity and icons together off the UI thread. Refresh or
+open the list to discover running windows. Favorites are keyed by a digest of the normalized
+executable path. All running windows from a favorite appear together above the other windows.
+The initial selection prefers the first running favorite in display order. The first alphabetical
+window is available while details load. Interacting with the picker or starting capture keeps the
+chosen window even if a favorite is discovered later.
+Manual refresh while idle keeps a selected running favorite. Otherwise it selects the first
+running favorite in display order, preserving a still-listed selection when no favorite is found.
+Regrouping preserves the selected HWND/PID. An unreadable icon leaves a valid favorite usable.
+If process details are inaccessible, the window stays selectable by title and PID. If the details
+worker or section rendering fails, the picker restores the plain list and its exact selection.
+Refresh retries the optional features using the saved favorites.
 Badges distinguish files-present from engine-available. Device/rate edits apply next capture, including
 when models arrive mid-session. Worker-based hardware advice separates detection from verified inference.
 Capture status lives in Game & overlay. Its indeterminate loading bar and stage text project actual

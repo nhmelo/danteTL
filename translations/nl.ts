@@ -245,6 +245,10 @@ Herstelmap: {directory}</translation>
       <translation>Model toevoegen</translation>
     </message>
     <message>
+      <source>Add to favorites</source>
+      <translation>Toevoegen aan favorieten</translation>
+    </message>
+    <message>
       <source>Advanced</source>
       <translation>Geavanceerd</translation>
     </message>
@@ -581,6 +585,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Catalog refresh</source>
       <translation>Catalogus vernieuwen</translation>
+    </message>
+    <message>
+      <source>Category heading</source>
+      <translation>Categoriekop</translation>
     </message>
     <message>
       <source>Change game text language</source>
@@ -1467,6 +1475,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Vertaalt dialogen snel. Wisselende resultaten bij spelstatistieken en speltermen.</translation>
     </message>
     <message>
+      <source>Favorites</source>
+      <translation>Favorieten</translation>
+    </message>
+    <message>
       <source>Features under development. Results may be inaccurate or incomplete.</source>
       <translation>Functies in ontwikkeling. Resultaten kunnen onnauwkeurig of onvolledig zijn.</translation>
     </message>
@@ -2159,10 +2171,6 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Modelaanroep</translation>
     </message>
     <message>
-      <source>Model category; not selectable</source>
-      <translation>Modelcategorie; niet selecteerbaar</translation>
-    </message>
-    <message>
       <source>Model chat template produced an oversized prompt.</source>
       <translation>De chat-sjabloon van het model produceerde een te grote prompt.</translation>
     </message>
@@ -2521,6 +2529,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Optional game name</source>
       <translation>Optionele spelnaam</translation>
+    </message>
+    <message>
+      <source>Other windows</source>
+      <translation>Overige vensters</translation>
     </message>
     <message>
       <source>Output language</source>
@@ -2887,6 +2899,10 @@ Modeldownloads: tot {size:.2f} GB; bestaande bestanden worden geverifieerd en he
     <message>
       <source>Remove cloud model?</source>
       <translation>Cloudmodel verwijderen?</translation>
+    </message>
+    <message>
+      <source>Remove from favorites</source>
+      <translation>Verwijderen uit favorieten</translation>
     </message>
     <message>
       <source>Remove from list</source>
@@ -4309,10 +4325,6 @@ Architectuur: {architecture} · Formaat: {value}
     <message>
       <source>{title}  ·  PID {process_id}</source>
       <translation>{title}  ·  PID {process_id}</translation>
-    </message>
-    <message>
-      <source>{title} · PID {process_id}</source>
-      <translation>{title} · PID {process_id}</translation>
     </message>
     <message>
       <source>{value:.0f} MB</source>

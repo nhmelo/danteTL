@@ -245,6 +245,10 @@ Pasta de reparações: {directory}</translation>
       <translation>Adicionar modelo</translation>
     </message>
     <message>
+      <source>Add to favorites</source>
+      <translation>Adicionar aos favoritos</translation>
+    </message>
+    <message>
       <source>Advanced</source>
       <translation>Avançado</translation>
     </message>
@@ -581,6 +585,10 @@ Os detalhes estão em %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Catalog refresh</source>
       <translation>Atualizar catálogo</translation>
+    </message>
+    <message>
+      <source>Category heading</source>
+      <translation>Título da categoria</translation>
     </message>
     <message>
       <source>Change game text language</source>
@@ -1467,6 +1475,10 @@ Os detalhes estão em %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Traduz diálogos rapidamente. Os resultados variam na tradução de estatísticas e termos do jogo.</translation>
     </message>
     <message>
+      <source>Favorites</source>
+      <translation>Favoritos</translation>
+    </message>
+    <message>
       <source>Features under development. Results may be inaccurate or incomplete.</source>
       <translation>Funcionalidades em desenvolvimento. Os resultados podem ser imprecisos ou incompletos.</translation>
     </message>
@@ -2159,10 +2171,6 @@ Os detalhes estão em %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Chamada ao modelo</translation>
     </message>
     <message>
-      <source>Model category; not selectable</source>
-      <translation>Categoria do modelo; não selecionável</translation>
-    </message>
-    <message>
       <source>Model chat template produced an oversized prompt.</source>
       <translation>O template de chat do modelo gerou um prompt demasiado grande.</translation>
     </message>
@@ -2521,6 +2529,10 @@ Os detalhes estão em %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Optional game name</source>
       <translation>Nome do jogo opcional</translation>
+    </message>
+    <message>
+      <source>Other windows</source>
+      <translation>Outras janelas</translation>
     </message>
     <message>
       <source>Output language</source>
@@ -2887,6 +2899,10 @@ Transferências de modelos: até {size:.2f} GB; os ficheiros existentes são ver
     <message>
       <source>Remove cloud model?</source>
       <translation>Remover modelo na nuvem?</translation>
+    </message>
+    <message>
+      <source>Remove from favorites</source>
+      <translation>Remover dos favoritos</translation>
     </message>
     <message>
       <source>Remove from list</source>
@@ -4309,10 +4325,6 @@ Arquitetura: {architecture} · Formato: {value}
     <message>
       <source>{title}  ·  PID {process_id}</source>
       <translation>{title}  ·  PID {process_id}</translation>
-    </message>
-    <message>
-      <source>{title} · PID {process_id}</source>
-      <translation>{title} · PID {process_id}</translation>
     </message>
     <message>
       <source>{value:.0f} MB</source>
