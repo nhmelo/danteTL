@@ -11,6 +11,7 @@ import os
 import threading
 import time
 from collections import deque
+from concurrent.futures import Future
 from dataclasses import replace
 from functools import partial
 from pathlib import Path
@@ -27,10 +28,16 @@ from dantetl.application.preference_values import MAX_CAPTURE_RATE
 from dantetl.capture.windows import Windows
 from dantetl.composition import application_session, setup_coordinator
 from dantetl.domain import WindowTarget
-from dantetl.languages.target import ENGLISH
+from dantetl.languages.target import ENGLISH, TargetLanguage
 from dantetl.ocr.worker import OcrChoice
 from dantetl.paths import state_root
-from dantetl.translation.backend import ContextualBackend
+from dantetl.translation.backend import (
+    BatchResult,
+    ContextualBackend,
+    LabelDecoder,
+    ParallelLabelBackend,
+    Source,
+)
 from dantetl.translation.dialogue.context import DialogueTurn
 from dantetl.translation.values import TranslationState
 from dantetl.ui.demo import DIALOGUE_LINES
@@ -115,6 +122,7 @@ class ProfileWindow(MainWindow):
                         if result.scanned is None
                         else [(b.x, b.y, b.width, b.height) for b in result.scanned],
                         text=[r.text for r in result.regions],
+                        confidence=[r.confidence for r in result.regions],
                     )
                 )
                 if len(scans) == 1 and trial["case"] == "single-cold":
@@ -138,6 +146,11 @@ class ProfileWindow(MainWindow):
                     trial.setdefault("accepted_at", now)
             if any(normalized(block.text) in self.expected for block in tracks):
                 trial.setdefault("eligible_at", now)
+            for block in application.view.scene.candidates:
+                if normalized(block.text) in self.expected:
+                    trial.setdefault("first_read_ms", {}).setdefault(
+                        block.text, round((now - trial["painted_at"]) * 1000, 1)
+                    )
         super()._render_application(inspect)
         if trial is not None and application.translation.lifecycle.publication:
             snapshot = application.translation.lifecycle.publication.snapshot()
@@ -163,6 +176,11 @@ def main() -> int:
     parser.add_argument("--device", choices=("cuda", "cpu"), default="cuda")
     parser.add_argument("--capture-rate", type=int, default=8, help="Samples/s, or 0 for unlimited")
     parser.add_argument("--advanced", action="store_true")
+    parser.add_argument(
+        "--confirmed-only",
+        action="store_true",
+        help="Measure the control policy by withholding first readings from translation",
+    )
     parser.add_argument("--repeats", type=int, default=1, choices=range(1, 61))
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -182,6 +200,35 @@ def main() -> int:
     factory = partial(create_recognizer, device=args.device)
     calls: deque[dict] = deque(maxlen=128)
     calls_lock = threading.Lock()
+
+    class TimedDecoder:
+        def __init__(self, decoder: LabelDecoder) -> None:
+            self.decoder = decoder
+            self.width = decoder.width
+
+        def submit(self, source: Source, target: TargetLanguage) -> Future[BatchResult] | None:
+            started = time.perf_counter()
+            future = self.decoder.submit(source, target)
+            if future is not None:
+
+                def record(done: Future[BatchResult]) -> None:
+                    if not done.cancelled():
+                        with calls_lock:
+                            calls.append(
+                                dict(source=source[0], ms=(time.perf_counter() - started) * 1000)
+                            )
+
+                future.add_done_callback(record)
+            return future
+
+        def step(self) -> None:
+            self.decoder.step()
+
+        def reset(self) -> None:
+            self.decoder.reset()
+
+        def close(self) -> None:
+            self.decoder.close()
 
     class TimedBackend:
         def __init__(self) -> None:
@@ -205,6 +252,17 @@ def main() -> int:
         def close(self) -> None:
             self.engine.close()
 
+        @property
+        def label_width(self) -> int:
+            return self.engine.label_width if isinstance(self.engine, ParallelLabelBackend) else 0
+
+        def prepare_labels(self, target: TargetLanguage) -> LabelDecoder | None:
+            if isinstance(self.engine, ParallelLabelBackend):
+                decoder = self.engine.prepare_labels(target)
+                if decoder:
+                    return TimedDecoder(decoder)
+            return None
+
     from verification_isolation import create_cloud, create_inventory
 
     driver = DesktopDriver()
@@ -227,6 +285,13 @@ def main() -> int:
     )
     window = ProfileWindow(application, windows, driver)
     application = app_owner(window)
+    if args.confirmed_only:
+        scene = application.live.scene
+
+        def confirmed_scene(*args, **kwargs):
+            return replace(scene(*args, **kwargs), candidates=())
+
+        application.live.scene = confirmed_scene
     window.record_directory = args.output
     window.show()
     window._settings.inspection_enabled.setChecked(args.advanced)

@@ -89,6 +89,11 @@ Include a typewriter pause at a comma, a delayed second row, a terminal OCR comm
 abbreviation. For menu reuse, retire the original track and verify an exact reappearance before
 another OCR result. Change one native pixel, the DPI and the backend generation independently.
 Measure visual readiness separately from model inference and time to visible English.
+For first-reading translation, compare fresh launches of `tools/profile_pipeline_windows.py`
+with and without `--confirmed-only` at the same capture rate and model. Alternate the order.
+Compare first and complete English publication for cold and cached labels, menus and dialogue.
+Check actual model-call counts, preservation of parallel menu decoding, cache-only remote misses
+and withdrawal when a previously cached prefix grows or wraps.
 
 `tools/benchmark_tracking.py --output artifacts/<slice>/tracking.json` measures completed dense
 4K OCR observations, including long text, reordering, edits, same-pixel misses, removals and partial
