@@ -36,6 +36,7 @@ class Scene:
     blocks: tuple[TextBlock, ...] = ()
     requests: tuple[TextBlock, ...] = ()
     waiting_blocks: int = 0
+    candidates: tuple[TextBlock, ...] = ()
 
 
 @dataclass(frozen=True)

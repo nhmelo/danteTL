@@ -143,6 +143,7 @@ class Replay:
         checked=frozenset(),
         unchanged=frozenset(),
         absent=frozenset(),
+        settle=0.6,
         **evidence,
     ):
         self.ocr.current = OcrSnapshot(
@@ -160,8 +161,58 @@ class Replay:
             # Static settling may have advanced a revision since the worker's
             # previous matching snapshot. Return evidence for the refreshed tracks.
             self.live.reconcile(source, source.captured_at)
-        self.live.reconcile(source, source.captured_at + 0.6)
-        return self.live.scene(source, source.captured_at + 0.6, grouping=True)
+        self.live.reconcile(source, source.captured_at + settle)
+        return self.live.scene(source, source.captured_at + settle, grouping=True)
+
+
+def test_first_cached_label_withdraws_on_visual_growth_before_ocr_reads_the_suffix():
+    replay = Replay()
+    source = frame(1)
+    rows = (
+        TextRegion("設定", Rect(40, 40, 70, 30), line_confidence=0.99),
+        TextRegion("装備", Rect(300, 600, 70, 30), line_confidence=0.45),
+    )
+    scene = replay.observe(source, rows, settle=0)
+    assert not scene.requests
+    (label,) = scene.candidates
+    assert label.text == "設定"
+    hit = TranslatedText(TranslationRequest.from_block(label), "Settings")
+    backend = Mock()
+    backend.snapshot.return_value = TranslationSnapshot(
+        TranslationState.READY, cached_candidates=(hit,)
+    )
+
+    def paint(scene):
+        return replay.live.publish(
+            backend, scene.requests, scene.blocks, candidates=scene.candidates
+        )
+
+    assert paint(scene).translations == (hit,)
+    for seq, blocked in [(2, {label.lines[0].track_id}), (3, set())]:
+        latest = frame(seq, 1 + seq * 0.05)
+        replay.visual.current = replace(
+            replay.visual.current, frame=latest, blocked=frozenset(blocked)
+        )
+        replay.live.reconcile(latest, latest.captured_at)
+        scene = replay.live.scene(latest, latest.captured_at, grouping=True)
+        assert not scene.candidates and not scene.requests
+        assert not paint(scene).translations
+
+
+def test_wrapping_invalidates_the_initial_candidate_until_the_whole_group_is_ready():
+    replay = Replay()
+    first = TextRegion(
+        "新しい冒険がここから始まりますが、", Rect(40, 400, 460, 30), line_confidence=0.99
+    )
+    second = TextRegion(
+        "その前に旅の準備をしてください。", Rect(40, 440, 420, 30), line_confidence=0.99
+    )
+    initial = replay.observe(frame(1), (first,), settle=0)
+    assert tuple(b.text for b in initial.candidates) == (first.text,)
+    wrapped = replay.observe(frame(2, 1.1), (first, second), settle=0)
+    assert len(wrapped.blocks) == 1 and not wrapped.requests and not wrapped.candidates
+    done = replay.observe(frame(3, 1.5), (first, second), settle=0)
+    assert tuple(b.text for b in done.requests) == (first.text + second.text,)
 
 
 def test_reconcile_waits_for_source_evidence_then_preserves_unscanned_tracks():

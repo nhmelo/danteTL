@@ -3,6 +3,7 @@ import time
 from dataclasses import replace
 
 import pytest
+from test_live_session import Replay, frame
 
 from dantetl.application.live_session import LiveSession
 from dantetl.domain import CapturedFrame, Rect, WindowGeometry
@@ -123,6 +124,37 @@ def test_confirmation_can_paint_a_prepared_answer_while_the_model_is_busy(tmp_pa
         backend.release.set()
         session.request_stop()
         until(lambda: session.finished)
+
+
+def test_live_typewriter_sends_only_first_and_final_readings_to_local_model(tmp_path):
+    replay, backend = Replay(), Backend()
+    backend.release.clear()
+    session = TranslationSession(lambda: backend, tmp_path / "cache")
+    session.start()
+
+    def read(seq, now, text):
+        row = TextRegion(text, Rect(50, 400, len(text) * 25, 30), line_confidence=0.98)
+        scene = replay.observe(frame(seq, now), (row,), settle=0)
+        return replay.live.publish(
+            session, scene.requests, scene.blocks, candidates=scene.candidates
+        )
+
+    try:
+        first, finished = "装備", "装備を確認する。"
+        assert not read(1, 1, first).translations
+        assert backend.entered.wait(2)
+        for seq, text in enumerate(("装備を", "装備を確認", finished), 2):
+            assert not read(seq, 1 + seq * 0.05, text).translations
+        backend.release.set()
+        until(lambda: session.snapshot().processing_since is None)
+        assert backend.calls == [(first,)] and not session.snapshot().results
+        read(5, 1.7, finished)
+        until(lambda: bool(session.snapshot().results))
+        assert backend.calls == [(first,), (finished,)]
+        assert [r.request.source for r in session.snapshot().results] == [finished]
+    finally:
+        backend.release.set()
+        stop(session)
 
 
 @pytest.mark.parametrize("initial,following", [("en", "es"), ("pt-PT", "pt-BR")])

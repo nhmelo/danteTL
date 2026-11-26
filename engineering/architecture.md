@@ -385,6 +385,16 @@ periods and closing quotes alone use ordinary confirmation. With grouping enable
 or single-row dialogue clause ending in a comma allows a 1.5-second quiet period for a
 continuation. This accommodates OCR that reads a terminal period as a comma. Unpunctuated turns keep their
 normal quiet-period fallback.
+
+While a new block awaits confirmation, a confident first reading of every member can enter
+the assigned worker's cache lookup. Exact cached labels, counters and descriptions with item or stat cues
+can paint temporarily. Each preview follows the current group and yields to established English.
+On a miss an idle in-process translator can start one candidate at a time. Confirmed work gets
+the next available call. Cloud and Ollama wait for confirmation before sending any text.
+Growth, a pending edit, visual loss or changed group membership withdraws the candidate for
+those live lines. Inferred first answers stay private until confirmation of the same request,
+route, languages and dialogue context. Only then can they paint, enter history or persist in
+the translation cache. Scene and backend invalidation discard outstanding candidates.
 Changing the source clears dialogue history, translation demand, tracks and visual evidence.
 If the same recognizer and device can serve the new language, capture and OCR continue on their
 existing workers with a new evidence generation. Both pickers ask for confirmation when active

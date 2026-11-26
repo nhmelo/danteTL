@@ -34,6 +34,7 @@ class TextActivity:
     changed_at: float
     growing: bool
     pending: bool
+    reliable_first_read: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -943,6 +944,10 @@ class TextTracker:
                 track.changed_at,
                 track.growing,
                 track.text_candidate is not None and track.text_candidate.changes_layout,
+                track.value.text_revision == 1
+                and track.text_candidate is None
+                and track.absence is None
+                and (track.best_confidence or 0) >= 0.90,
             )
             for track in self._tracks.values()
         )

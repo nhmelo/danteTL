@@ -5,6 +5,7 @@ from dataclasses import dataclass, replace
 from dantetl.ocr.observation import TextTrack
 from dantetl.ocr.regions import intersects
 from dantetl.ocr.visual_values import MenuSample
+from dantetl.translation.first_reading import can_preview_cached
 from dantetl.translation.grouping import TextBlock
 from dantetl.translation.values import TranslatedText, TranslationRequest
 
@@ -106,6 +107,25 @@ class EnglishPresentation:
                 )
             )
         return tuple(previews)
+
+    def cached_previews(
+        self,
+        blocks: tuple[TextBlock, ...],
+        hits: tuple[TranslatedText, ...],
+        hidden: frozenset[TextTrack],
+        menus: tuple[Publication, ...],
+    ) -> tuple[Publication, ...]:
+        """Temporary paint never enters retained English or dialogue memory."""
+        answers = {hit.request: hit for hit in hits}
+        occupied = tuple(p.painted.bounds for p in (*self._published, *menus))
+        return tuple(
+            Publication(block, answer)
+            for block in blocks
+            if (answer := answers.get(TranslationRequest.from_block(block))) is not None
+            and can_preview_cached(block)
+            and not any(t in hidden or t.track_id in self._concealed for t in block.lines)
+            and not any(intersects(block.bounds, bounds) for bounds in occupied)
+        )
 
     def update(
         self,

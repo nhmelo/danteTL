@@ -122,6 +122,29 @@ def regions_for(tracks):
     return tuple(TextRegion(t.text, t.bounds) for t in tracks)
 
 
+def test_first_cache_preview_uses_the_complete_equipment_description():
+    replay = Replay()
+    rows = tracks_for(2)[1:6]
+    scene = replay.observe(
+        source_frame(1),
+        tuple(replace(r, line_confidence=0.98) for r in regions_for(rows)),
+        settle=0,
+    )
+    (effect,) = scene.candidates
+    assert len(effect.lines) == 5 and not scene.requests
+    partial = TranslatedText(TranslationRequest.from_track(effect.lines[0]), "Partial effect")
+    complete = TranslatedText(TranslationRequest.from_block(effect), "Complete effect")
+    backend = Mock()
+    for hits, expected in [((partial,), ()), ((partial, complete), (complete,))]:
+        backend.snapshot.return_value = TranslationSnapshot(
+            TranslationState.READY, cached_candidates=hits
+        )
+        english = replay.live.publish(
+            backend, scene.requests, scene.blocks, candidates=scene.candidates
+        )
+        assert english.translations == expected
+
+
 @pytest.mark.parametrize(
     "tail,box,joins",
     [

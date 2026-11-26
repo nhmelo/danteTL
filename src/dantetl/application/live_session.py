@@ -22,6 +22,7 @@ from dantetl.ocr.visual_values import VisualState
 from dantetl.ocr.worker import OcrSession, Recognizer, overlay_result_ready
 from dantetl.translation.dialogue.classifier import ClassifierSession
 from dantetl.translation.dialogue.history import DialogueHistory
+from dantetl.translation.first_reading import FirstReadings
 from dantetl.translation.grouping import DialogueGrouper, TextBlock
 from dantetl.translation.presentation import EnglishPresentation
 from dantetl.translation.values import (
@@ -106,6 +107,7 @@ class LiveSession:
         self._tracker = TextTracker(language=language)
         self.tracking = TrackingSnapshot()
         self._grouper = DialogueGrouper(language=language)
+        self._first_readings = FirstReadings()
         self._presentation = EnglishPresentation()
         self._context_reset_sequence = 0
         self._scene_sequence = 0
@@ -272,6 +274,7 @@ class LiveSession:
         return True
 
     def reset(self, translation: TranslationWorker | None = None) -> None:
+        self._first_readings = FirstReadings()
         self._scene_sequence = 0
         self._early_lines = frozenset()
         self.accepted = None
@@ -293,6 +296,7 @@ class LiveSession:
             translation.invalidate()
 
     def change_grouping(self, translation: TranslationWorker | None) -> None:
+        self._first_readings = FirstReadings()
         self._grouper.reset()
         self.clear_english()
         if translation:
@@ -449,7 +453,21 @@ class LiveSession:
             )
         if self.visual_state.cleared:
             tracks = tuple(t for t in tracks if t not in self.visual_state.cleared)
-        return Scene(tracks, grouped.blocks, requests, len(grouped.blocks) - len(grouped.ready))
+        state = self.visual_state
+        blocked = set(state.blocked)
+        blocked.update(t.track_id for t in state.hidden | state.cleared)
+        if state.message:
+            blocked.update(t.track_id for t in tracking.visible)
+        candidates = self._first_readings.update(
+            grouped.blocks,
+            requests,
+            tracking.activity,
+            blocked,
+            reviewed=bool(self.accepted and state.ocr_sequence == self.accepted.frame.sequence),
+        )
+        return Scene(
+            tracks, grouped.blocks, requests, len(grouped.blocks) - len(grouped.ready), candidates
+        )
 
     def publish(
         self,
@@ -457,6 +475,7 @@ class LiveSession:
         requests: tuple[TextBlock, ...],
         retained: tuple[TextBlock, ...],
         *,
+        candidates: tuple[TextBlock, ...] = (),
         target: TargetLanguage = ENGLISH,
         game: str = "",
     ) -> EnglishScene:
@@ -472,6 +491,7 @@ class LiveSession:
         session.update(
             requests,
             retain=retained,
+            candidates=candidates,
             reset_context=broad_change,
             target=target,
             game=game,
@@ -487,13 +507,22 @@ class LiveSession:
         )
         if self.history_enabled:
             self.history.published(tuple(p.translation for p in published))
+        menus = ()
         if (
             state.frame
             and state.frame.sequence == self._scene_sequence
             and snapshot.state == TranslationState.READY
             and not state.message
         ):
-            published += self._presentation.menu_previews(state.matching_menus, retained)
+            menus = self._presentation.menu_previews(state.matching_menus, retained)
+            published += menus
+        if snapshot.cached_candidates:
+            published += self._presentation.cached_previews(
+                candidates + requests,
+                snapshot.cached_candidates,
+                state.hidden | state.cleared,
+                menus,
+            )
         return EnglishScene(
             snapshot, tuple(p.painted for p in published), tuple(p.translation for p in published)
         )
