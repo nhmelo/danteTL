@@ -19,6 +19,7 @@ from dantetl.runtime.hardware_values import (
     HardwareStatus,
     VulkanDevice,
     compatibility_issue,
+    compatible_adapters,
 )
 from dantetl.runtime.setup_process import clean_runtime_environment, run_setup_command
 
@@ -47,7 +48,10 @@ class HardwareCheck:
             from dantetl.runtime.ocr import gpu_runtime_installed
 
             self._result = HardwareStatus(
-                detect_adapters(), gpu_runtime_installed(), installed_device()
+                detect_adapters(),
+                gpu_runtime_installed(),
+                installed_device(),
+                active_gpu=os.environ.get("DANTETL_GPU_UUID", ""),
             )
         except Exception as error:
             self._result = HardwareStatus(error=str(error))
@@ -163,8 +167,33 @@ def detect_adapters(
     return tuple(adapters.values())
 
 
-def require_profile(profile: str, cancel: threading.Event | None = None) -> None:
-    if profile == "cpu":
-        return
-    if issue := compatibility_issue(profile, detect_adapters(profile, cancel)):
+def require_profile(
+    profile: str, cancel: threading.Event | None = None, gpu: str = ""
+) -> dict[str, str]:
+    """Resolve a stable device identity to the native selector before starting a process."""
+    if profile == "cpu" and not gpu:
+        return {}
+    adapters = detect_adapters(profile, cancel)
+    if issue := compatibility_issue(profile, adapters):
         raise RuntimeError(issue)
+    candidates = compatible_adapters(profile, adapters)
+    if gpu:
+        matches = [a for a in candidates if a.gpu_id(profile) == gpu]
+        if len(matches) != 1:
+            raise RuntimeError(
+                tr("The selected GPU is unavailable. Choose another GPU in Acceleration.")
+            )
+        adapter = matches[0]
+    else:
+        adapter = candidates[0]
+    identity = adapter.gpu_id(profile)
+    if profile == "nvidia":
+        variable, value = "CUDA_VISIBLE_DEVICES", f"GPU-{UUID(hex=identity)}"
+    else:
+        assert adapter.vulkan is not None
+        variable, value = "GGML_VK_VISIBLE_DEVICES", str(adapter.vulkan.index)
+    baseline = clean_runtime_environment(os.environ)
+    result = {"DANTETL_GPU_UUID": identity, "DANTETL_GPU_MASK": variable, variable: value}
+    if variable in baseline:
+        result["DANTETL_GPU_PREVIOUS_MASK"] = baseline[variable]
+    return result

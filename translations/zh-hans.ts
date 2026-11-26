@@ -3605,6 +3605,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>应用更新期间版本发生了更改。请重新启动。</translation>
     </message>
     <message>
+      <source>The selected GPU is unavailable. Choose another GPU in Acceleration.</source>
+      <translation>所选 GPU 不可用。请在“加速”中选择其他 GPU。</translation>
+    </message>
+    <message>
       <source>The selected runtime cannot accelerate this model. Open Acceleration.</source>
       <translation>所选运行时无法加速此模型。请打开 加速。</translation>
     </message>

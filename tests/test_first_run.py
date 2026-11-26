@@ -22,7 +22,7 @@ def test_review_starts_models_and_runtime_together_and_reports_both(monkeypatch,
         if model == models[0]:
             overlap.wait()
 
-    def runtime_install(root, runtime, report, cancel):
+    def runtime_install(root, runtime, report, cancel, gpu):
         report(ModelProgress("wheel", stage=2, stages=4))
         overlap.wait()
 

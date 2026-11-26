@@ -85,6 +85,7 @@ def ready_runtime(root: Path, key: str) -> Path | None:
 class RuntimeSelection:
     target: Path | None = None
     cuda_update: bool = False
+    gpu: str = ""
 
 
 def _inspect_runtime(root: Path, key: str, name: str) -> RuntimeSelection:
@@ -118,7 +119,14 @@ def verified_runtime(root: Path, key: str, name: str) -> Path | None:
 def runtime_selection(root: Path) -> RuntimeSelection:
     try:
         value = json.loads((root / "data/runtime.json").read_text("utf-8"))
-        return _inspect_runtime(root, value["profile"], value["environment"])
+        if not isinstance(value, dict):
+            return RuntimeSelection()
+        gpu = value.get("gpu", "")
+        if not isinstance(gpu, str) or (
+            gpu and (value["profile"] == "cpu" or not re.fullmatch("[a-f0-9]{32}", gpu))
+        ):
+            return RuntimeSelection()
+        return replace(_inspect_runtime(root, value["profile"], value["environment"]), gpu=gpu)
     except (OSError, ValueError, KeyError, TypeError):
         return RuntimeSelection()
 
@@ -127,20 +135,27 @@ def selected_runtime(root: Path) -> Path | None:
     return runtime_selection(root).target
 
 
-def select_runtime(root: Path, target: Path) -> None:
+def select_runtime(root: Path, target: Path, gpu: str = "") -> None:
     key = target.name.split("-", 1)[0]
     if verified_runtime(root, key, target.name) != target.resolve():
         raise ValueError(tr("Only a verified runtime can be selected."))
-    _atomic_json(root / "data/runtime.json", {"profile": key, "environment": target.name})
+    selection = {"profile": key, "environment": target.name}
+    if gpu:
+        if key == "cpu" or not re.fullmatch("[a-f0-9]{32}", gpu):
+            raise ValueError(
+                tr("The selected GPU is unavailable. Choose another GPU in Acceleration.")
+            )
+        selection["gpu"] = gpu
+    _atomic_json(root / "data/runtime.json", selection)
 
 
 def install_runtime(
-    root: Path, profile: RuntimeProfile, progress: Progress, cancel: threading.Event
+    root: Path, profile: RuntimeProfile, progress: Progress, cancel: threading.Event, gpu: str = ""
 ) -> None:
     """Explicit action only. Reuse completed installs; never mutate a loaded environment."""
     if profile not in PROFILES:
         raise ValueError(tr("Unknown runtime profile."))
-    require_profile(profile.key, cancel)
+    device_env = require_profile(profile.key, cancel, gpu)
     root = root.resolve()
     # Exclusive across app copies sharing this project. A crash releases the OS lock.
     import msvcrt
@@ -159,14 +174,18 @@ def install_runtime(
                 tr("Another DanteTL instance is already installing a runtime.")
             ) from error
         try:
-            _install(root, profile, progress, cancel)
+            _install(root, profile, progress, cancel, device_env)
         finally:
             lock.seek(0)
             msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
 
 
 def _install(
-    root: Path, profile: RuntimeProfile, progress: Progress, cancel: threading.Event
+    root: Path,
+    profile: RuntimeProfile,
+    progress: Progress,
+    cancel: threading.Event,
+    device_env: dict[str, str],
 ) -> None:
     environment = clean_runtime_environment(os.environ)
     target = runtime_path(root, f"{profile.key}-{uuid4().hex}")
@@ -190,7 +209,7 @@ def _install(
         run_setup_command(
             args,
             project,
-            environment,
+            environment | device_env,
             cancel,
             lambda detail: progress(
                 ModelProgress(f"{stage}\n{detail}", stage=step, stages=4 if step else 0)

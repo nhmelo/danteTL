@@ -98,7 +98,7 @@ def main() -> int:
                 output.write(chunk)
                 progress(offset + len(chunk), len(data))
 
-    def runtime_install(root, profile, progress, cancel):
+    def runtime_install(root, profile, progress, cancel, gpu):
         assert profile.key == "nvidia" and model_active.wait(5)
         for step in range(1, 31):
             progress(

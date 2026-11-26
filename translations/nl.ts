@@ -3605,6 +3605,10 @@ Modeldownloads: tot {size:.2f} GB; bestaande bestanden worden geverifieerd en he
       <translation>De release is gewijzigd tijdens de app-update. Start opnieuw.</translation>
     </message>
     <message>
+      <source>The selected GPU is unavailable. Choose another GPU in Acceleration.</source>
+      <translation>De geselecteerde GPU is niet beschikbaar. Kies een andere GPU onder Versnelling.</translation>
+    </message>
+    <message>
       <source>The selected runtime cannot accelerate this model. Open Acceleration.</source>
       <translation>De geselecteerde runtime kan dit model niet versnellen. Open Acceleratie.</translation>
     </message>

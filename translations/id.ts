@@ -3605,6 +3605,10 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
       <translation>Rilis berubah selama pembaruan aplikasinya. Luncurkan lagi.</translation>
     </message>
     <message>
+      <source>The selected GPU is unavailable. Choose another GPU in Acceleration.</source>
+      <translation>GPU yang dipilih tidak tersedia. Pilih GPU lain di Akselerasi.</translation>
+    </message>
+    <message>
       <source>The selected runtime cannot accelerate this model. Open Acceleration.</source>
       <translation>Runtime yang dipilih tidak dapat mempercepat model ini. Buka Akselerasi.</translation>
     </message>

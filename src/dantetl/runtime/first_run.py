@@ -18,6 +18,7 @@ from dantetl.runtime.values import RuntimeProfile
 class SetupPlan:
     models: tuple[ModelBundle, ...]
     runtime: RuntimeProfile | None
+    gpu: str = ""
 
 
 def needs_runtime(profile: RuntimeProfile, hardware: HardwareStatus, *, upgrade: bool) -> bool:
@@ -57,6 +58,7 @@ def run_setup(
             profile,
             lambda value: report(replace(value, message=f"{tr(profile.name)}\n{value.message}")),
             cancel,
+            plan.gpu,
         )
         target = ready_runtime(root, profile.key)
         if target is None:

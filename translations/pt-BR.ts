@@ -3605,6 +3605,10 @@ Downloads de modelos: até {size:.2f} GB; arquivos existentes são verificados e
       <translation>A versão mudou durante a atualização do aplicativo. Inicie novamente.</translation>
     </message>
     <message>
+      <source>The selected GPU is unavailable. Choose another GPU in Acceleration.</source>
+      <translation>A GPU selecionada está indisponível. Escolha outra GPU em Aceleração.</translation>
+    </message>
+    <message>
       <source>The selected runtime cannot accelerate this model. Open Acceleration.</source>
       <translation>O runtime selecionado não pode acelerar este modelo. Abra Aceleração.</translation>
     </message>

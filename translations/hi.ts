@@ -3605,6 +3605,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>इसके ऐप अपडेट के दौरान रिलीज़ बदल गई। फिर से लॉन्च करें।</translation>
     </message>
     <message>
+      <source>The selected GPU is unavailable. Choose another GPU in Acceleration.</source>
+      <translation>चुना गया GPU उपलब्ध नहीं है। त्वरण सेटिंग में दूसरा GPU चुनें।</translation>
+    </message>
+    <message>
       <source>The selected runtime cannot accelerate this model. Open Acceleration.</source>
       <translation>चयनित रनटाइम इस मॉडल को त्वरित नहीं कर सकता। Acceleration खोलें।</translation>
     </message>

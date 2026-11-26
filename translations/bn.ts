@@ -3605,6 +3605,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>এর অ্যাপ আপডেটের সময় রিলিজটি পরিবর্তিত হয়েছে। আবার চালু করুন।</translation>
     </message>
     <message>
+      <source>The selected GPU is unavailable. Choose another GPU in Acceleration.</source>
+      <translation>নির্বাচিত GPU উপলভ্য নেই। ত্বরণ সেটিংসে অন্য একটি GPU বেছে নিন।</translation>
+    </message>
+    <message>
       <source>The selected runtime cannot accelerate this model. Open Acceleration.</source>
       <translation>নির্বাচিত রানটাইম এই মডেলটি ত্বরান্বিত করতে পারে না। অ্যাক্সিলারেশন খুলুন।</translation>
     </message>

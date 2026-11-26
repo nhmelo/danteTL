@@ -3605,6 +3605,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>تغيّر الإصدار أثناء تحديث التطبيق. شغّل مرة أخرى.</translation>
     </message>
     <message>
+      <source>The selected GPU is unavailable. Choose another GPU in Acceleration.</source>
+      <translation>وحدة معالجة الرسومات المحددة غير متاحة. اختر وحدة أخرى في إعدادات التسريع.</translation>
+    </message>
+    <message>
       <source>The selected runtime cannot accelerate this model. Open Acceleration.</source>
       <translation>لا يمكن لبيئة التشغيل المحددة تسريع هذا النموذج. افتح التسريع.</translation>
     </message>

@@ -3605,6 +3605,10 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
       <translation>Bản phát hành đã thay đổi trong quá trình cập nhật ứng dụng. Hãy khởi chạy lại.</translation>
     </message>
     <message>
+      <source>The selected GPU is unavailable. Choose another GPU in Acceleration.</source>
+      <translation>GPU đã chọn không khả dụng. Hãy chọn GPU khác trong mục Tăng tốc.</translation>
+    </message>
+    <message>
       <source>The selected runtime cannot accelerate this model. Open Acceleration.</source>
       <translation>Môi trường đã chọn không thể tăng tốc mô hình này. Hãy mở Tăng tốc.</translation>
     </message>

@@ -3605,6 +3605,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>Выпуск изменился во время обновления приложения. Запустите снова.</translation>
     </message>
     <message>
+      <source>The selected GPU is unavailable. Choose another GPU in Acceleration.</source>
+      <translation>Выбранный GPU недоступен. Выберите другой GPU в разделе «Ускорение».</translation>
+    </message>
+    <message>
       <source>The selected runtime cannot accelerate this model. Open Acceleration.</source>
       <translation>Выбранная среда не может ускорить эту модель. Откройте «Ускорение».</translation>
     </message>

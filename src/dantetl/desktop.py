@@ -34,7 +34,7 @@ def main() -> None:
         cuda_update = selection.cuda_update
         if target := selection.target:
             try:
-                restart = RuntimeRestart(state, target)
+                restart = RuntimeRestart(state, target, gpu=selection.gpu)
                 while not restart.poll():
                     time.sleep(0.1)
                 return

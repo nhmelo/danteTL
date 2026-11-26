@@ -6,6 +6,7 @@ import subprocess
 import sys
 import threading
 import venv
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import Mock
 from zipfile import ZipFile
@@ -382,3 +383,74 @@ def test_restart_timeout_stops_tree_without_activating_runtime(project, monkeypa
         restart.poll()
     process.close.assert_called_once()
     assert setup.selected_runtime(root) is None
+
+
+@pytest.mark.parametrize(
+    "profile,mask,first,second",
+    [
+        ("amd", "GGML_VK_VISIBLE_DEVICES", "1", "5"),
+        (
+            "nvidia",
+            "CUDA_VISIBLE_DEVICES",
+            "GPU-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            "GPU-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        ),
+    ],
+)
+def test_selected_gpu_survives_reordering_and_disappearance(
+    project, monkeypatch, profile, mask, first, second
+):
+    from dantetl.runtime.setup_process import clean_runtime_environment
+
+    root, _, run = project
+    primary = Adapter(
+        "Identical",
+        0x10DE,
+        cuda=CudaDevice(13000, 12, 0, "a" * 32),
+        vulkan=VulkanDevice("a" * 32, 0),
+        primary=True,
+    )
+    other = Adapter(
+        "Identical",
+        0x10DE,
+        cuda=CudaDevice(13000, 8, 6, "b" * 32),
+        vulkan=VulkanDevice("b" * 32, 1),
+    )
+    hardware = Mock(return_value=(primary, other))
+    monkeypatch.setattr("dantetl.runtime.hardware.detect_adapters", hardware)
+    monkeypatch.setenv(mask, "0,1,5")
+    probes = []
+
+    def command(args, root, env, *a, **kw):
+        if "dantetl.runtime.probe" in args:
+            probes.append(env[mask])
+        run(args, root, env, *a, **kw)
+
+    monkeypatch.setattr(setup, "run_setup_command", command)
+    gpu = other.gpu_id(profile)
+    setup.install_runtime(
+        root,
+        next(p for p in setup.PROFILES if p.key == profile),
+        lambda _: None,
+        threading.Event(),
+        gpu,
+    )
+    path = setup.ready_runtime(root, profile)
+    assert path and probes == [first]
+    setup.select_runtime(root, path, gpu)
+    saved = setup.runtime_selection(root)
+    assert saved.target == path and saved.gpu == gpu
+    hardware.return_value = (replace(other, vulkan=VulkanDevice("b" * 32, 5)), primary)
+    child = Mock()
+    child.return_value.poll.return_value = None
+    monkeypatch.setattr(runtime_restart, "OwnedProcess", child)
+    restart = runtime_restart.RuntimeRestart(root, path, gpu=saved.gpu)
+    env = child.call_args.args[2]
+    assert env[mask] == second and env["DANTETL_GPU_UUID"] == gpu
+    assert clean_runtime_environment(env)[mask] == "0,1,5"
+    restart.cancel()
+    hardware.return_value = (primary,)
+    with pytest.raises(RuntimeError, match="selected GPU is unavailable"):
+        runtime_restart.RuntimeRestart(root, path, gpu=saved.gpu)
+    child.assert_called_once()
+    assert setup.runtime_selection(root) == saved

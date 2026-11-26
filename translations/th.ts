@@ -3605,6 +3605,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>รีลีสเปลี่ยนไประหว่างการอัปเดตแอป โปรดเปิดอีกครั้ง</translation>
     </message>
     <message>
+      <source>The selected GPU is unavailable. Choose another GPU in Acceleration.</source>
+      <translation>GPU ที่เลือกไม่พร้อมใช้งาน โปรดเลือก GPU อื่นในการตั้งค่าการเร่งความเร็ว</translation>
+    </message>
+    <message>
       <source>The selected runtime cannot accelerate this model. Open Acceleration.</source>
       <translation>รันไทม์ที่เลือกไม่สามารถเร่งความเร็วโมเดลนี้ได้ เปิด การเร่งความเร็ว</translation>
     </message>

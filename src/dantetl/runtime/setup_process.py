@@ -20,11 +20,22 @@ def clean_runtime_environment(inherited: Mapping[str, str]) -> dict[str, str]:
     -P/-s do not ignore Python environment variables. Setup and app launch must start
     from the same clean baseline: merging a sanitized environment cannot remove leftovers.
     """
-    return {
+    environment = {
         key: value
         for key, value in inherited.items()
         if not key.startswith(("PYTHON", "UV_")) and key != "VIRTUAL_ENV"
     }
+    # Discovery and setup children must see the user's original visibility mask,
+    # even when the running app has been narrowed to one GPU.
+    mask = environment.pop("DANTETL_GPU_MASK", "")
+    previous = environment.pop("DANTETL_GPU_PREVIOUS_MASK", None)
+    environment.pop("DANTETL_GPU_UUID", None)
+    if mask in ("CUDA_VISIBLE_DEVICES", "GGML_VK_VISIBLE_DEVICES"):
+        if previous is None:
+            environment.pop(mask, None)
+        else:
+            environment[mask] = previous
+    return environment
 
 
 def run_setup_command(

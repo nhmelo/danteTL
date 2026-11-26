@@ -18,8 +18,8 @@ from dantetl.runtime.hardware import require_profile
 from dantetl.runtime.owned_process import OwnedProcess
 from dantetl.runtime.setup import (
     project_root,
+    runtime_selection,
     select_runtime,
-    selected_runtime,
     verified_runtime,
 )
 
@@ -40,13 +40,15 @@ class RuntimeRestart:
         root: Path,
         target: Path,
         *,
+        gpu: str = "",
         on_cleanup: Callable[[], None] | None = None,
         cancel: threading.Event | None = None,
     ) -> None:
         key = target.name.split("-", 1)[0]
         if verified_runtime(root, key, target.name) != target.resolve():
             raise ValueError(tr("Runtime is no longer ready. Open Runtime setup and retry."))
-        require_profile(key, cancel)
+        device_env = require_profile(key, cancel, gpu)
+        self.gpu = device_env.get("DANTETL_GPU_UUID", "")
         self._on_cleanup = on_cleanup or (lambda: None)
         self.root, self.target = root, target
         token = uuid4().hex
@@ -54,6 +56,7 @@ class RuntimeRestart:
         environment = prepare_application(
             root, target / "Scripts/python.exe", cancel or threading.Event()
         )
+        environment.update(device_env)
         environment["DANTETL_RESTART_TOKEN"] = token
         if is_standalone():
             environment["DANTETL_DATA_DIR"] = str(root)
@@ -77,16 +80,16 @@ class RuntimeRestart:
 
     def _poll(self) -> bool:
         if self.receipt.is_file() and self.process.poll() is None:
-            previous = selected_runtime(self.root)
+            previous = runtime_selection(self.root)
             try:
                 self.started_pid = int(self.receipt.read_text("ascii"))
-                select_runtime(self.root, self.target)
+                select_runtime(self.root, self.target, self.gpu)
                 self.process.release()
                 self._released = True
             except (OSError, ValueError):
                 self._close()
-                if previous:
-                    select_runtime(self.root, previous)
+                if previous.target:
+                    select_runtime(self.root, previous.target, previous.gpu)
                 else:
                     (self.root / "data/runtime.json").unlink(missing_ok=True)
                 raise

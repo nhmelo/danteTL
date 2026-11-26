@@ -3605,6 +3605,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>アプリの更新中にリリースが変更されました。再度起動してください。</translation>
     </message>
     <message>
+      <source>The selected GPU is unavailable. Choose another GPU in Acceleration.</source>
+      <translation>選択した GPU は利用できません。「アクセラレーション」で別の GPU を選択してください。</translation>
+    </message>
+    <message>
       <source>The selected runtime cannot accelerate this model. Open Acceleration.</source>
       <translation>選択されたランタイムはこのモデルをアクセラレーションできません。アクセラレーションを開いてください。</translation>
     </message>

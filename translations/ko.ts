@@ -3605,6 +3605,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>앱 업데이트 중에 릴리스가 변경되었습니다. 다시 실행하세요.</translation>
     </message>
     <message>
+      <source>The selected GPU is unavailable. Choose another GPU in Acceleration.</source>
+      <translation>선택한 GPU를 사용할 수 없습니다. 가속 설정에서 다른 GPU를 선택하세요.</translation>
+    </message>
+    <message>
       <source>The selected runtime cannot accelerate this model. Open Acceleration.</source>
       <translation>선택한 런타임으로는 이 모델을 가속할 수 없습니다. 가속을 여세요.</translation>
     </message>

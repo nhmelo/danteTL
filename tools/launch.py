@@ -10,15 +10,15 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from dantetl.runtime.restart import RuntimeRestart  # noqa: E402
-from dantetl.runtime.setup import selected_runtime  # noqa: E402
+from dantetl.runtime.setup import runtime_selection  # noqa: E402
 
 
 def main() -> None:
     force_cpu = "--cpu" in sys.argv[1:]
-    target = None if force_cpu else selected_runtime(ROOT)
-    if target:
+    selection = None if force_cpu else runtime_selection(ROOT)
+    if selection and (target := selection.target):
         try:
-            pending = RuntimeRestart(ROOT, target)
+            pending = RuntimeRestart(ROOT, target, gpu=selection.gpu)
             while not pending.poll():
                 time.sleep(0.1)
             return
