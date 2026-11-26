@@ -58,6 +58,32 @@ def stop(session):
     until(lambda: session.finished)
 
 
+def test_cache_only_miss_can_be_promoted_with_identical_remote_source_and_context(tmp_path):
+    backend = Deferred()
+    path = tmp_path / "cache"
+    cache = TranslationCache(path)
+    cache.put(translation_key(backend.cache_identity, "設定"), "Settings")
+    cache.close()
+    session = TranslationSession(lambda: backend, path)
+    cached, missing = block(1, "設定"), block(2, "速度")
+    session.start()
+    try:
+        session.update((), retain=(cached, missing), candidates=(cached, missing))
+        until(lambda: bool(session.snapshot().cached_candidates))
+        assert not backend.calls and not session.snapshot().results
+        session.update((missing,), retain=(cached, missing), candidates=(cached,))
+        until(lambda: len(backend.calls) == 1)
+        assert backend.calls[0][0] == (missing.text, ())
+        backend.finish(0)
+        until(lambda: session.snapshot().pending == 0)
+        assert [r.request.source for r in session.snapshot().results] == [missing.text]
+        session.update((cached, missing), retain=(cached, missing))
+        assert {r.request.source for r in session.snapshot().results} == {cached.text, missing.text}
+        assert not session.snapshot().cached_candidates and len(backend.calls) == 1
+    finally:
+        stop(session)
+
+
 def test_independent_answers_publish_out_of_order_with_two_slots_cache_and_source_dedup(tmp_path):
     backend = Deferred()
     path = tmp_path / "cache"

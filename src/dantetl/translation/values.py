@@ -80,6 +80,7 @@ class TranslationSnapshot:
     cancelled_obsolete: int = 0
     # A single backend accepts every retained request. A router pins an explicit subset.
     routed_requests: frozenset[TranslationRequest] | None = None
+    cached_candidates: tuple[TranslatedText, ...] = ()
 
 
 class TranslationWorker(Protocol):
@@ -88,6 +89,7 @@ class TranslationWorker(Protocol):
         tracks: tuple[TextTrack | TextBlock, ...],
         *,
         retain: tuple[TextBlock, ...] = (),
+        candidates: tuple[TextBlock, ...] = (),
         target: TargetLanguage = ENGLISH,
         game: str = "",
         reset_context: bool = False,

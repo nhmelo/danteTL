@@ -143,6 +143,7 @@ class RoutedTranslationSession:
         tracks: tuple[TextTrack | TextBlock, ...],
         *,
         retain: tuple[TextBlock, ...] = (),
+        candidates: tuple[TextBlock, ...] = (),
         target: TargetLanguage = ENGLISH,
         game: str = "",
         reset_context: bool = False,
@@ -167,6 +168,9 @@ class RoutedTranslationSession:
                 tuple(item for item in tracks[:128] if self._routes.get(key(item)) == remote),
                 retain=tuple(
                     item for item in retain[:128] if self._routes.get(key(item)) == remote
+                ),
+                candidates=tuple(
+                    item for item in candidates[:128] if self._routes.get(key(item)) == remote
                 ),
                 reset_context=reset_context,
                 target=target,
@@ -229,6 +233,12 @@ class RoutedTranslationSession:
             load_ms=max((s.load_ms for s in snapshots), default=0),
             last_inference_ms=max((s.last_inference_ms for s in snapshots), default=0),
             backend_generation=self._generation,
+            cached_candidates=tuple(
+                hit
+                for remote, snapshot in lanes.items()
+                for hit in snapshot.cached_candidates
+                if self._routes.get(hit.request) == remote
+            ),
             routed_requests=frozenset(
                 request
                 for request, key in self._routes.items()

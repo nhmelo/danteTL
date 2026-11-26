@@ -61,6 +61,25 @@ def test_cold_sources_are_checked_once_until_withdrawn(tmp_path, monkeypatch):
         cache.close()
 
 
+def test_remote_candidates_are_cache_only_until_confirmation(tmp_path):
+    schedule, backend = TranslationSchedule(), Backend()
+    cache = TranslationCache(tmp_path / "cache")
+    cached, cold = TranslationRequest(1, 1, "設定"), TranslationRequest(2, 1, "装備")
+    try:
+        cache.put(translation_key(backend.cache_identity, cached.source), "Settings")
+        current = replace(demand(cached, cold), candidates=frozenset((cached, cold)))
+        hit = schedule.plan(current, backend, cache)
+        assert hit and hit.sources == ((cached.source, ()),) and not hit.missing
+        assert (
+            schedule.plan(replace(demand(cold), candidates=frozenset((cold,))), backend, cache)
+            is None
+        )
+        confirmed = schedule.plan(demand(cold), backend, cache)
+        assert confirmed and confirmed.missing == ((cold.source, ()),)
+    finally:
+        cache.close()
+
+
 def test_cache_remains_available_at_capacity_and_duplicate_sources_share_a_flight(tmp_path):
     schedule, backend = TranslationSchedule(), Backend()
     cache = TranslationCache(tmp_path / "cache")

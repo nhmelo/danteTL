@@ -51,6 +51,80 @@ class Backend:
         self.closed = True
 
 
+@pytest.mark.parametrize("confirm", [False, True])
+def test_first_read_miss_is_private_until_the_exact_request_is_confirmed(tmp_path, confirm):
+    path = tmp_path / "cache"
+    backend = Backend()
+    session = TranslationSession(lambda: backend, path)
+    block = TextBlock((track(),))
+    expected = TranslationRequest.from_block(block)
+    session.start()
+    try:
+        session.update((), retain=(block,), candidates=(block,))
+        until(lambda: session.snapshot().translated_sources == 1)
+        for _ in range(3):
+            session.update((), retain=(block,), candidates=(block,))
+            snapshot = session.snapshot()
+            assert not snapshot.results and not snapshot.cached_candidates
+        if confirm:
+            session.update((block,), retain=(block,))
+            until(lambda: tuple(t.request for t in session.snapshot().results) == (expected,))
+        else:
+            session.update((), retain=(block,))
+        assert backend.calls == [(block.text,)]
+    finally:
+        session.request_stop()
+        until(lambda: session.finished)
+    cache = TranslationCache(path)
+    try:
+        assert bool(cache.get(translation_key(backend.cache_identity, block.text))) == confirm
+    finally:
+        cache.close()
+
+
+def test_confirmed_label_gets_next_slot_and_withdrawn_first_read_is_discarded(tmp_path):
+    backend = Backend()
+    backend.release.clear()
+    session = TranslationSession(lambda: backend, tmp_path / "cache")
+    first, later, ready = (
+        TextBlock((track(s, key=i),)) for i, s in enumerate(("設定", "装備", "速度"), 1)
+    )
+    session.start()
+    try:
+        session.update((), retain=(first, later), candidates=(first, later))
+        assert backend.entered.wait(2)
+        session.update((ready,), retain=(first, later, ready), candidates=(later,))
+        backend.release.set()
+        until(lambda: len(backend.calls) == 3 and session.snapshot().processing_since is None)
+        assert backend.calls == [(first.text,), (ready.text,), (later.text,)]
+        assert [t.request.source for t in session.snapshot().results] == [ready.text]
+        assert not session.snapshot().cached_candidates
+    finally:
+        backend.release.set()
+        session.request_stop()
+        until(lambda: session.finished)
+
+
+def test_confirmation_can_paint_a_prepared_answer_while_the_model_is_busy(tmp_path):
+    backend = Backend()
+    session = TranslationSession(lambda: backend, tmp_path / "cache")
+    label, other = TextBlock((track(),)), TextBlock((track("速度", key=2),))
+    session.start()
+    try:
+        session.update((), retain=(label,), candidates=(label,))
+        until(lambda: session.snapshot().translated_sources == 1)
+        backend.entered.clear()
+        backend.release.clear()
+        session.update((other,), retain=(label, other), candidates=(label,))
+        assert backend.entered.wait(2)
+        session.update((label, other), retain=(label, other))
+        assert [r.request.source for r in session.snapshot().results] == [label.text]
+    finally:
+        backend.release.set()
+        session.request_stop()
+        until(lambda: session.finished)
+
+
 @pytest.mark.parametrize("initial,following", [("en", "es"), ("pt-PT", "pt-BR")])
 def test_output_change_discards_inflight_answer_and_reuses_each_languages_cache(
     tmp_path, initial, following
@@ -435,7 +509,8 @@ def test_context_is_frozen_per_request_menu_independent_and_cache_scoped(tmp_pat
         stop(session)
 
 
-def test_context_reset_rejects_in_flight_context_and_retries_without_it(tmp_path):
+@pytest.mark.parametrize("first_read", [False, True])
+def test_context_reset_rejects_in_flight_context_and_retries_without_it(tmp_path, first_read):
     class Contextual(Backend):
         batch_size = 1
         contexts = []
@@ -454,7 +529,10 @@ def test_context_reset_rejects_in_flight_context_and_retries_without_it(tmp_path
         until(lambda: session.snapshot().pending == 0)
         backend.release.clear()
         backend.entered.clear()
-        session.update((second,))
+        if first_read:
+            session.update((), retain=(second,), candidates=(second,))
+        else:
+            session.update((second,))
         assert backend.entered.wait(2)
         session.update((second,), reset_context=True)
         backend.release.set()

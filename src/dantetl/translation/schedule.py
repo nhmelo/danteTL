@@ -15,6 +15,7 @@ from dantetl.translation.backend import (
     BatchResult,
     ConcurrentBackend,
     ContextualBackend,
+    DeferredBackend,
     Source,
     TranslationBackend,
 )
@@ -36,6 +37,7 @@ class Demand:
     target: TargetLanguage = ENGLISH
     language: SourceLanguage = DEFAULT_SOURCE
     game: str = ""
+    candidates: frozenset[TranslationRequest] = frozenset()
 
 
 @dataclass(slots=True)
@@ -55,6 +57,7 @@ class Batch:
     started: float = 0.0
     parallel_label: bool = False
     cache_scope: CacheScope | None = None
+    speculative: bool = False
 
     def activate(
         self,
@@ -208,6 +211,17 @@ class TranslationSchedule:
             if len(self._flights) < capacity
             else ()
         )
+        speculative = False
+        if demand.candidates and not cached:
+            confirmed = {inputs[key] for key in demand.jobs if key not in demand.candidates}
+            if confirmed:
+                eligible = tuple(source for source in eligible if source in confirmed)
+            elif self._flights or isinstance(engine, DeferredBackend):
+                eligible = ()
+            else:
+                # Start one local call at a time so confirmed work gets the next slot.
+                eligible = eligible[:1]
+                speculative = True
         parallel_label = False
         if label_width and eligible and not cached:
             # Keep the oldest waiting source first. Drain existing lanes when a
@@ -244,4 +258,5 @@ class TranslationSchedule:
             target=demand.target,
             parallel_label=parallel_label,
             cache_scope=cache.scope,
+            speculative=speculative,
         )
