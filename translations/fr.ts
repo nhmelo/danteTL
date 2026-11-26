@@ -779,10 +779,6 @@ Les détails se trouvent dans %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Vérification des fichiers OCR inclus…</translation>
     </message>
     <message>
-      <source>Checking installed graphics adapters…</source>
-      <translation>Vérification des adaptateurs graphiques installés…</translation>
-    </message>
-    <message>
       <source>Checking installed libraries and GPU support…</source>
       <translation>Vérification des bibliothèques installées et de la prise en charge GPU…</translation>
     </message>
@@ -1589,10 +1585,6 @@ Les détails se trouvent dans %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>GPU OCR fell back to CPU. </source>
       <translation>L'OCR GPU est revenu au CPU. </translation>
-    </message>
-    <message>
-      <source>GPU detection unavailable. CPU is the default; you can choose manually.</source>
-      <translation>Détection GPU indisponible. Le CPU est la valeur par défaut ; vous pouvez choisir manuellement.</translation>
     </message>
     <message>
       <source>GPU offload is unavailable. Update your graphics driver or use CPU.</source>
@@ -2697,6 +2689,10 @@ Les détails se trouvent dans %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Previous model is still busy. Stop capture and retry.</source>
       <translation>Le modèle précédent est toujours occupé. Arrêtez la capture et réessayez.</translation>
+    </message>
+    <message>
+      <source>Primary</source>
+      <translation>Principal</translation>
     </message>
     <message>
       <source>Probe must stay offline</source>
@@ -4267,10 +4263,6 @@ Architecture : {architecture} · Format : {value}
       <translation>{name} ({value:.0f} Mo). Choisissez un traducteur :</translation>
     </message>
     <message>
-      <source>{name} ({value:.1f} GB dedicated)</source>
-      <translation>{name} ({value:.1f} GB dédiés)</translation>
-    </message>
-    <message>
       <source>{name} key</source>
       <translation>clé {name}</translation>
     </message>
@@ -4353,6 +4345,10 @@ Architecture : {architecture} · Format : {value}
     <message>
       <source>{value:.1f} / {value2:.1f} MB · %p%</source>
       <translation>{value:.1f} / {value2:.1f} Mo · %p%</translation>
+    </message>
+    <message>
+      <source>{value:.1f} GB</source>
+      <translation>{value:.1f} Go</translation>
     </message>
     <message>
       <source>{value:.1f} MB · total unknown</source>

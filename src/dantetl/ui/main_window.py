@@ -44,10 +44,10 @@ from dantetl.ui.bug_reports import error_dialog
 from dantetl.ui.controls import (
     CaptureButton,
     OutputLanguageCombo,
-    OverlayToggleLayout,
     SourceLanguageCombo,
     StatusBanner,
     Switch,
+    WrappingLayout,
 )
 from dantetl.ui.desktop_driver import DesktopDriver
 from dantetl.ui.diagnostics import debug_display
@@ -280,7 +280,7 @@ class MainWindow(QMainWindow):
             ),
         )
         game_layout.addLayout(
-            OverlayToggleLayout(
+            WrappingLayout(
                 self.overlay_check,
                 self.translate_check,
                 self.border_check,

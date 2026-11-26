@@ -1,6 +1,5 @@
 """Explicit runtime installation UI; detection, processes and disk work stay on a worker."""
 
-from html import escape
 from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal
@@ -20,6 +19,7 @@ from dantetl.i18n import mark, tr
 from dantetl.runtime.hardware_values import compatibility_issue
 from dantetl.runtime.setup_values import SetupLane
 from dantetl.ui.localization import localized, localized_item, on_language_change
+from dantetl.ui.runtime_gpus import GraphicsList
 from dantetl.ui.runtime_restart_prompt import ask_restart
 from dantetl.ui.setup_progress import SetupProgressView
 
@@ -46,8 +46,7 @@ class RuntimeSetupDialog(QDialog):
         if not service.job(SetupLane.RUNTIME).token:
             service.detect_runtime()
         layout = QVBoxLayout(self)
-        self.hardware = localized(QLabel(), text=mark("Checking installed graphics adapters…"))
-        self.hardware.setWordWrap(True)
+        self.hardware = GraphicsList()
         layout.addWidget(self.hardware)
         layout.addSpacing(12)
         runtime_label = localized(QLabel(), text=mark("Runtime"))
@@ -119,16 +118,13 @@ class RuntimeSetupDialog(QDialog):
 
     def _show_hardware(self) -> None:
         adapters = self.service.runtime.adapters
-        if not adapters:
-            self.hardware.setText(
-                tr("GPU detection unavailable. CPU is the default; you can choose manually.")
-            )
-            return
-        details = "; ".join(
-            tr("{name} ({value:.1f} GB dedicated)", name=a.name, value=a.dedicated_bytes / 2**30)
-            for a in adapters
+        checking = self.service.job(SetupLane.RUNTIME)
+        self.hardware.set_adapters(
+            adapters,
+            tr("Checking graphics hardware…")
+            if checking.action == "detect" and checking.busy
+            else tr("No supported GPU detected. CPU is available."),
         )
-        self.hardware.setText(f"<b>{escape(tr('Detected: '))}</b>{escape(details)}")
 
     def _refresh_language(self) -> None:
         if self.choice.isEnabled():

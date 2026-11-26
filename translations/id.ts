@@ -779,10 +779,6 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Memeriksa file OCR yang disertakan…</translation>
     </message>
     <message>
-      <source>Checking installed graphics adapters…</source>
-      <translation>Memeriksa adaptor grafis yang terpasang…</translation>
-    </message>
-    <message>
       <source>Checking installed libraries and GPU support…</source>
       <translation>Memeriksa pustaka yang terpasang dan dukungan GPU…</translation>
     </message>
@@ -1589,10 +1585,6 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>GPU OCR fell back to CPU. </source>
       <translation>GPU OCR beralih ke CPU. </translation>
-    </message>
-    <message>
-      <source>GPU detection unavailable. CPU is the default; you can choose manually.</source>
-      <translation>Deteksi GPU tidak tersedia. CPU adalah default; Anda dapat memilih secara manual.</translation>
     </message>
     <message>
       <source>GPU offload is unavailable. Update your graphics driver or use CPU.</source>
@@ -2697,6 +2689,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Previous model is still busy. Stop capture and retry.</source>
       <translation>Model sebelumnya masih sibuk. Hentikan pengambilan dan coba lagi.</translation>
+    </message>
+    <message>
+      <source>Primary</source>
+      <translation>Utama</translation>
     </message>
     <message>
       <source>Probe must stay offline</source>
@@ -4267,10 +4263,6 @@ Arsitektur: {architecture} · Format: {value}
       <translation>{name} ({value:.0f} MB). Pilih penerjemah:</translation>
     </message>
     <message>
-      <source>{name} ({value:.1f} GB dedicated)</source>
-      <translation>{name} ({value:.1f} GB khusus)</translation>
-    </message>
-    <message>
       <source>{name} key</source>
       <translation>kunci {name}</translation>
     </message>
@@ -4353,6 +4345,10 @@ Arsitektur: {architecture} · Format: {value}
     <message>
       <source>{value:.1f} / {value2:.1f} MB · %p%</source>
       <translation>{value:.1f} / {value2:.1f} MB · %p%</translation>
+    </message>
+    <message>
+      <source>{value:.1f} GB</source>
+      <translation>{value:.1f} GB</translation>
     </message>
     <message>
       <source>{value:.1f} MB · total unknown</source>

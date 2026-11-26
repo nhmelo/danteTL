@@ -779,10 +779,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>Проверка встроенных файлов OCR…</translation>
     </message>
     <message>
-      <source>Checking installed graphics adapters…</source>
-      <translation>Проверка установленных графических адаптеров…</translation>
-    </message>
-    <message>
       <source>Checking installed libraries and GPU support…</source>
       <translation>Проверка установленных библиотек и поддержки GPU…</translation>
     </message>
@@ -1589,10 +1585,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>GPU OCR fell back to CPU. </source>
       <translation>GPU OCR переключён на CPU. </translation>
-    </message>
-    <message>
-      <source>GPU detection unavailable. CPU is the default; you can choose manually.</source>
-      <translation>Обнаружение GPU недоступно. По умолчанию используется CPU; можно выбрать вручную.</translation>
     </message>
     <message>
       <source>GPU offload is unavailable. Update your graphics driver or use CPU.</source>
@@ -2697,6 +2689,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Previous model is still busy. Stop capture and retry.</source>
       <translation>Предыдущая модель всё ещё занята. Остановите захват и повторите попытку.</translation>
+    </message>
+    <message>
+      <source>Primary</source>
+      <translation>Основной</translation>
     </message>
     <message>
       <source>Probe must stay offline</source>
@@ -4267,10 +4263,6 @@ Architecture: {architecture} · Format: {value}
       <translation>{name} ({value:.0f} МБ). Выберите переводчик:</translation>
     </message>
     <message>
-      <source>{name} ({value:.1f} GB dedicated)</source>
-      <translation>{name} ({value:.1f} ГБ выделено)</translation>
-    </message>
-    <message>
       <source>{name} key</source>
       <translation>ключ {name}</translation>
     </message>
@@ -4353,6 +4345,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{value:.1f} / {value2:.1f} MB · %p%</source>
       <translation>{value:.1f} / {value2:.1f} МБ · %p%</translation>
+    </message>
+    <message>
+      <source>{value:.1f} GB</source>
+      <translation>{value:.1f} ГБ</translation>
     </message>
     <message>
       <source>{value:.1f} MB · total unknown</source>

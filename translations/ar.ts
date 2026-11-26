@@ -779,10 +779,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>جارٍ التحقق من ملفات OCR المضمنة…</translation>
     </message>
     <message>
-      <source>Checking installed graphics adapters…</source>
-      <translation>جارٍ التحقق من محولات الرسومات المثبتة…</translation>
-    </message>
-    <message>
       <source>Checking installed libraries and GPU support…</source>
       <translation>جارٍ التحقق من المكتبات المثبتة ودعم GPU…</translation>
     </message>
@@ -1589,10 +1585,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>GPU OCR fell back to CPU. </source>
       <translation>تراجع التعرف الضوئي على GPU إلى CPU. </translation>
-    </message>
-    <message>
-      <source>GPU detection unavailable. CPU is the default; you can choose manually.</source>
-      <translation>اكتشاف GPU غير متاح. CPU هو الافتراضي؛ يمكنك الاختيار يدويًا.</translation>
     </message>
     <message>
       <source>GPU offload is unavailable. Update your graphics driver or use CPU.</source>
@@ -2697,6 +2689,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Previous model is still busy. Stop capture and retry.</source>
       <translation>النموذج السابق لا يزال مشغولاً. أوقف الالتقاط وأعد المحاولة.</translation>
+    </message>
+    <message>
+      <source>Primary</source>
+      <translation>رئيسية</translation>
     </message>
     <message>
       <source>Probe must stay offline</source>
@@ -4267,10 +4263,6 @@ Architecture: {architecture} · Format: {value}
       <translation>{name} ({value:.0f} MB). اختر مترجماً:</translation>
     </message>
     <message>
-      <source>{name} ({value:.1f} GB dedicated)</source>
-      <translation>{name} ({value:.1f} GB مخصصة)</translation>
-    </message>
-    <message>
       <source>{name} key</source>
       <translation>مفتاح {name}</translation>
     </message>
@@ -4353,6 +4345,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{value:.1f} / {value2:.1f} MB · %p%</source>
       <translation>{value:.1f} / {value2:.1f} MB · %p%</translation>
+    </message>
+    <message>
+      <source>{value:.1f} GB</source>
+      <translation>{value:.1f} غيغابايت</translation>
     </message>
     <message>
       <source>{value:.1f} MB · total unknown</source>

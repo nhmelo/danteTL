@@ -9,7 +9,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest  # noqa: E402
 import shiboken6  # noqa: E402
-from PySide6.QtWidgets import QMessageBox, QWidget  # noqa: E402
+from PySide6.QtWidgets import QFrame, QMessageBox, QWidget  # noqa: E402
 from test_setup_ownership import configured  # noqa: E402
 
 from dantetl.runtime.hardware_values import Adapter, CudaDevice, HardwareStatus, VulkanDevice  # noqa: E402
@@ -18,6 +18,7 @@ from dantetl.translation.models.values import ImportedModel, ProbeResult  # noqa
 from dantetl.ui.cloud_settings import CloudSettings  # noqa: E402
 from dantetl.ui.model_import_dialog import ModelImportDialog  # noqa: E402
 from dantetl.ui.runtime_dialog import RuntimeSetupDialog  # noqa: E402
+from dantetl.ui.runtime_gpus import GraphicsList  # noqa: E402
 from dantetl.ui.setup_assistant import SetupAssistant  # noqa: E402
 from dantetl.ui.setup_progress import SetupProgressView  # noqa: E402
 
@@ -293,3 +294,51 @@ def test_recreated_import_preserves_successful_probe_until_registration(app, tmp
         assert not replay.setup.job(SetupLane.MODELS).busy
     finally:
         replay.close()
+
+
+def test_five_gpu_entries_wrap_on_resize_and_large_inventories_remain_scrollable(app):
+    cards = tuple(Adapter(f"GPU {i}", 0x10DE, 8 << 30, primary=i == 0) for i in range(5))
+    view = GraphicsList()
+    try:
+        view.set_adapters(cards)
+        view.show()
+        app.processEvents()
+        chips = view.findChildren(QFrame, "gpuChip")
+        assert len(chips) == len(cards)
+        # Measure from the actual font so the same checks work across DPI and locales.
+        width = sum(chip.sizeHint().width() for chip in chips)
+        view.resize(width + 100, view.height())
+        app.processEvents()
+        one_row = view.height()
+        assert len({chip.y() for chip in chips}) == 1
+        assert not view.verticalScrollBar().isVisible()
+        view.resize(width // 2 + 10, one_row)
+        app.processEvents()
+        assert 1 < len({chip.y() for chip in chips}) < len(cards)
+        assert view.height() > one_row and not view.verticalScrollBar().maximum()
+        assert all(view.viewport().rect().contains(chip.geometry()) for chip in chips)
+        view.resize(width + 100, view.height())
+        app.processEvents()
+        assert view.height() == one_row
+        view.set_adapters(tuple(Adapter(f"GPU {i}", 0x8086) for i in range(32)))
+        view.resize(150, view.height())
+        app.processEvents()
+        assert view.verticalScrollBar().maximum() > 0
+        # A previously visible scrollbar must give back its width when a row fits exactly.
+        view.set_adapters(cards)
+        content = view.widget()
+        assert content is not None and (flow := content.layout()) is not None
+        view.resize(width + (len(cards) - 1) * flow.spacing(), view.height())
+        app.processEvents()
+        assert view.height() == one_row
+        assert not view.verticalScrollBar().isVisible()
+        assert all(
+            view.viewport().rect().contains(chip.geometry())
+            for chip in view.findChildren(QFrame, "gpuChip")
+        )
+        view.set_adapters((), "Checking graphics hardware…")
+        app.processEvents()
+        assert not view.findChildren(QFrame, "gpuChip")
+        assert not view.verticalScrollBar().maximum()
+    finally:
+        shiboken6.delete(view)

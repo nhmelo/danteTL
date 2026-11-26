@@ -779,10 +779,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>正在检查包含的 OCR 文件…</translation>
     </message>
     <message>
-      <source>Checking installed graphics adapters…</source>
-      <translation>正在检查已安装的图形适配器…</translation>
-    </message>
-    <message>
       <source>Checking installed libraries and GPU support…</source>
       <translation>正在检查已安装的库和 GPU 支持…</translation>
     </message>
@@ -1589,10 +1585,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>GPU OCR fell back to CPU. </source>
       <translation>GPU OCR 已回退到 CPU。 </translation>
-    </message>
-    <message>
-      <source>GPU detection unavailable. CPU is the default; you can choose manually.</source>
-      <translation>GPU 检测不可用。CPU 是默认值；你可以手动选择。</translation>
     </message>
     <message>
       <source>GPU offload is unavailable. Update your graphics driver or use CPU.</source>
@@ -2697,6 +2689,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Previous model is still busy. Stop capture and retry.</source>
       <translation>之前的模型仍在忙。请停止截取并重试。</translation>
+    </message>
+    <message>
+      <source>Primary</source>
+      <translation>主显卡</translation>
     </message>
     <message>
       <source>Probe must stay offline</source>
@@ -4267,10 +4263,6 @@ Architecture: {architecture} · Format: {value}
       <translation>{name} ({value:.0f} MB)。选择翻译器：</translation>
     </message>
     <message>
-      <source>{name} ({value:.1f} GB dedicated)</source>
-      <translation>{name}（{value:.1f} GB 专用）</translation>
-    </message>
-    <message>
       <source>{name} key</source>
       <translation>{name} 密钥</translation>
     </message>
@@ -4353,6 +4345,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{value:.1f} / {value2:.1f} MB · %p%</source>
       <translation>{value:.1f} / {value2:.1f} MB · %p%</translation>
+    </message>
+    <message>
+      <source>{value:.1f} GB</source>
+      <translation>{value:.1f} GB</translation>
     </message>
     <message>
       <source>{value:.1f} MB · total unknown</source>

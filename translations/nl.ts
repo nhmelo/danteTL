@@ -779,10 +779,6 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Inbegrepen OCR-bestanden controleren…</translation>
     </message>
     <message>
-      <source>Checking installed graphics adapters…</source>
-      <translation>Geïnstalleerde grafische adapters controleren…</translation>
-    </message>
-    <message>
       <source>Checking installed libraries and GPU support…</source>
       <translation>Geïnstalleerde bibliotheken en GPU-ondersteuning controleren…</translation>
     </message>
@@ -1589,10 +1585,6 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>GPU OCR fell back to CPU. </source>
       <translation>GPU-OCR is teruggevallen op CPU. </translation>
-    </message>
-    <message>
-      <source>GPU detection unavailable. CPU is the default; you can choose manually.</source>
-      <translation>GPU-detectie niet beschikbaar. CPU is de standaard; je kunt handmatig kiezen.</translation>
     </message>
     <message>
       <source>GPU offload is unavailable. Update your graphics driver or use CPU.</source>
@@ -2697,6 +2689,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Previous model is still busy. Stop capture and retry.</source>
       <translation>Het vorige model is nog bezig. Stop het vastleggen en probeer opnieuw.</translation>
+    </message>
+    <message>
+      <source>Primary</source>
+      <translation>Primair</translation>
     </message>
     <message>
       <source>Probe must stay offline</source>
@@ -4267,10 +4263,6 @@ Architectuur: {architecture} · Formaat: {value}
       <translation>{name} ({value:.0f} MB). Kies een vertaler:</translation>
     </message>
     <message>
-      <source>{name} ({value:.1f} GB dedicated)</source>
-      <translation>{name} ({value:.1f} GB toegewezen)</translation>
-    </message>
-    <message>
       <source>{name} key</source>
       <translation>{name}-sleutel</translation>
     </message>
@@ -4353,6 +4345,10 @@ Architectuur: {architecture} · Formaat: {value}
     <message>
       <source>{value:.1f} / {value2:.1f} MB · %p%</source>
       <translation>{value:.1f} / {value2:.1f} MB · %p%</translation>
+    </message>
+    <message>
+      <source>{value:.1f} GB</source>
+      <translation>{value:.1f} GB</translation>
     </message>
     <message>
       <source>{value:.1f} MB · total unknown</source>

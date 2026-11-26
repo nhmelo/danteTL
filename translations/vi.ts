@@ -779,10 +779,6 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Đang kiểm tra các tệp OCR đi kèm…</translation>
     </message>
     <message>
-      <source>Checking installed graphics adapters…</source>
-      <translation>Đang kiểm tra bộ điều hợp đồ họa đã cài đặt…</translation>
-    </message>
-    <message>
       <source>Checking installed libraries and GPU support…</source>
       <translation>Đang kiểm tra thư viện đã cài và hỗ trợ GPU…</translation>
     </message>
@@ -1589,10 +1585,6 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>GPU OCR fell back to CPU. </source>
       <translation>OCR GPU đã chuyển sang CPU. </translation>
-    </message>
-    <message>
-      <source>GPU detection unavailable. CPU is the default; you can choose manually.</source>
-      <translation>Không thể phát hiện GPU. CPU là mặc định; bạn có thể chọn thủ công.</translation>
     </message>
     <message>
       <source>GPU offload is unavailable. Update your graphics driver or use CPU.</source>
@@ -2697,6 +2689,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Previous model is still busy. Stop capture and retry.</source>
       <translation>Mô hình trước vẫn đang bận. Dừng chụp và thử lại.</translation>
+    </message>
+    <message>
+      <source>Primary</source>
+      <translation>Chính</translation>
     </message>
     <message>
       <source>Probe must stay offline</source>
@@ -4267,10 +4263,6 @@ Kiến trúc: {architecture} · Định dạng: {value}
       <translation>{name} ({value:.0f} MB). Chọn trình dịch:</translation>
     </message>
     <message>
-      <source>{name} ({value:.1f} GB dedicated)</source>
-      <translation>{name} ({value:.1f} GB chuyên dụng)</translation>
-    </message>
-    <message>
       <source>{name} key</source>
       <translation>khóa {name}</translation>
     </message>
@@ -4353,6 +4345,10 @@ Kiến trúc: {architecture} · Định dạng: {value}
     <message>
       <source>{value:.1f} / {value2:.1f} MB · %p%</source>
       <translation>{value:.1f} / {value2:.1f} MB · %p%</translation>
+    </message>
+    <message>
+      <source>{value:.1f} GB</source>
+      <translation>{value:.1f} GB</translation>
     </message>
     <message>
       <source>{value:.1f} MB · total unknown</source>

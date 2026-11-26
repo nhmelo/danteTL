@@ -14,8 +14,8 @@ from dantetl.translation.dialogue.values import HistoryTurn  # noqa: E402
 from dantetl.ui.controls import (  # noqa: E402
     CaptureButton,
     CopyTextButton,
-    OverlayToggleLayout,
     Switch,
+    WrappingLayout,
 )
 from dantetl.ui.history_panel import HistoryPanel  # noqa: E402
 from dantetl.ui.theme import STYLE  # noqa: E402
@@ -29,7 +29,7 @@ def test_overlay_controls_wrap_and_capture_state_keeps_icons_and_labels_consiste
         Switch("Include in screen capture"),
     )
     row = QWidget()
-    toggles = OverlayToggleLayout(first, second, third, fourth)
+    toggles = WrappingLayout(first, second, third, fourth)
     row.setLayout(toggles)
     button = CaptureButton()
     try:

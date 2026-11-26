@@ -779,10 +779,6 @@ I dettagli sono in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Verifica dei file OCR inclusi…</translation>
     </message>
     <message>
-      <source>Checking installed graphics adapters…</source>
-      <translation>Verifica delle schede grafiche installate…</translation>
-    </message>
-    <message>
       <source>Checking installed libraries and GPU support…</source>
       <translation>Verifica delle librerie installate e del supporto GPU…</translation>
     </message>
@@ -1589,10 +1585,6 @@ I dettagli sono in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>GPU OCR fell back to CPU. </source>
       <translation>OCR GPU passato alla CPU. </translation>
-    </message>
-    <message>
-      <source>GPU detection unavailable. CPU is the default; you can choose manually.</source>
-      <translation>Rilevamento GPU non disponibile. La CPU è predefinita; puoi scegliere manualmente.</translation>
     </message>
     <message>
       <source>GPU offload is unavailable. Update your graphics driver or use CPU.</source>
@@ -2697,6 +2689,10 @@ I dettagli sono in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Previous model is still busy. Stop capture and retry.</source>
       <translation>Il modello precedente è ancora occupato. Interrompi la cattura e riprova.</translation>
+    </message>
+    <message>
+      <source>Primary</source>
+      <translation>Principale</translation>
     </message>
     <message>
       <source>Probe must stay offline</source>
@@ -4267,10 +4263,6 @@ Architettura: {architecture} · Formato: {value}
       <translation>{name} ({value:.0f} MB). Scegli un traduttore:</translation>
     </message>
     <message>
-      <source>{name} ({value:.1f} GB dedicated)</source>
-      <translation>{name} ({value:.1f} GB dedicati)</translation>
-    </message>
-    <message>
       <source>{name} key</source>
       <translation>chiave {name}</translation>
     </message>
@@ -4353,6 +4345,10 @@ Architettura: {architecture} · Formato: {value}
     <message>
       <source>{value:.1f} / {value2:.1f} MB · %p%</source>
       <translation>{value:.1f} / {value2:.1f} MB · %p%</translation>
+    </message>
+    <message>
+      <source>{value:.1f} GB</source>
+      <translation>{value:.1f} GB</translation>
     </message>
     <message>
       <source>{value:.1f} MB · total unknown</source>

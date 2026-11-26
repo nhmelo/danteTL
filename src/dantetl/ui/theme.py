@@ -75,6 +75,10 @@ STYLE = """
     QLabel#modelRating[tone="success"] { color: #82e6bd; }
     QLabel#modelRating[tone="warning"] { color: #f0ca7c; }
     QLabel#modelRating[tone="error"] { color: #f09b9b; }
+    QFrame#gpuChip { background: #192531; border: 1px solid #2d3c4c; border-radius: 5px; }
+    QFrame#gpuChip QLabel { background: transparent; font-size: 9pt; }
+    QFrame#gpuChip QLabel#primaryGpu { background: #213b40; color: #a5e3d7;
+        border-radius: 3px; padding: 0 4px; font-size: 8pt; }
     QWidget#diagnosticCard { background: #172230; border: 1px solid #304259;
         border-radius: 7px; }
     QWidget#diagnosticCard QLabel { background: transparent; border: 0; }

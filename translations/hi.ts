@@ -779,10 +779,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>शामिल OCR फ़ाइलें जाँची जा रही हैं…</translation>
     </message>
     <message>
-      <source>Checking installed graphics adapters…</source>
-      <translation>इंस्टॉल किए गए ग्राफ़िक्स एडेप्टर जाँचे जा रहे हैं…</translation>
-    </message>
-    <message>
       <source>Checking installed libraries and GPU support…</source>
       <translation>इंस्टॉल की गई लाइब्रेरी और GPU समर्थन जाँचा जा रहा है…</translation>
     </message>
@@ -1589,10 +1585,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>GPU OCR fell back to CPU. </source>
       <translation>GPU OCR CPU पर वापस आया। </translation>
-    </message>
-    <message>
-      <source>GPU detection unavailable. CPU is the default; you can choose manually.</source>
-      <translation>GPU पहचान अनुपलब्ध। CPU डिफ़ॉल्ट है; आप मैन्युअली चुन सकते हैं।</translation>
     </message>
     <message>
       <source>GPU offload is unavailable. Update your graphics driver or use CPU.</source>
@@ -2697,6 +2689,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Previous model is still busy. Stop capture and retry.</source>
       <translation>पिछला मॉडल अभी व्यस्त है। कैप्चर रोकें और पुनः प्रयास करें।</translation>
+    </message>
+    <message>
+      <source>Primary</source>
+      <translation>प्राथमिक</translation>
     </message>
     <message>
       <source>Probe must stay offline</source>
@@ -4267,10 +4263,6 @@ Architecture: {architecture} · Format: {value}
       <translation>{name} ({value:.0f} MB)। एक अनुवादक चुनें:</translation>
     </message>
     <message>
-      <source>{name} ({value:.1f} GB dedicated)</source>
-      <translation>{name} ({value:.1f} GB समर्पित)</translation>
-    </message>
-    <message>
       <source>{name} key</source>
       <translation>{name} कुंजी</translation>
     </message>
@@ -4353,6 +4345,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{value:.1f} / {value2:.1f} MB · %p%</source>
       <translation>{value:.1f} / {value2:.1f} MB · %p%</translation>
+    </message>
+    <message>
+      <source>{value:.1f} GB</source>
+      <translation>{value:.1f} GB</translation>
     </message>
     <message>
       <source>{value:.1f} MB · total unknown</source>

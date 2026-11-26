@@ -120,7 +120,7 @@ def main() -> int:
             if stage == 0:
                 if dialog.busy:
                     return
-                evidence["hardware"] = dialog.hardware.text()
+                evidence["hardware"] = dialog.hardware.accessibleDescription()
                 index = next(
                     i
                     for i in range(dialog.choice.count())

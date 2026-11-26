@@ -779,10 +779,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>অন্তর্ভুক্ত OCR ফাইল পরীক্ষা করা হচ্ছে…</translation>
     </message>
     <message>
-      <source>Checking installed graphics adapters…</source>
-      <translation>ইনস্টল করা গ্রাফিক্স অ্যাডাপ্টার পরীক্ষা করা হচ্ছে…</translation>
-    </message>
-    <message>
       <source>Checking installed libraries and GPU support…</source>
       <translation>ইনস্টল করা লাইব্রেরি এবং GPU সমর্থন পরীক্ষা করা হচ্ছে…</translation>
     </message>
@@ -1589,10 +1585,6 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>GPU OCR fell back to CPU. </source>
       <translation>GPU OCR CPU-তে ফিরে গেছে। </translation>
-    </message>
-    <message>
-      <source>GPU detection unavailable. CPU is the default; you can choose manually.</source>
-      <translation>GPU শনাক্তকরণ অনুপলব্ধ। CPU ডিফল্ট; আপনি ম্যানুয়ালি বেছে নিতে পারেন।</translation>
     </message>
     <message>
       <source>GPU offload is unavailable. Update your graphics driver or use CPU.</source>
@@ -2697,6 +2689,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Previous model is still busy. Stop capture and retry.</source>
       <translation>আগের মডেল এখনও ব্যস্ত। ক্যাপচার বন্ধ করে আবার চেষ্টা করুন।</translation>
+    </message>
+    <message>
+      <source>Primary</source>
+      <translation>প্রধান</translation>
     </message>
     <message>
       <source>Probe must stay offline</source>
@@ -4267,10 +4263,6 @@ Architecture: {architecture} · Format: {value}
       <translation>{name} ({value:.0f} MB)। একটি অনুবাদক বেছে নিন:</translation>
     </message>
     <message>
-      <source>{name} ({value:.1f} GB dedicated)</source>
-      <translation>{name} ({value:.1f} GB নিবেদিত)</translation>
-    </message>
-    <message>
       <source>{name} key</source>
       <translation>{name} কী</translation>
     </message>
@@ -4353,6 +4345,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{value:.1f} / {value2:.1f} MB · %p%</source>
       <translation>{value:.1f} / {value2:.1f} MB · %p%</translation>
+    </message>
+    <message>
+      <source>{value:.1f} GB</source>
+      <translation>{value:.1f} জিবি</translation>
     </message>
     <message>
       <source>{value:.1f} MB · total unknown</source>

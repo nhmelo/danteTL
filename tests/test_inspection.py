@@ -1292,7 +1292,10 @@ def test_runtime_setup_detects_without_installing_and_close_waits_for_cancel(
     settle_setup(dialog.service)
     setup_owner(dialog).advance()
     dialog.refresh_view()
-    assert "RTX" in dialog.hardware.text() and dialog.choice.currentData().key == "nvidia"
+    assert (
+        "RTX" in dialog.hardware.accessibleDescription()
+        and dialog.choice.currentData().key == "nvidia"
+    )
     assert not calls and dialog.install.isEnabled() and not dialog.restart.isEnabled()
     dialog.install.click()
     assert entered.wait(1) and calls != [threading.get_ident()]

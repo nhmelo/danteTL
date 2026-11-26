@@ -212,16 +212,17 @@ class CaptureButton(QPushButton):
         set_tone(self, "recording" if active else "idle")
 
 
-class OverlayToggleLayout(QLayout):
-    """Keep whole switches on each row until the next label would overflow."""
+class WrappingLayout(QLayout):
+    """Pack widgets at their preferred widths and move overflowing items to the next row."""
 
-    def __init__(self, *controls: Switch) -> None:
+    def __init__(self, *widgets: QWidget, spacing: int = 18, row_spacing: int = 6) -> None:
         super().__init__()
         self._items: list[QLayoutItem] = []
         self.setContentsMargins(0, 0, 0, 0)
-        self.setSpacing(18)
-        for control in controls:
-            self.addWidget(control)
+        self.setSpacing(spacing)
+        self._row_spacing = row_spacing
+        for widget in widgets:
+            self.addWidget(widget)
 
     def addItem(self, item: QLayoutItem) -> None:
         self._items.append(item)
@@ -258,9 +259,10 @@ class OverlayToggleLayout(QLayout):
         x = y = row_height = 0
         for item in self._items:
             size = item.sizeHint()
+            size.setWidth(min(size.width(), max(0, width)))
             if x and x + size.width() > width:
                 x = 0
-                y += row_height + 6
+                y += row_height + self._row_spacing
                 row_height = 0
             if origin is not None:
                 item.setGeometry(QRect(origin + QPoint(x, y), size))
