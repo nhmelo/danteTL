@@ -221,7 +221,11 @@ class MainWindow(QMainWindow):
         self.favorite_button.setFixedWidth(38)
         self.favorite_button.clicked.connect(self._toggle_favorite)
         self.windows_combo.favorite_state_changed.connect(self._show_favorite)
-        self.refresh_button = localized(QPushButton(), text=mark("Refresh"))
+        self.refresh_button = localized(
+            QPushButton(QIcon(str(ICON_DIR / "refresh.svg")), ""),
+            accessibleName=mark("Refresh"),
+            toolTip=mark("Refresh"),
+        )
         self.refresh_button.clicked.connect(self.refresh_windows)
         selection.addWidget(self.windows_combo, 1)
         selection.addWidget(self.favorite_button)

@@ -366,7 +366,9 @@ def test_first_run_skip_persists_and_settings_can_reopen_it(app, tmp_path):
         == tr("Cloud models")
         != "Cloud models"
     )
-    assert window.refresh_button.text() == tr("Refresh") != "Refresh"
+    refresh = window.refresh_button
+    assert not refresh.text() and not refresh.icon().pixmap(16).isNull()
+    assert refresh.toolTip() == refresh.accessibleName() == tr("Refresh") != "Refresh"
     assert settings(window).tabs.tabText(0) == tr("Appearance") != "Appearance"
     guide.skip.click()
     drain(window, lambda: application.preferences.idle)
@@ -386,9 +388,9 @@ def test_first_run_skip_persists_and_settings_can_reopen_it(app, tmp_path):
     guide.close()
     picker = settings(window).interface_language
     picker.setCurrentIndex(picker.findData("ar"))
-    assert window.refresh_button.text() == tr("Refresh") != "Refresh"
+    assert refresh.toolTip() == refresh.accessibleName() == tr("Refresh") != "Refresh"
     picker.setCurrentIndex(picker.findData("en"))
-    assert window.refresh_button.text() == "Refresh"
+    assert refresh.toolTip() == refresh.accessibleName() == "Refresh"
     assert settings(window).tabs.tabText(0) == "Appearance"
     window.close()
     window.deleteLater()
