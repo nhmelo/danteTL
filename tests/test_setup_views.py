@@ -12,7 +12,7 @@ import shiboken6  # noqa: E402
 from PySide6.QtWidgets import QMessageBox, QWidget  # noqa: E402
 from test_setup_ownership import configured  # noqa: E402
 
-from dantetl.runtime.hardware_values import Adapter, CudaDevice, HardwareStatus  # noqa: E402
+from dantetl.runtime.hardware_values import Adapter, CudaDevice, HardwareStatus, VulkanDevice  # noqa: E402
 from dantetl.runtime.setup_values import DownloadProgress, ModelProgress, RuntimeStatus, SetupLane  # noqa: E402
 from dantetl.translation.models.values import ImportedModel, ProbeResult  # noqa: E402
 from dantetl.ui.cloud_settings import CloudSettings  # noqa: E402
@@ -41,7 +41,7 @@ def test_runtime_picker_opens_on_active_profile_and_surfaces_verified_switch(app
     replay = configured(tmp_path)
     target = tmp_path / "vulkan"
     status = RuntimeStatus(
-        adapters=(Adapter("GPU", 0x1002, vulkan=True),),
+        adapters=(Adapter("GPU", 0x1002, vulkan=VulkanDevice("b" * 32, 1)),),
         current=tmp_path / "cpu",
         recommendation="amd",
         active_profile="cpu",
@@ -104,7 +104,15 @@ def test_pascal_guide_recommends_supported_runtime_and_explains_cuda(
     parent = QWidget()
     reader = Mock()
     reader.snapshot.return_value = HardwareStatus(
-        (Adapter("GTX 1050", 0x10DE, 4 * 2**30, CudaDevice(13000, 6, 1), vulkan),),
+        (
+            Adapter(
+                "GTX 1050",
+                0x10DE,
+                4 * 2**30,
+                CudaDevice(13000, 6, 1, "a" * 32),
+                VulkanDevice("b" * 32, 1) if vulkan else None,
+            ),
+        ),
         llama_device="cpu",
     )
     try:
@@ -181,7 +189,9 @@ def test_recreated_guide_observes_same_review_and_completion(app, tmp_path):
         review = replay.setup.review("model", "cpu", HardwareStatus(llama_device="cpu"))
         assert replay.setup.start_review(review.token)
         detected = Mock()
-        detected.snapshot.return_value = HardwareStatus((Adapter("GPU", 0x1002, vulkan=True),))
+        detected.snapshot.return_value = HardwareStatus(
+            (Adapter("GPU", 0x1002, vulkan=VulkanDevice("b" * 32, 1)),)
+        )
         for _ in range(2):
             view = SetupAssistant(
                 replay.setup, detected, parent, cloud=CloudSettings(replay.cloud, parent)

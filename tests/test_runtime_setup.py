@@ -14,7 +14,7 @@ import pytest
 
 from dantetl.runtime import restart as runtime_restart
 from dantetl.runtime import setup as setup
-from dantetl.runtime.hardware_values import Adapter, CudaDevice, recommended_profile
+from dantetl.runtime.hardware_values import Adapter, CudaDevice, VulkanDevice, recommended_profile
 from dantetl.runtime.setup_process import run_setup_command
 from dantetl.runtime.setup_values import Cancelled
 
@@ -23,7 +23,14 @@ from dantetl.runtime.setup_values import Cancelled
 def project(tmp_path, monkeypatch):
     monkeypatch.setattr(
         "dantetl.runtime.hardware.detect_adapters",
-        lambda *args: (Adapter("RTX", 0x10DE, cuda=CudaDevice(13000, 8, 6), vulkan=True),),
+        lambda *args: (
+            Adapter(
+                "RTX",
+                0x10DE,
+                cuda=CudaDevice(13000, 8, 6, "a" * 32),
+                vulkan=VulkanDevice("b" * 32, 1),
+            ),
+        ),
     )
     (tmp_path / "uv.lock").write_text("pinned")
     (tmp_path / "pyproject.toml").write_text("project")
@@ -56,18 +63,31 @@ def project(tmp_path, monkeypatch):
 def test_recommends_discrete_gpu_and_preserves_manual_cpu_fallback():
     assert recommended_profile(()) == "cpu"
     assert recommended_profile((Adapter("Intel", 0x8086, 2**30),)) == "cpu"
-    integrated = Adapter("AMD integrated", 0x1002, 2**30, vulkan=True)
-    nvidia = Adapter("RTX", 0x10DE, 16 * 2**30, cuda=CudaDevice(13000, 7, 5), vulkan=True)
-    amd = Adapter("Radeon", 0x1002, 16 * 2**30, vulkan=True)
+    integrated = Adapter("AMD integrated", 0x1002, 2**30, vulkan=VulkanDevice("b" * 32, 1))
+    nvidia = Adapter(
+        "RTX",
+        0x10DE,
+        16 * 2**30,
+        cuda=CudaDevice(13000, 7, 5, "a" * 32),
+        vulkan=VulkanDevice("b" * 32, 1),
+    )
+    amd = Adapter("Radeon", 0x1002, 16 * 2**30, vulkan=VulkanDevice("b" * 32, 1))
     assert recommended_profile((integrated, nvidia)) == "nvidia"
     assert recommended_profile((amd,)) == "amd"
 
 
-@pytest.mark.parametrize("cuda", [CudaDevice(13030, 6, 1), CudaDevice(12090, 8, 6), None])
+@pytest.mark.parametrize(
+    "cuda", [CudaDevice(13030, 6, 1, "a" * 32), CudaDevice(12090, 8, 6, "a" * 32), None]
+)
 def test_vulkan_recommendation_requires_driver_features_and_cuda_checks_both_versions(cuda):
     assert recommended_profile((Adapter("GPU", 0x10DE, cuda=cuda),)) == "cpu"
-    assert recommended_profile((Adapter("GPU", 0x10DE, cuda=cuda, vulkan=True),)) == "amd"
-    assert recommended_profile((Adapter("Intel", 0x8086, vulkan=True),)) == "amd"
+    assert (
+        recommended_profile((Adapter("GPU", 0x10DE, cuda=cuda, vulkan=VulkanDevice("b" * 32, 1)),))
+        == "amd"
+    )
+    assert (
+        recommended_profile((Adapter("Intel", 0x8086, vulkan=VulkanDevice("b" * 32, 1)),)) == "amd"
+    )
 
 
 def test_incompatible_device_blocks_download_and_saved_runtime_launch(project, monkeypatch):
@@ -79,7 +99,7 @@ def test_incompatible_device_blocks_download_and_saved_runtime_launch(project, m
     calls.clear()
     monkeypatch.setattr(
         "dantetl.runtime.hardware.detect_adapters",
-        lambda *args: (Adapter("GTX 1050", 0x10DE, cuda=CudaDevice(13000, 6, 1)),),
+        lambda *args: (Adapter("GTX 1050", 0x10DE, cuda=CudaDevice(13000, 6, 1, "a" * 32)),),
     )
     with pytest.raises(RuntimeError, match="6.1"):
         setup.install_runtime(root, setup.PROFILES[0], lambda _: None, threading.Event())

@@ -1217,7 +1217,7 @@ def test_cuda_update_choice_starts_install_only_on_request(
 
     monkeypatch.setattr(
         "dantetl.runtime.hardware.detect_adapters",
-        lambda: (Adapter("RTX", 0x10DE, cuda=CudaDevice(13000, 8, 6)),),
+        lambda: (Adapter("RTX", 0x10DE, cuda=CudaDevice(13000, 8, 6, "a" * 32)),),
     )
     install = Mock(side_effect=RuntimeError("Fixture install failed"))
     monkeypatch.setattr("dantetl.runtime.setup.install_runtime", install)
@@ -1271,7 +1271,7 @@ def test_runtime_setup_detects_without_installing_and_close_waits_for_cancel(
     entered = threading.Event()
     monkeypatch.setattr(
         "dantetl.runtime.hardware.detect_adapters",
-        lambda: (Adapter("RTX", 0x10DE, 16 * 2**30, cuda=CudaDevice(13000, 8, 6)),),
+        lambda: (Adapter("RTX", 0x10DE, 16 * 2**30, cuda=CudaDevice(13000, 8, 6, "a" * 32)),),
     )
 
     def install(root, profile, progress, cancel):

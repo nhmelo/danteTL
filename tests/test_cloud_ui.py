@@ -265,7 +265,7 @@ def test_cloud_tab_saves_on_next_and_reviews_only_selected_downloads(
     windows, hardware = Mock(), Mock()
     windows.list_targets.return_value = []
     hardware.snapshot.return_value = HardwareStatus(
-        (Adapter("RTX", 0x10DE, cuda=CudaDevice(13000, 8, 6)),), llama_device="cpu"
+        (Adapter("RTX", 0x10DE, cuda=CudaDevice(13000, 8, 6, "a" * 32)),), llama_device="cpu"
     )
     models = tuple(
         replace(b, directory=tmp_path / b.key, bundled_directory=None) for b in model_catalog()

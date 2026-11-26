@@ -13,7 +13,13 @@ from uuid import UUID
 
 from dantetl.i18n import tr
 from dantetl.paths import module_command, resource_root
-from dantetl.runtime.hardware_values import Adapter, CudaDevice, HardwareStatus, compatibility_issue
+from dantetl.runtime.hardware_values import (
+    Adapter,
+    CudaDevice,
+    HardwareStatus,
+    VulkanDevice,
+    compatibility_issue,
+)
 from dantetl.runtime.setup_process import clean_runtime_environment, run_setup_command
 
 
@@ -99,7 +105,9 @@ def _windows_adapters() -> dict[str, Adapter]:
                     continue
                 if not desc.flags & 2:  # Exclude the Microsoft software adapter.
                     luid = bytes(ct.string_at(ct.byref(desc, _Description.luid_low.offset), 8))
-                    found[luid.hex()] = Adapter(desc.name, desc.vendor, desc.video)
+                    found[luid.hex()] = Adapter(
+                        desc.name, desc.vendor, desc.video, primary=index == 0
+                    )
             finally:
                 _method(adapter, 2)(adapter)
     finally:
@@ -107,18 +115,20 @@ def _windows_adapters() -> dict[str, Adapter]:
     return found
 
 
-def _driver_devices(profile: str, cancel: threading.Event) -> dict[str, CudaDevice | None]:
+def _driver_devices(profile: str, cancel: threading.Event) -> dict[str, CudaDevice | VulkanDevice]:
     environment = clean_runtime_environment(os.environ)
     environment.update(PYTHONUTF8="1", PYTHONPATH=str(Path(__file__).resolve().parents[2]))
-    result: dict[str, CudaDevice | None] = {}
+    result: dict[str, CudaDevice | VulkanDevice] = {}
 
     def receive(line: str) -> None:
         if len(result) >= 32:
             return
-        if match := re.fullmatch(r"CUDA ([a-f0-9]{16}) (\d{1,6}) (\d{1,3}) (\d{1,3})", line):
-            result[match[1]] = CudaDevice(int(match[2]), int(match[3]), int(match[4]))
-        elif match := re.fullmatch(r"Vulkan ([a-f0-9]{16})", line):
-            result[match[1]] = None
+        if match := re.fullmatch(
+            r"CUDA ([a-f0-9]{16}) ([a-f0-9]{32}) (\d{1,6}) (\d{1,3}) (\d{1,3})", line
+        ):
+            result[match[1]] = CudaDevice(int(match[3]), int(match[4]), int(match[5]), match[2])
+        elif match := re.fullmatch(r"Vulkan ([a-f0-9]{16}) ([a-f0-9]{32}) (\d{1,2})", line):
+            result[match[1]] = VulkanDevice(match[2], int(match[3]))
 
     try:
         run_setup_command(
@@ -144,12 +154,12 @@ def detect_adapters(
     cancel = cancel or threading.Event()
     if profile != "amd" and any(a.vendor == 0x10DE for a in adapters.values()):
         for luid, cuda in _driver_devices("nvidia", cancel).items():
-            if luid in adapters:
+            if luid in adapters and isinstance(cuda, CudaDevice):
                 adapters[luid] = replace(adapters[luid], cuda=cuda)
     if profile != "nvidia" and adapters:
-        for luid in _driver_devices("amd", cancel):
-            if luid in adapters:
-                adapters[luid] = replace(adapters[luid], vulkan=True)
+        for luid, vulkan in _driver_devices("amd", cancel).items():
+            if luid in adapters and isinstance(vulkan, VulkanDevice):
+                adapters[luid] = replace(adapters[luid], vulkan=vulkan)
     return tuple(adapters.values())
 
 

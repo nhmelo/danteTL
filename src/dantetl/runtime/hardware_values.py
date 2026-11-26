@@ -11,10 +11,17 @@ class CudaDevice:
     driver: int
     major: int
     minor: int
+    uuid: str
 
     @property
     def supported(self) -> bool:
         return self.driver >= 13000 and (self.major, self.minor) >= (7, 5)
+
+
+@dataclass(frozen=True, slots=True)
+class VulkanDevice:
+    uuid: str
+    index: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -23,7 +30,15 @@ class Adapter:
     vendor: int
     dedicated_bytes: int = 0
     cuda: CudaDevice | None = None
-    vulkan: bool = False
+    vulkan: VulkanDevice | None = None
+    primary: bool = False
+
+    def gpu_id(self, profile: str) -> str:
+        if profile == "nvidia" and self.cuda and self.cuda.supported:
+            return self.cuda.uuid
+        if profile == "amd" and self.vulkan:
+            return self.vulkan.uuid
+        return ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -32,6 +47,14 @@ class HardwareStatus:
     cuda_ocr: bool = False
     llama_device: str | None = None
     error: str = ""
+    active_gpu: str = ""
+
+
+def compatible_adapters(profile: str, adapters: tuple[Adapter, ...]) -> tuple[Adapter, ...]:
+    """Offer the highest-memory compatible card first, retaining DXGI order for ties."""
+    return tuple(
+        sorted((a for a in adapters if a.gpu_id(profile)), key=lambda a: -a.dedicated_bytes)
+    )
 
 
 def recommended_profile(adapters: tuple[Adapter, ...]) -> str:

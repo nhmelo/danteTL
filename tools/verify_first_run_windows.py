@@ -60,7 +60,9 @@ def main() -> int:
     hardware = Mock()
     hardware.snapshot.return_value = HardwareStatus(
         adapters=(
-            Adapter("NVIDIA test adapter", 0x10DE, 16 * 2**30, cuda=CudaDevice(13000, 8, 6)),
+            Adapter(
+                "NVIDIA test adapter", 0x10DE, 16 * 2**30, cuda=CudaDevice(13000, 8, 6, "a" * 32)
+            ),
         ),
         llama_device="cpu",
     )

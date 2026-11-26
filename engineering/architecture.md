@@ -684,8 +684,7 @@ CPU/CUDA/Vulkan engines are complete upstream packages; CPU uses upstream PEP 51
 DLL repair at release time, no player compiler. The CPU runtime loads ggml plugins from its own
 package and verifies that ggml registered a CPU device before model preparation. Never mix CPU/GPU ONNX or different llama wheels.
 NVIDIA OCR/Gemma share pinned CUDA 13 runtime/cuBLAS; preserve legacy ONNX 1.26/CUDA 12 loading. Select
-acceleration from local driver capabilities. Match devices to DXGI by Windows LUID. Query the
-visible CUDA device zero for compute capability 7.5+ and a CUDA 13+ driver. Vulkan requires a
+acceleration from local driver capabilities. Match devices to DXGI by Windows LUID. Check each visible CUDA device for compute capability 7.5+ and a CUDA 13+ driver. Vulkan requires a
 hardware GPU with Vulkan 1.2, a compute queue and 16-bit storage buffers. Run each driver query
 in a bounded child. Recommend the supported adapter with the most dedicated memory, preferring
 CUDA when it qualifies, then Vulkan, then CPU. Recheck before GPU installation and managed

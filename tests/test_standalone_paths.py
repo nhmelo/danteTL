@@ -174,11 +174,18 @@ def test_explicit_state_override_requires_absolute_path(package, monkeypatch, tm
 
 @pytest.fixture
 def installer(package, monkeypatch):
-    from dantetl.runtime.hardware_values import Adapter, CudaDevice
+    from dantetl.runtime.hardware_values import Adapter, CudaDevice, VulkanDevice
 
     monkeypatch.setattr(
         "dantetl.runtime.hardware.detect_adapters",
-        lambda *args: (Adapter("Fixture", 0x10DE, cuda=CudaDevice(13000, 8, 6), vulkan=True),),
+        lambda *args: (
+            Adapter(
+                "Fixture",
+                0x10DE,
+                cuda=CudaDevice(13000, 8, 6, "a" * 32),
+                vulkan=VulkanDevice("b" * 32, 1),
+            ),
+        ),
     )
     calls = []
 

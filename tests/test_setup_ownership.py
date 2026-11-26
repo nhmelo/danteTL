@@ -163,10 +163,17 @@ def test_review_requests_the_selected_runtime_only_when_needed(
         data = replay.source.data
         files = tuple(replace(f, upgrade=upgrade) if f.key == "model" else f for f in data.files)
         replay.discover(replace(data, files=files))
-        from dantetl.runtime.hardware_values import Adapter, CudaDevice
+        from dantetl.runtime.hardware_values import Adapter, CudaDevice, VulkanDevice
 
         hardware = HardwareStatus(
-            (Adapter("Fixture", 0x10DE, cuda=CudaDevice(13000, 8, 6), vulkan=True),),
+            (
+                Adapter(
+                    "Fixture",
+                    0x10DE,
+                    cuda=CudaDevice(13000, 8, 6, "a" * 32),
+                    vulkan=VulkanDevice("b" * 32, 1),
+                ),
+            ),
             cuda_ocr=cuda_ocr,
             llama_device=llama_device,
         )
@@ -252,7 +259,7 @@ def test_remote_translation_can_review_cuda_for_ocr_without_translation_weights(
                 ),
             )
         )
-        hardware = HardwareStatus((Adapter("GPU", 0x10DE, cuda=CudaDevice(13000, 8, 6)),))
+        hardware = HardwareStatus((Adapter("GPU", 0x10DE, cuda=CudaDevice(13000, 8, 6, "a" * 32)),))
         ordinary = replay.setup.review_ocr(hardware, cuda=False)
         assert not ordinary.install_runtime
         review = replay.setup.review_ocr(hardware, cuda=True)

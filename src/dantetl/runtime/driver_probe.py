@@ -12,21 +12,28 @@ _Handle = ct.c_void_p
 _VULKAN_1_2 = (1 << 22) | (2 << 12)
 
 
-def _cuda() -> Iterator[tuple[str, int, int, int]]:
+def _cuda() -> Iterator[tuple[str, str, int, int, int]]:
     driver = ct.WinDLL("nvcuda.dll", winmode=0x800)  # LOAD_LIBRARY_SEARCH_SYSTEM32
     version, device, major, minor = (ct.c_int() for _ in range(4))
     luid = (ct.c_ubyte * 8)()
     mask = _U32()
-    # Both ONNX OCR and llama main_gpu use visible CUDA ordinal zero.
+    count = ct.c_int()
+    uuid = (ct.c_ubyte * 16)()
     if (
-        driver.cuInit(0) == 0
-        and driver.cuDriverGetVersion(ct.byref(version)) == 0
-        and driver.cuDeviceGet(ct.byref(device), 0) == 0
-        and driver.cuDeviceGetLuid(luid, ct.byref(mask), device) == 0
-        and driver.cuDeviceGetAttribute(ct.byref(major), 75, device) == 0
-        and driver.cuDeviceGetAttribute(ct.byref(minor), 76, device) == 0
+        driver.cuInit(0)
+        or driver.cuDriverGetVersion(ct.byref(version))
+        or driver.cuDeviceGetCount(ct.byref(count))
     ):
-        yield bytes(luid).hex(), version.value, major.value, minor.value
+        return
+    for index in range(min(count.value, 32)):
+        if (
+            driver.cuDeviceGet(ct.byref(device), index) == 0
+            and driver.cuDeviceGetLuid(luid, ct.byref(mask), device) == 0
+            and driver.cuDeviceGetUuid(uuid, device) == 0
+            and driver.cuDeviceGetAttribute(ct.byref(major), 75, device) == 0
+            and driver.cuDeviceGetAttribute(ct.byref(minor), 76, device) == 0
+        ):
+            yield bytes(luid).hex(), bytes(uuid).hex(), version.value, major.value, minor.value
 
 
 class _ApplicationInfo(ct.Structure):
@@ -109,7 +116,7 @@ class _QueueFamily(ct.Structure):
     ]
 
 
-def _vulkan() -> Iterator[str]:
+def _vulkan() -> Iterator[tuple[str, str, int]]:
     vk = ct.WinDLL("vulkan-1.dll", winmode=0x800)
     version = _U32()
     if vk.vkEnumerateInstanceVersion(ct.byref(version)) or version.value < _VULKAN_1_2:
@@ -124,9 +131,8 @@ def _vulkan() -> Iterator[str]:
         devices = (_Handle * count.value)()
         if vk.vkEnumeratePhysicalDevices(instance, ct.byref(count), devices) != 0:
             return
-        visible = devices[: count.value]
-        # ggml's explicit override selects physical indices. main_gpu=0 then
-        # uses the first requested GPU, even if another adapter qualifies.
+        visible = list(range(count.value))
+        # Preserve external visibility restrictions and the original physical indices.
         if (override := os.environ.get("GGML_VK_VISIBLE_DEVICES")) is not None:
             indices = override.replace(",", " ").split()
             if not indices or not all(
@@ -134,9 +140,9 @@ def _vulkan() -> Iterator[str]:
                 for i in indices
             ):
                 return
-            visible = [visible[int(indices[0])]]
-        for address in visible:
-            physical = _Handle(address)
+            visible = list(dict.fromkeys(map(int, indices)))
+        for index in visible:
+            physical = _Handle(devices[index])
             identity = _DeviceID(sType=1000071004)
             props = _Properties2(sType=1000059001, pNext=ct.pointer(identity))
             vk.vkGetPhysicalDeviceProperties2(physical, ct.byref(props))
@@ -153,7 +159,7 @@ def _vulkan() -> Iterator[str]:
                 and storage.storageBuffer16BitAccess
                 and any(q.count and q.flags & 2 for q in families[: family_count.value])
             ):
-                yield bytes(identity.luid).hex()
+                yield bytes(identity.luid).hex(), bytes(identity.uuid).hex(), index
     finally:
         vk.vkDestroyInstance(instance, None)
 
@@ -162,10 +168,10 @@ if __name__ == "__main__":
     restore_child_output()
     try:
         if sys.argv[1] == "nvidia":
-            for luid, driver, major, minor in _cuda():
-                print(f"CUDA {luid} {driver} {major} {minor}", flush=True)
+            for luid, uuid, driver, major, minor in _cuda():
+                print(f"CUDA {luid} {uuid} {driver} {major} {minor}", flush=True)
         else:
-            for luid in _vulkan():
-                print(f"Vulkan {luid}", flush=True)
+            for luid, uuid, index in _vulkan():
+                print(f"Vulkan {luid} {uuid} {index}", flush=True)
     except (AttributeError, OSError):
         pass  # Driver absent, too old to expose these queries, or inaccessible.

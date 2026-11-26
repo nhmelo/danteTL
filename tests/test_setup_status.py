@@ -92,15 +92,15 @@ def test_driver_evidence_matches_adapter_identity_and_survives_other_driver_fail
 
     def probe(command, root, environment, cancel, receive, *, timeout):
         if command[-1] == "nvidia":
-            receive("CUDA 000000000000000a 13000 6 1")
+            receive(f"CUDA 000000000000000a {'a' * 32} 13000 6 1")
             if cuda_crashes:
                 raise RuntimeError("driver exited")
         else:
-            receive("Vulkan 000000000000000b")
-            receive("Vulkan 000000000000000c")  # Not a detected hardware adapter.
+            receive(f"Vulkan 000000000000000b {'b' * 32} 1")
+            receive(f"Vulkan 000000000000000c {'c' * 32} 0")  # Not a detected hardware adapter.
 
     monkeypatch.setattr(hardware, "run_setup_command", probe)
     amd, nvidia = hardware.detect_adapters()
     assert amd.vulkan and not nvidia.vulkan
-    assert nvidia.cuda == (None if cuda_crashes else CudaDevice(13000, 6, 1))
+    assert nvidia.cuda == (None if cuda_crashes else CudaDevice(13000, 6, 1, "a" * 32))
     assert recommended_profile((amd, nvidia)) == "amd"
