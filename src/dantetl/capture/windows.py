@@ -1,11 +1,20 @@
 """Own Win32 window identity, physical geometry, and overlay window configuration."""
 
+from __future__ import annotations
+
 import ctypes
+import hashlib
+import logging
+import ntpath
 import os
+from collections.abc import Callable
 from ctypes import wintypes as wt
+from functools import cached_property
 
 from dantetl.domain import Rect, WindowGeometry, WindowTarget
 from dantetl.i18n import tr
+
+logger = logging.getLogger(__name__)
 
 
 class WindowUnavailable(RuntimeError):
@@ -59,6 +68,37 @@ class Windows:
         self.dwm.DwmGetWindowAttribute.argtypes = [wt.HWND, wt.DWORD, ctypes.c_void_p, wt.DWORD]
         self.dwm.DwmGetWindowAttribute.restype = ctypes.c_long
 
+    @cached_property
+    def _process_api(self) -> ctypes.WinDLL:
+        kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel.OpenProcess.argtypes = [wt.DWORD, wt.BOOL, wt.DWORD]
+        kernel.OpenProcess.restype = wt.HANDLE
+        kernel.CloseHandle.argtypes = [wt.HANDLE]
+        kernel.CloseHandle.restype = wt.BOOL
+        kernel.QueryFullProcessImageNameW.argtypes = [
+            wt.HANDLE,
+            wt.DWORD,
+            wt.LPWSTR,
+            ctypes.POINTER(wt.DWORD),
+        ]
+        kernel.QueryFullProcessImageNameW.restype = wt.BOOL
+        return kernel
+
+    @cached_property
+    def _icon_api(self) -> ctypes.WinDLL:
+        shell = ctypes.WinDLL("shell32", use_last_error=True)
+        shell.ExtractIconExW.argtypes = [
+            wt.LPCWSTR,
+            ctypes.c_int,
+            ctypes.POINTER(wt.HICON),
+            ctypes.POINTER(wt.HICON),
+            wt.UINT,
+        ]
+        shell.ExtractIconExW.restype = wt.UINT
+        self.user.DestroyIcon.argtypes = [wt.HICON]
+        self.user.DestroyIcon.restype = wt.BOOL
+        return shell
+
     def enable_dpi_awareness(self) -> None:
         # Must precede QApplication/window creation. Access denied means already set.
         if not self.user.SetProcessDpiAwarenessContext(ctypes.c_void_p(-4)):
@@ -81,6 +121,43 @@ class Windows:
         return bool(self.user.IsWindow(target.hwnd)) and (
             self.process_id(target.hwnd) == target.process_id
         )
+
+    def read_process_details[T](
+        self, target: WindowTarget, copy: Callable[[int], T] | None
+    ) -> tuple[str, T | None] | None:
+        """Read a stable executable ID and optional icon together on the picker worker."""
+        kernel = self._process_api
+        process = kernel.OpenProcess(0x1000, False, target.process_id)  # Limited query access
+        if not process:
+            return None
+        try:
+            if not self.is_target(target):
+                return None
+            path = ctypes.create_unicode_buffer(32768)
+            size = wt.DWORD(len(path))
+            if not kernel.QueryFullProcessImageNameW(process, 0, path, ctypes.byref(size)):
+                return None
+        finally:
+            kernel.CloseHandle(process)
+        normalized = ntpath.normcase(ntpath.normpath(path.value))
+        executable_id = hashlib.sha256(normalized.encode("utf-8", "surrogatepass")).hexdigest()
+        image = None
+        if copy is not None:
+            try:
+                image = self._copy_icon(path.value, copy)
+            except Exception:
+                logger.debug("Window icon unavailable", exc_info=True)
+        return (executable_id, image) if self.is_target(target) else None
+
+    def _copy_icon[T](self, path: str, copy: Callable[[int], T]) -> T | None:
+        shell = self._icon_api
+        icon = wt.HICON()
+        try:
+            count = shell.ExtractIconExW(path, 0, ctypes.byref(icon), None, 1)
+            return copy(icon.value) if count == 1 and icon.value else None
+        finally:
+            if icon.value:
+                self.user.DestroyIcon(icon)
 
     def list_targets(self) -> list[WindowTarget]:
         targets: list[WindowTarget] = []
