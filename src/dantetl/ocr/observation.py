@@ -8,7 +8,7 @@ from dantetl.languages.selection import DEFAULT_SOURCE
 from dantetl.languages.source import SourceLanguage
 from dantetl.ocr.lettering import Lettering
 from dantetl.ocr.presence import PixelEvidence
-from dantetl.ocr.values import OcrResult, TextRegion
+from dantetl.ocr.values import MAX_OCR_REGIONS, OcrResult, TextRegion
 
 
 @dataclass(frozen=True, slots=True)
@@ -39,13 +39,15 @@ class MatchingEvidence:
         self,
         result: OcrResult,
         sources: tuple[TextTrack, ...],
-        limit: int = 512,
+        limit: int = MAX_OCR_REGIONS,
         *,
         language: SourceLanguage = DEFAULT_SOURCE,
     ) -> bool:
         return self.sources == sources and self.describes(result, language, limit)
 
-    def describes(self, result: OcrResult, language: SourceLanguage, limit: int = 512) -> bool:
+    def describes(
+        self, result: OcrResult, language: SourceLanguage, limit: int = MAX_OCR_REGIONS
+    ) -> bool:
         return self.observation() is result and self.language == language and self.limit == limit
 
 

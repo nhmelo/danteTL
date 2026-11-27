@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING
 from dantetl.domain import CapturedFrame, Rect, WindowGeometry
 from dantetl.languages.selection import DEFAULT_SOURCE
 from dantetl.languages.source import SourceLanguage
-from dantetl.ocr.text_content import content_region
-from dantetl.ocr.values import OcrResult
+from dantetl.ocr.text_content import cleaned_rows
+from dantetl.ocr.values import MAX_OCR_REGIONS, OcrResult
 
 if TYPE_CHECKING:
     from dantetl.ocr.observation import MatchingEvidence
@@ -42,17 +42,13 @@ def prepare_evidence(
 ) -> PixelEvidence:
     """Worker-only preparation of the bounded superset tracking may inspect.
 
-    Track references and pending geometry occupy at most 512 slots; OCR contributes
-    at most 512. Compute each eligible crop once. The reader enforces the original
-    one-million-pixel budget in *tracking's* query order, so unused proposals cannot
-    consume retention evidence ahead of missed tracks.
+    Track references and pending geometry occupy at most MAX_OCR_REGIONS slots; OCR
+    contributes at most MAX_OCR_REGIONS. Compute each eligible crop once. The reader
+    enforces the original one-million-pixel budget in *tracking's* query order, so unused
+    proposals cannot consume retention evidence ahead of missed tracks.
     """
-    rows = (
-        matching.content
-        if matching is not None and matching.describes(result, language)
-        else (content_region(r, language) for r in result.regions[:512])
-    )
-    queries = dict.fromkeys((*bounds[:512], *(row.bounds for row in rows)))
+    rows = cleaned_rows(result, language, matching)
+    queries = dict.fromkeys((*bounds[:MAX_OCR_REGIONS], *(row.bounds for row in rows)))
     reader = FrameEvidence(result.frame, pixel_budget=1024 * 65_536)
     crops = tuple(
         (box, digest) for box in queries if (digest := reader.fingerprint(box)) is not None

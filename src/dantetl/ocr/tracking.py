@@ -23,7 +23,7 @@ from dantetl.ocr.spatial import SpatialCandidates
 from dantetl.ocr.text_content import content_region, same_label_crop
 from dantetl.ocr.text_distance import LcsSimilarity, within_edits
 from dantetl.ocr.track_assignment import assign_tracks
-from dantetl.ocr.values import OcrResult, TextRegion
+from dantetl.ocr.values import MAX_OCR_REGIONS, MAX_TRACKS, OcrResult, TextRegion
 
 
 @dataclass(frozen=True, slots=True)
@@ -50,7 +50,7 @@ class TrackingSnapshot:
 
 @dataclass(frozen=True, slots=True)
 class TrackingPolicy:
-    max_tracks: int = 128
+    max_tracks: int = MAX_TRACKS
     missing_frames: int = 3
     missing_seconds: float = 0.35
     static_settle_seconds: float = 0.35
@@ -396,7 +396,7 @@ def _match_score(
 def prepare_matching(
     result: OcrResult,
     sources: tuple[TextTrack, ...],
-    limit: int = 512,
+    limit: int = MAX_OCR_REGIONS,
     *,
     language: SourceLanguage = DEFAULT_SOURCE,
 ) -> MatchingEvidence:
@@ -976,7 +976,7 @@ class TextTracker:
         The track's own last positive sequence and reading must match; global latest
         OCR sequence is not a substitute for the provenance of each partial update.
         """
-        for key, sequence, text in observations[:128]:
+        for key, sequence, text in observations[:MAX_TRACKS]:
             track = self._tracks.get(key)
             if (
                 track is None

@@ -323,7 +323,8 @@ the new reading and confidence. Readers without character boxes use this only fo
 fields. A successful read reports just its sampled line as coverage. Uncertain results,
 changed surroundings, growth and subsequent reads after a direct read use the detector.
 
-Tracking is deterministic and bounded (128 tracks, 512 candidate regions). Before assignment,
+Tracking is deterministic and bounded (`ocr.values.MAX_TRACKS` tracks and `MAX_OCR_REGIONS`
+candidate regions). Before assignment,
 the matching worker keeps the highest-confidence short horizontal reading when competing
 detections occupy the same ink bounds. At a common right edge and row center, a wider read
 may include a leading icon or substitute its symbol for the label's first letter. A matching

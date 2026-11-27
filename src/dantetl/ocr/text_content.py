@@ -1,13 +1,19 @@
 """Conservative text-only observations for tracking; raw OCR remains untouched."""
 
+from __future__ import annotations
+
 from dataclasses import replace
 from math import isfinite
 from statistics import median
+from typing import TYPE_CHECKING
 
 from dantetl.domain import Rect, union_bounds
 from dantetl.languages.selection import DEFAULT_SOURCE
 from dantetl.languages.source import SourceLanguage
-from dantetl.ocr.values import TextCharacter, TextRegion
+from dantetl.ocr.values import MAX_OCR_REGIONS, OcrResult, TextCharacter, TextRegion
+
+if TYPE_CHECKING:
+    from dantetl.ocr.observation import MatchingEvidence
 
 _STRUCTURAL = frozenset("（）()[]“”\"'，．：；？！!?…+-−±%％")
 
@@ -100,3 +106,12 @@ def same_label_crop(a: Rect, b: Rect, old: str, new: str) -> bool:
         and new.endswith(ending)
         and not any(c.isalnum() for c in new[:prefix_size])
     )
+
+
+def cleaned_rows(
+    result: OcrResult, language: SourceLanguage, matching: MatchingEvidence | None
+) -> tuple[TextRegion, ...]:
+    """Tracking input for the first rows, reusing the worker's preparation of this exact source."""
+    if matching is not None and matching.describes(result, language):
+        return matching.content
+    return tuple(content_region(r, language) for r in result.regions[:MAX_OCR_REGIONS])

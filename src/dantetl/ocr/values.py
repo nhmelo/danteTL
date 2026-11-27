@@ -5,6 +5,13 @@ from enum import StrEnum
 
 from dantetl.domain import CapturedFrame, Rect
 
+MAX_TRACKS = 128
+"""Text tracks retained and analysed per source by default."""
+
+MAX_OCR_REGIONS = 4 * MAX_TRACKS
+"""OCR rows inspected per reading. Exceeding the track slots keeps detector order from evicting
+an existing track on a dense screen."""
+
 
 @dataclass(frozen=True, slots=True)
 class TextCharacter:

@@ -17,9 +17,9 @@ from dantetl.languages.source import SourceLanguage
 from dantetl.ocr.observation import CandidateReview, MatchingEvidence, TextTrack, TrackPresence
 from dantetl.ocr.presence import PixelEvidence, prepare_evidence
 from dantetl.ocr.regions import padded, scan_regions
-from dantetl.ocr.text_content import content_region
+from dantetl.ocr.text_content import cleaned_rows
 from dantetl.ocr.tracking import TextActivity, prepare_matching
-from dantetl.ocr.values import OcrResult, TextRegion
+from dantetl.ocr.values import MAX_OCR_REGIONS, MAX_TRACKS, OcrResult, TextRegion
 from dantetl.ocr.visual_values import SettledScan, VisualState
 
 logger = logging.getLogger(__name__)
@@ -872,11 +872,7 @@ class VisualAnalyzer:
             or result.frame.geometry.dpi != job.frame.geometry.dpi
         ):
             return
-        cleaned = (
-            matching.content
-            if matching is not None and matching.describes(result, self._language)
-            else tuple(content_region(r, self._language) for r in result.regions[:512])
-        )
+        cleaned = cleaned_rows(result, self._language, matching)
         by_id = {
             key: region
             for key, region in zip(job.assignments, cleaned, strict=False)
@@ -886,7 +882,7 @@ class VisualAnalyzer:
         reference_layout = layout if result.frame is job.frame else None
         color_candidates: list[tuple[_FineReference, TextTrack, TextRegion, Rect]] = []
         short_color_candidates: list[_Anchor] = []
-        for track in job.tracks[:128]:
+        for track in job.tracks[:MAX_TRACKS]:
             region = by_id.get(track.track_id)
             anchor = self._anchors.get(track)
             if (
@@ -1203,11 +1199,7 @@ class _ObservationReview:
             # In OCR-only fallback, a later accepted reading can restore dismissed
             # English. Unscanned lines and results from before the failure cannot.
             result = job.result
-            rows = (
-                self.matching.content
-                if self.matching and self.matching.describes(result, self.language)
-                else tuple(content_region(r, self.language) for r in result.regions[:512])
-            )
+            rows = cleaned_rows(result, self.language, self.matching)
             by_id = dict(zip(job.assignments, rows, strict=False))
             state = replace(
                 state,
@@ -1308,9 +1300,10 @@ class VisualSession:
         evidence_bounds: tuple[Rect, ...] = (),
         matching_sources: tuple[TextTrack, ...] = (),
     ) -> None:
-        tracks, assignments, activity = tracks[:128], assignments[:512], activity[:128]
-        evidence_bounds = evidence_bounds[:512]
-        matching_sources = matching_sources[:128]
+        tracks, activity = tracks[:MAX_TRACKS], activity[:MAX_TRACKS]
+        assignments = assignments[:MAX_OCR_REGIONS]
+        evidence_bounds = evidence_bounds[:MAX_OCR_REGIONS]
+        matching_sources = matching_sources[:MAX_TRACKS]
         key = (
             frame.sequence,
             result.frame.sequence if result else 0,
