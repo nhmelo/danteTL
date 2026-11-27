@@ -16,6 +16,30 @@ from dantetl.i18n import tr
 
 logger = logging.getLogger(__name__)
 
+PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+GWL_EXSTYLE = -20
+WS_EX_TOPMOST = 0x00000008
+WS_EX_TRANSPARENT = 0x00000020
+WS_EX_TOOLWINDOW = 0x00000080
+WS_EX_LAYERED = 0x00080000
+WS_EX_NOACTIVATE = 0x08000000
+# Layered + transparent gives cross-process mouse pass-through. Qt's widget
+# mouse transparency alone only affects widgets within our own application.
+OVERLAY_EX_STYLE = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW
+DWMWA_EXTENDED_FRAME_BOUNDS = 9
+DWMWA_CLOAKED = 14
+WDA_NONE = 0x00
+WDA_EXCLUDEFROMCAPTURE = 0x11
+HWND_TOP = 0
+HWND_TOPMOST = -1
+HWND_NOTOPMOST = -2
+GW_HWNDPREV = 3
+SWP_NOSIZE = 0x0001
+SWP_NOMOVE = 0x0002
+SWP_NOZORDER = 0x0004
+SWP_NOACTIVATE = 0x0010
+SWP_SHOWWINDOW = 0x0040
+
 
 class WindowUnavailable(RuntimeError):
     """The exact selected window no longer exists or cannot be inspected."""
@@ -142,7 +166,7 @@ class Windows:
     ) -> tuple[str, T | None] | None:
         """Read a stable executable ID and optional icon together on the picker worker."""
         kernel = self._process_api
-        process = kernel.OpenProcess(0x1000, False, target.process_id)  # Limited query access
+        process = kernel.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, target.process_id)
         if not process:
             return None
         try:
@@ -195,10 +219,16 @@ class Windows:
         ):
             return None
         pid = self.process_id(hwnd)
-        if not pid or pid == os.getpid() or self.user.GetWindowLongPtrW(hwnd, -20) & 0x80:
+        if (
+            not pid
+            or pid == os.getpid()
+            or self.user.GetWindowLongPtrW(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW
+        ):
             return None  # Exclude our windows and floating tool windows.
         cloaked = wt.DWORD()
-        if self.dwm.DwmGetWindowAttribute(hwnd, 14, ctypes.byref(cloaked), ctypes.sizeof(cloaked)):
+        if self.dwm.DwmGetWindowAttribute(
+            hwnd, DWMWA_CLOAKED, ctypes.byref(cloaked), ctypes.sizeof(cloaked)
+        ):
             return None
         title = self.title(hwnd)
         if not title or cloaked.value:
@@ -241,8 +271,8 @@ class Windows:
             raise WindowUnavailable(tr("Could not read the selected window's geometry."))
         visible = wt.RECT()
         result = self.dwm.DwmGetWindowAttribute(
-            target.hwnd, 9, ctypes.byref(visible), ctypes.sizeof(visible)
-        )  # DWMWA_EXTENDED_FRAME_BOUNDS
+            target.hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, ctypes.byref(visible), ctypes.sizeof(visible)
+        )
         return WindowGeometry(
             client=Rect(origin.x, origin.y, client.right - client.left, client.bottom - client.top),
             visible_bounds=_rect(visible if result == 0 else window),
@@ -255,18 +285,17 @@ class Windows:
         return self.user.GetForegroundWindow() == target.hwnd and self.is_target(target)
 
     def configure_overlay(self, hwnd: int) -> None:
-        # Layered + transparent gives cross-process mouse pass-through. Qt's widget
-        # mouse transparency alone only affects widgets within our own application.
-        style = self.user.GetWindowLongPtrW(hwnd, -20)
+        style = self.user.GetWindowLongPtrW(hwnd, GWL_EXSTYLE)
         ctypes.set_last_error(0)
-        result = self.user.SetWindowLongPtrW(hwnd, -20, style | 0x80000 | 0x20 | 0x08000000 | 0x80)
+        result = self.user.SetWindowLongPtrW(hwnd, GWL_EXSTYLE, style | OVERLAY_EX_STYLE)
         if result == 0 and ctypes.get_last_error():
             raise ctypes.WinError(ctypes.get_last_error())
 
     def set_overlay_capture(self, hwnd: int, included: bool) -> None:
         # Capture targets one game HWND, so the independent overlay is never OCR input.
-        # WDA_NONE / WDA_EXCLUDEFROMCAPTURE affect desktop capture of this surface only.
-        if not self.user.SetWindowDisplayAffinity(hwnd, 0 if included else 0x11):
+        # The display affinity affects desktop capture of this surface only.
+        affinity = WDA_NONE if included else WDA_EXCLUDEFROMCAPTURE
+        if not self.user.SetWindowDisplayAffinity(hwnd, affinity):
             raise RuntimeError(
                 tr("Windows could not change whether screen capture includes the overlay.")
             )
@@ -274,7 +303,7 @@ class Windows:
     def place_overlay(
         self, hwnd: int, bounds: Rect | None, backdrops: frozenset[int] = frozenset()
     ) -> bool:
-        return self._position_surfaces(hwnd, -1, bounds, backdrops)  # HWND_TOPMOST
+        return self._position_surfaces(hwnd, HWND_TOPMOST, bounds, backdrops)
 
     def _position_surfaces(
         self,
@@ -285,9 +314,9 @@ class Windows:
         *,
         keep_order: bool = False,
     ) -> bool:
-        flags = 0x0010 | (0x0004 if keep_order else 0)  # NOACTIVATE, optionally NOZORDER
+        flags = SWP_NOACTIVATE | (SWP_NOZORDER if keep_order else 0)
         if bounds is None:
-            flags |= 0x0003  # NOMOVE | NOSIZE
+            flags |= SWP_NOMOVE | SWP_NOSIZE
         area = bounds or Rect(0, 0, 0, 0)
         position = (hwnd, after, area.x, area.y, area.width, area.height, flags)
         if not backdrops or not self.supports_background_overlay:
@@ -300,7 +329,9 @@ class Windows:
         # the insert-after handle here would use its band before the batch commits.
         # Insert the text last so it ends up in front of the backdrops.
         for backdrop in backdrops:
-            batch = self.user.DeferWindowPos(batch, backdrop, after, 0, 0, 0, 0, 0x0013)
+            batch = self.user.DeferWindowPos(
+                batch, backdrop, after, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE
+            )
             if not batch:
                 return False
         batch = self.user.DeferWindowPos(batch, *position)
@@ -317,21 +348,21 @@ class Windows:
             or not self.user.IsWindowVisible(target.hwnd)
             or self.user.IsIconic(target.hwnd)
             or self.dwm.DwmGetWindowAttribute(
-                target.hwnd, 14, ctypes.byref(cloaked), ctypes.sizeof(cloaked)
+                target.hwnd, DWMWA_CLOAKED, ctypes.byref(cloaked), ctypes.sizeof(cloaked)
             )
             or cloaked.value
         ):
             return False
 
-        game_topmost = bool(self.user.GetWindowLongPtrW(target.hwnd, -20) & 8)
-        text_topmost = bool(self.user.GetWindowLongPtrW(hwnd, -20) & 8)
+        game_topmost = bool(self.user.GetWindowLongPtrW(target.hwnd, GWL_EXSTYLE) & WS_EX_TOPMOST)
+        text_topmost = bool(self.user.GetWindowLongPtrW(hwnd, GWL_EXSTYLE) & WS_EX_TOPMOST)
         # Hidden foreign helpers (including IME windows) can be inaccessible as
         # SetWindowPos insertion handles. They have no bearing on visible stacking.
         remaining = set(backdrops)
         above = target.hwnd
         ordered = False
         for _ in range(len(backdrops) + 256):
-            above = self.user.GetWindow(above, 3)  # GW_HWNDPREV
+            above = self.user.GetWindow(above, GW_HWNDPREV)
             if not above:
                 break
             if above == hwnd:
@@ -349,9 +380,11 @@ class Windows:
         # At the boundary between the two bands, inserting after a topmost window
         # can itself make the text topmost. Choose the top of the game's band.
         if ordered:
-            above = 0  # Ignored with NOZORDER.
-        elif not above or (not game_topmost and self.user.GetWindowLongPtrW(above, -20) & 8):
-            above = -1 if game_topmost else (-2 if text_topmost else 0)
+            above = HWND_TOP  # Ignored with NOZORDER.
+        elif not above or (
+            not game_topmost and self.user.GetWindowLongPtrW(above, GWL_EXSTYLE) & WS_EX_TOPMOST
+        ):
+            above = HWND_TOPMOST if game_topmost else (HWND_NOTOPMOST if text_topmost else HWND_TOP)
         return self._position_surfaces(
             hwnd, above, bounds, frozenset() if ordered else backdrops, keep_order=ordered
         )
@@ -361,4 +394,4 @@ class Windows:
         affinity = wt.DWORD()
         if not self.user.GetWindowDisplayAffinity(hwnd, ctypes.byref(affinity)):
             raise ctypes.WinError(ctypes.get_last_error())
-        return self.user.GetWindowLongPtrW(hwnd, -20), affinity.value
+        return self.user.GetWindowLongPtrW(hwnd, GWL_EXSTYLE), affinity.value

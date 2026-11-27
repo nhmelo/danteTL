@@ -4,9 +4,25 @@ import ctypes
 import time
 from ctypes import wintypes as wt
 
-from dantetl.capture.windows import Windows
+from dantetl.capture.windows import (
+    GWL_EXSTYLE,
+    OVERLAY_EX_STYLE,
+    SWP_NOACTIVATE,
+    SWP_SHOWWINDOW,
+    WS_EX_TOPMOST,
+    Windows,
+)
 from dantetl.domain import MAX_OVERLAY_LABELS, Rect
 from dantetl.i18n import tr
+
+WS_POPUP = 0x80000000
+SS_BLACKRECT = 0x00000004
+COLOR_3DDKSHADOW = 21
+LWA_COLORKEY = 0x1
+DWMWA_WINDOW_CORNER_PREFERENCE = 33
+DWMWCP_ROUNDSMALL = 3
+DWMWA_BORDER_COLOR = 34
+DWMWA_COLOR_NONE = 0xFFFFFFFE
 
 
 class _AccentPolicy(ctypes.Structure):
@@ -74,10 +90,10 @@ class LabelBackdrops:
     def _create(self, included: bool, overlay: int) -> int:
         user = self._windows.user
         # Use the text window's topmost band for new surfaces.
-        style = 0x080800A0 | (user.GetWindowLongPtrW(overlay, -20) & 8)
+        style = OVERLAY_EX_STYLE | (user.GetWindowLongPtrW(overlay, GWL_EXSTYLE) & WS_EX_TOPMOST)
         # SS_BLACKRECT paints COLOR_3DDKSHADOW, which the color key makes transparent.
         hwnd = user.CreateWindowExW(
-            style, "Static", "", 0x80000004, 0, 0, 0, 0, None, None, None, None
+            style, "Static", "", WS_POPUP | SS_BLACKRECT, 0, 0, 0, 0, None, None, None, None
         )
         if not hwnd:
             raise ctypes.WinError(ctypes.get_last_error())
@@ -85,9 +101,11 @@ class LabelBackdrops:
         # Request Windows' small rounded corners once per surface. Qt draws the border.
         # Older compositors may decline these cosmetic attributes and still provide blur.
         dwm = self._windows.dwm
-        dwm.DwmSetWindowAttribute(hwnd, 33, ctypes.byref(wt.DWORD(3)), 4)  # DWMWCP_ROUNDSMALL
-        dwm.DwmSetWindowAttribute(hwnd, 34, ctypes.byref(wt.DWORD(0xFFFFFFFE)), 4)
-        if not user.SetLayeredWindowAttributes(hwnd, user.GetSysColor(21), 255, 1):
+        corner, border = wt.DWORD(DWMWCP_ROUNDSMALL), wt.DWORD(DWMWA_COLOR_NONE)
+        dwm.DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ctypes.byref(corner), 4)
+        dwm.DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, ctypes.byref(border), 4)
+        key = user.GetSysColor(COLOR_3DDKSHADOW)
+        if not user.SetLayeredWindowAttributes(hwnd, key, 255, LWA_COLORKEY):
             raise ctypes.WinError(ctypes.get_last_error())
         # WCA_ACCENT_POLICY / ACCENT_ENABLE_BLURBEHIND, with no color tint.
         policy = _AccentPolicy(3, 0, 0, 0)
@@ -124,8 +142,8 @@ class LabelBackdrops:
                     box.y,
                     box.width,
                     box.height,
-                    0x50,
-                ):  # SWP_NOACTIVATE | SWP_SHOWWINDOW, immediately below the text.
+                    SWP_NOACTIVATE | SWP_SHOWWINDOW,
+                ):  # Immediately below the text.
                     raise ctypes.WinError(ctypes.get_last_error())
                 self._visible[box] = hwnd
                 if time.perf_counter() >= deadline:
