@@ -304,7 +304,8 @@ def main() -> int:
                 if latest:
                     current = application.live.tracking.visible
                     assert any(t.track_id == phrase_id for t in current), (
-                        "Track blinked between OCR passes"
+                        f"Track {phrase_id} blinked between OCR passes; same text now has IDs "
+                        f"{[t.track_id for t in current if t.text == expected]}"
                     )
                 if continuity_request is not None:
                     assert application.translation.lifecycle.publication is not None
@@ -773,14 +774,45 @@ def main() -> int:
         except Exception as error:
             failure = f"{type(error).__name__}: {error}"
             evidence["failure"] = failure
+            live = application.live
+            presence = live.visual_state.presence
+            capture = live.capture.snapshot().frame if live.capture else None
             evidence["failure_state"] = {
                 "stage": stage,
+                "seconds_in_stage": round(now - stage_started, 3),
+                "model_swaps": swapped,
                 "revealed": demo.revealed,
-                "visual_source": application.live.visual_state.ocr_sequence,
-                "visual_blocked": sorted(application.live.visual_state.blocked),
+                "visual_source": live.visual_state.ocr_sequence,
+                "visual_blocked": sorted(live.visual_state.blocked),
+                "visual_message": live.visual_state.message,
+                # Tracking resets when a frame's client size differs from the tracked size.
+                "tracking_client_size": live.tracking.client_size,
+                "latest_frame": capture
+                and {
+                    "sequence": capture.sequence,
+                    "client_size": capture.geometry.client.size,
+                    "dpi": capture.geometry.dpi,
+                    "minimized": capture.geometry.minimized,
+                },
+                "accepted_ocr": live.accepted
+                and {
+                    "sequence": live.accepted.frame.sequence,
+                    "texts": [region.text for region in live.accepted.regions],
+                },
+                "tracked_phrase": phrase_id,
+                "visible_tracks": [
+                    {"id": t.track_id, "text": t.text, "bounds": str(t.bounds)}
+                    for t in live.tracking.visible
+                ],
+                "presence": {
+                    "sequence": presence.sequence,
+                    "absent": sorted(t.track_id for t in presence.absent),
+                    "pattern_loss": sorted(t.track_id for t in presence.pattern_loss),
+                    "present": sorted(t.track_id for t in presence.present),
+                },
                 "readings": [
                     {"text": a.observation.text, "pending": a.pending, "growing": a.growing}
-                    for a in application.live.tracking.activity
+                    for a in live.tracking.activity
                 ],
             }
             traceback.print_exc()
