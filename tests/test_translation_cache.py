@@ -183,6 +183,23 @@ def test_migration_removes_old_miss_only_names_and_preserves_linked_entries(tmp_
     db.close()
 
 
+def test_a_direct_reader_adopts_another_owners_clear_once_and_keeps_its_memory(tmp_path):
+    path = tmp_path / "cache"
+    reader, manager = TranslationCache(path), TranslationCache(path)
+    evicting = TranslationCache(path, disk_limit=1)
+    try:
+        manager.inventory(clear=True)
+        reader.put("label", "Settings")
+        assert reader.get("label") == "Settings"
+        # Another owner's eviction leaves the reader's memory hit valid. Only a clear,
+        # which a direct reader has already adopted, may discard it.
+        evicting.put("other", "Other")
+        assert reader.get("label") == "Settings"
+    finally:
+        for cache in (reader, manager, evicting):
+            cache.close()
+
+
 def test_new_work_on_the_clearing_connection_obtains_a_fresh_scope(tmp_path):
     cache = TranslationCache(tmp_path / "cache")
     try:

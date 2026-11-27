@@ -154,11 +154,21 @@ class TranslationCache:
         while len(self._memory) > self._memory_limit:
             self._memory.popitem(last=False)
 
+    def _sync_revision(self) -> None:
+        """Forget memory, pending demand and scope once another owner has cleared entries."""
+        assert self._db is not None
+        revision = self._ownership.revision()
+        if revision != self._revision:
+            self._revision = revision
+            self._memory.clear()
+            self._pending = {}
+            self._touched.clear()
+            self.scope = None
+
     def get(self, key: str) -> str | None:
         if key in self._memory and self._db is not None:
             try:
-                if self._ownership.revision() != self._revision:
-                    self._memory.clear()
+                self._sync_revision()
             except sqlite3.Error as error:
                 self._disable_disk(error)
         if key in self._memory:
@@ -197,13 +207,7 @@ class TranslationCache:
                 # the sweep so a concurrent writer cannot leave a remembered miss stale.
                 version = self._db.execute("PRAGMA data_version").fetchone()[0]
                 if self._data_version != version:
-                    revision = self._ownership.revision()
-                    if revision != self._revision:
-                        self._revision = revision
-                        self._memory.clear()
-                        self._pending = {}
-                        self._touched.clear()
-                        self.scope = None
+                    self._sync_revision()
                 if keys and (self.scope is None or self.scope.game != game):
                     self.scope = CacheScope(game, self._revision)
                     reset = True
