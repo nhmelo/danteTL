@@ -520,24 +520,26 @@ class ApplicationSession:
         discovering = not self.translation.restored or (cloud.busy and not cloud.completion)
         return project_notices(
             NoticeInput(
-                self.translation.options(),
-                self.translation.plan,
-                self.inventory.snapshot().data.ocr_ready,
-                self.preferences.error,
-                self.setup.problem or cloud.problem or self.inventory.snapshot().problem,
-                self.setup.busy or (cloud.busy and not discovering),
-                self.translation.lifecycle.preparation_message is not None,
-                str(ocr.state) if ocr else "",
-                self.view.ocr_status,
-                str(translation.state) if translation else "",
-                self.view.translation_status,
-                bool(translation and translation.rejected),
-                self._hardware(),
-                self.capture.ocr_choice.key
+                options=self.translation.options(),
+                plan=self.translation.plan,
+                ocr_ready=self.inventory.snapshot().data.ocr_ready,
+                saving_error=self.preferences.error,
+                setup_error=self.setup.problem
+                or cloud.problem
+                or self.inventory.snapshot().problem,
+                setup_busy=self.setup.busy or (cloud.busy and not discovering),
+                preparing=self.translation.lifecycle.preparation_message is not None,
+                ocr_state=ocr.state if ocr else None,
+                ocr_message=self.view.ocr_status,
+                translation_state=translation.state if translation else None,
+                translation_message=self.view.translation_status,
+                rejected=bool(translation and translation.rejected),
+                hardware=self._hardware(),
+                ocr_device=self.capture.ocr_choice.key
                 if self.live.capture and self.capture.ocr_choice
                 else self.values.ocr_device,
-                ocr.provider if ocr else "",
-                ocr.message if ocr else "",
+                provider=ocr.provider if ocr else "",
+                fallback=ocr.message if ocr else "",
                 target=TARGET_LANGUAGES[self.values.output_language],
                 ocr_model=self._ocr_model,
                 interface_language=self.values.interface_language,

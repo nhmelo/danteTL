@@ -7,14 +7,16 @@ from functools import lru_cache
 from dantetl.application.setup_status import SetupAdvice, acceleration_advice
 from dantetl.i18n import display, mark, tr
 from dantetl.languages.target import ENGLISH, TargetLanguage
+from dantetl.ocr.values import OcrState
 from dantetl.runtime.hardware_values import HardwareStatus
 from dantetl.runtime.setup_values import RuntimeTarget
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.references import ModelKind, format_reference, is_imported, reference_kind
 from dantetl.translation.selection import AssignmentChange, ModelOption
+from dantetl.translation.values import TranslationState
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class NoticeInput:
     options: tuple[ModelOption, ...]
     plan: TranslationPlan
@@ -23,9 +25,9 @@ class NoticeInput:
     setup_error: str = ""
     setup_busy: bool = False
     preparing: bool = False
-    ocr_state: str = ""
+    ocr_state: OcrState | None = None
     ocr_message: str = ""
-    translation_state: str = ""
+    translation_state: TranslationState | None = None
     translation_message: str = ""
     rejected: bool = False
     hardware: HardwareStatus | None = None
@@ -210,12 +212,12 @@ def project_notices(value: NoticeInput) -> Notices:
             "",
             "info",
         )
-    elif value.ocr_state in ("failed", "loading"):
+    elif value.ocr_state in (OcrState.FAILED, OcrState.LOADING):
         message, action = value.ocr_message, ""
-        tone = "error" if value.ocr_state == "failed" else "info"
-    elif value.translation_state in ("failed", "loading"):
+        tone = "error" if value.ocr_state is OcrState.FAILED else "info"
+    elif value.translation_state in (TranslationState.FAILED, TranslationState.LOADING):
         message, action = value.translation_message, ""
-        tone = "error" if value.translation_state == "failed" else "info"
+        tone = "error" if value.translation_state is TranslationState.FAILED else "info"
     elif missing:
         message, action, destination = warning, model_action, model_destination
     elif value.rejected:
