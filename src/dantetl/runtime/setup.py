@@ -5,8 +5,11 @@ import json
 import os
 import re
 import shutil
+import stat
 import sys
 import threading
+from collections.abc import Callable, Iterator
+from contextlib import AbstractContextManager, contextmanager, suppress
 from dataclasses import dataclass, replace
 from pathlib import Path
 from uuid import uuid4
@@ -24,8 +27,11 @@ from dantetl.runtime.requirements import (
     dependency_fingerprint,
 )
 from dantetl.runtime.setup_process import clean_runtime_environment, run_setup_command
-from dantetl.runtime.setup_values import Cancelled, ModelProgress, Progress
+from dantetl.runtime.setup_values import Cancelled, ModelProgress, Progress, RuntimeFiles
 from dantetl.runtime.values import PROFILES, RuntimeProfile
+
+_ENVIRONMENT = re.compile(r"(?:nvidia|amd|cpu)-[a-f0-9]{32}")
+_TRASH = ".trash-"
 
 
 def _fingerprint(root: Path, profile: str) -> str:
@@ -43,7 +49,7 @@ def _atomic_json(path: Path, value: dict[str, str]) -> None:
 
 def runtime_path(root: Path, name: str) -> Path:
     """Receipts may select only generated environments inside this project."""
-    if not re.fullmatch(r"(?:nvidia|amd|cpu)-[a-f0-9]{32}", name):
+    if not _ENVIRONMENT.fullmatch(name):
         raise ValueError(tr("Invalid runtime environment name."))
     base = (root / ".runtimes").resolve()
     candidate = base / name
@@ -148,13 +154,145 @@ def install_runtime(
         raise ValueError(tr("Unknown runtime profile."))
     device_env = require_profile(profile.key, cancel, gpu)
     root = root.resolve()
-    # Exclusive across app copies sharing this project, without waiting.
-    with file_lock(
-        root / "data/runtime-install.lock",
-        timeout=0,
-        busy_message=tr("Another DanteTL instance is already installing a runtime."),
-    ):
+    with _install_lock(root, tr("Another DanteTL instance is already installing a runtime.")):
         _install(root, profile, progress, cancel, device_env)
+        # Superseded environments and the downloads this install consumed are now unused.
+        # A failed install keeps its verified downloads for retry.
+        _unused_files(root, remove=True, downloads=True)
+
+
+def _install_lock(root: Path, busy_message: str) -> AbstractContextManager[None]:
+    """Exclusive across app copies sharing this project, without waiting."""
+    return file_lock(root / "data/runtime-install.lock", timeout=0, busy_message=busy_message)
+
+
+@contextmanager
+def runtime_lease(root: Path) -> Iterator[None]:
+    """Hold the running environment's ``pyvenv.cfg`` open for the life of this process.
+
+    Windows renames a directory despite its loaded DLLs and running executables, but not while a
+    file inside it is open. Unused-file removal renames before deleting, so it skips leased
+    environments that another running DanteTL still imports from.
+    """
+    prefix = Path(sys.prefix).resolve()
+    if prefix.parent != (root / ".runtimes").resolve() or not _ENVIRONMENT.fullmatch(prefix.name):
+        yield
+        return
+    with (prefix / "pyvenv.cfg").open("rb"):
+        yield
+
+
+def unused_runtime_files(root: Path, *, remove: bool, downloads: bool = True) -> RuntimeFiles:
+    """Measure or remove environments no receipt selects, and optionally setup downloads.
+
+    Keeps the selected environment, each profile's latest prepared one and this process's own.
+    ``downloads=False`` keeps verified wheels and partial transfers for an interrupted install.
+    """
+    root = root.resolve()
+    with _install_lock(root, tr("A runtime is being installed. Try again when it finishes.")):
+        return _unused_files(root, remove=remove, downloads=downloads)
+
+
+def _unused_files(root: Path, *, remove: bool, downloads: bool) -> RuntimeFiles:
+    """The caller holds the install lock, so no environment or download is being written."""
+    candidates: list[Path] = []
+    environments = root / ".runtimes"
+    if (kept := _referenced_environments(root)) is not None:
+        kept.add(Path(sys.prefix).resolve().name)
+        candidates += _children(
+            environments, lambda name: bool(_ENVIRONMENT.fullmatch(name)) and name not in kept
+        )
+    else:
+        # Never guess which environment an unreadable receipt selects.
+        candidates += _children(environments, lambda name: False)
+    candidates += _children(root / ".runtime-downloads", lambda name: downloads)
+    unused = removed = 0
+    for path in candidates:
+        size = _size(path)
+        if not remove:
+            unused += size
+            continue
+        trash = path if path.name.startswith(_TRASH) else path.with_name(_TRASH + uuid4().hex)
+        try:
+            path.rename(trash)
+        except OSError:
+            # Still open in a running DanteTL; see runtime_lease.
+            unused += size
+            continue
+        _delete(trash)
+        remaining = _size(trash)
+        removed += size - remaining
+        unused += remaining
+    return RuntimeFiles(unused, removed if remove else None)
+
+
+def _referenced_environments(root: Path) -> set[str] | None:
+    names = set()
+    for receipt in (
+        root / "data/runtime.json",
+        *(root / f"data/runtimes/{p.key}.json" for p in PROFILES),
+    ):
+        try:
+            value = json.loads(receipt.read_text("utf-8"))
+        except FileNotFoundError:
+            continue
+        except (OSError, ValueError):
+            return None
+        name = value.get("environment") if isinstance(value, dict) else None
+        if not isinstance(name, str):
+            return None
+        names.add(name)
+    return names
+
+
+def _children(directory: Path, unused: Callable[[str], bool]) -> list[Path]:
+    """Earlier interrupted removals are always unused. Links are never followed or removed."""
+    try:
+        entries = list(os.scandir(directory))
+    except OSError:
+        return []
+    return [
+        Path(entry.path)
+        for entry in entries
+        if not (entry.is_symlink() or entry.is_junction())
+        and (entry.name.startswith(_TRASH) or unused(entry.name))
+    ]
+
+
+def _size(path: Path) -> int:
+    total, pending = 0, [path]
+    while pending:
+        current = pending.pop()
+        try:
+            if not current.is_dir() or current.is_junction():
+                total += current.lstat().st_size if current.exists() else 0
+                continue
+            with os.scandir(current) as entries:
+                for entry in entries:
+                    if entry.is_symlink() or entry.is_junction():
+                        continue
+                    if entry.is_dir():
+                        pending.append(Path(entry.path))
+                    else:
+                        total += entry.stat().st_size
+        except OSError:
+            continue
+    return total
+
+
+def _delete(path: Path) -> None:
+    """Best effort: anything left keeps its trash name and is retried by the next pass."""
+
+    def writable(function: Callable[[str], object], name: str, _: BaseException) -> None:
+        with suppress(OSError):
+            os.chmod(name, stat.S_IWRITE)
+            function(name)
+
+    if path.is_dir():
+        shutil.rmtree(path, onexc=writable)
+    else:
+        with suppress(OSError):
+            path.unlink()
 
 
 def _install(

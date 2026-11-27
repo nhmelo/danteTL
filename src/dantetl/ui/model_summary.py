@@ -8,6 +8,14 @@ from dantetl.ui.controls import InfoButton, set_tone
 from dantetl.ui.localization import localized
 
 
+def file_size(size: int) -> str:
+    return (
+        tr("{value:.2f} GB", value=size / 1000000000.0)
+        if size >= 1e9
+        else tr("{value:.0f} MB", value=size / 1000000.0)
+    )
+
+
 class ModelSummary(QWidget):
     def __init__(self) -> None:
         super().__init__()
@@ -75,11 +83,7 @@ class ModelSummary(QWidget):
         self.context.setText(tr("✓ Dialogue context") if language_model else tr("✕ No context"))
         self.gpu.setToolTip(tr("NVIDIA CUDA or Vulkan; optional runtime setup is separate."))
         self.cpu.setToolTip(tr("CPU execution is supported; larger models can be slow."))
-        size_text = (
-            tr("{value:.2f} GB", value=size / 1000000000.0)
-            if size >= 1e9
-            else tr("{value:.0f} MB", value=size / 1000000.0)
-        )
+        size_text = file_size(size)
         self.size_label.setText(
             (
                 tr("Local file: {size}", size=size_text)

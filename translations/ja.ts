@@ -173,6 +173,10 @@ Repairs folder: {directory}</source>
       <translation>言語モデルエンジンが必要です。設定 → アクセラレーションでCPUまたはGPUを選択してください。</translation>
     </message>
     <message>
+      <source>A runtime is being installed. Try again when it finishes.</source>
+      <translation>ランタイムをインストール中です。完了してから再試行してください。</translation>
+    </message>
+    <message>
       <source>A runtime wheel is missing its pinned SHA-256.</source>
       <translation>ランタイムホイールにピン留めされたSHA-256がありません。</translation>
     </message>
@@ -2913,6 +2917,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>リストから削除</translation>
     </message>
     <message>
+      <source>Remove older runtimes and runtime downloads that DanteTL no longer needs? The selected runtime, the newest runtime for each acceleration type and all models are kept.</source>
+      <translation>DanteTLが不要になった古いランタイムとランタイムのダウンロードを削除しますか？選択中のランタイム、各アクセラレーション種別の最新ランタイム、すべてのモデルは保持されます。</translation>
+    </message>
+    <message>
       <source>Remove this saved API key? {count} model entries use it and will need a connection again. This does not revoke the key at the provider.</source>
       <translation>この保存されたAPIキーを削除しますか？ {count}個のモデルエントリがこれを使用しており、再度接続が必要になります。これはプロバイダーでのキーの取り消しではありません。</translation>
     </message>
@@ -2921,8 +2929,20 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>この接続を使用するすべてのモデルから保存されたキーを削除します。</translation>
     </message>
     <message>
+      <source>Remove unused runtime files…</source>
+      <translation>未使用のランタイムファイルを削除…</translation>
+    </message>
+    <message>
       <source>Remove “{name}”? Its saved connection remains available.</source>
       <translation>「{name}」を削除しますか？保存された接続は引き続き利用可能です。</translation>
+    </message>
+    <message>
+      <source>Removed {size}.</source>
+      <translation>{size}を削除しました。</translation>
+    </message>
+    <message>
+      <source>Removed {size}. Files in use by a running DanteTL window were kept.</source>
+      <translation>{size}を削除しました。実行中のDanteTLウィンドウが使用しているファイルは保持されました。</translation>
     </message>
     <message>
       <source>Removes the registration only. Your model file is never deleted.</source>
@@ -3919,6 +3939,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Unsupported settings format; defaults are being used.</source>
       <translation>サポートされていない設定形式 デフォルトが使用されます。</translation>
+    </message>
+    <message>
+      <source>Unused runtime files: {size}</source>
+      <translation>未使用のランタイムファイル: {size}</translation>
     </message>
     <message>
       <source>Update CUDA</source>

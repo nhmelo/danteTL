@@ -173,6 +173,10 @@ Repairs folder: {directory}</source>
       <translation>需要语言模型引擎。打开设置 → 加速并选择 CPU 或 GPU。</translation>
     </message>
     <message>
+      <source>A runtime is being installed. Try again when it finishes.</source>
+      <translation>正在安装运行时。请在完成后重试。</translation>
+    </message>
+    <message>
       <source>A runtime wheel is missing its pinned SHA-256.</source>
       <translation>运行时 wheel 缺少固定的 SHA-256 值。</translation>
     </message>
@@ -2913,6 +2917,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>从列表中移除</translation>
     </message>
     <message>
+      <source>Remove older runtimes and runtime downloads that DanteTL no longer needs? The selected runtime, the newest runtime for each acceleration type and all models are kept.</source>
+      <translation>要移除 DanteTL 不再需要的旧运行时和运行时下载文件吗？所选运行时、每种加速类型的最新运行时以及所有模型都会保留。</translation>
+    </message>
+    <message>
       <source>Remove this saved API key? {count} model entries use it and will need a connection again. This does not revoke the key at the provider.</source>
       <translation>移除此已保存的 API 密钥？{count} 个模型条目正在使用它，将需要重新连接。这不会在提供商处撤销该密钥。</translation>
     </message>
@@ -2921,8 +2929,20 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>为使用此连接的所有模型移除此已保存的密钥。</translation>
     </message>
     <message>
+      <source>Remove unused runtime files…</source>
+      <translation>移除未使用的运行时文件…</translation>
+    </message>
+    <message>
       <source>Remove “{name}”? Its saved connection remains available.</source>
       <translation>移除“{name}”？其已保存的连接仍然可用。</translation>
+    </message>
+    <message>
+      <source>Removed {size}.</source>
+      <translation>已移除 {size}。</translation>
+    </message>
+    <message>
+      <source>Removed {size}. Files in use by a running DanteTL window were kept.</source>
+      <translation>已移除 {size}。正在运行的 DanteTL 窗口所使用的文件已保留。</translation>
     </message>
     <message>
       <source>Removes the registration only. Your model file is never deleted.</source>
@@ -3919,6 +3939,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Unsupported settings format; defaults are being used.</source>
       <translation>不支持的设置格式；正在使用默认值。</translation>
+    </message>
+    <message>
+      <source>Unused runtime files: {size}</source>
+      <translation>未使用的运行时文件：{size}</translation>
     </message>
     <message>
       <source>Update CUDA</source>

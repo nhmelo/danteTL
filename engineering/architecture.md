@@ -747,6 +747,14 @@ binary-only hash checking, and index, dependency resolution and package caching 
 Appending requires a matching HTTP range. A full response replaces the partial. The parent verifies
 the complete file against the pinned SHA-256 before atomic replacement.
 Bundled restoration and verified cache reuse stay offline without a downloader child.
+Settings → Cache measures and, after confirmation, removes runtime environments that neither
+`data/runtime.json` nor a profile's latest receipt names, plus interrupted removals and runtime
+downloads. It never removes models, the running environment or app installs, and an unreadable
+receipt keeps every environment. Removal holds the runtime-install lock and renames before deleting.
+Each process running from a managed environment keeps its `pyvenv.cfg` open, so Windows refuses that
+rename while any DanteTL copy still uses it. A successful install runs the same pass; a failed one
+keeps its verified downloads for retry. Thirty seconds after launch, an automatic pass removes
+superseded environments released by a restart but keeps downloads.
 
 `OwnedProcess` creates suspended, assigns its Windows job, then resumes. Never launch uncontained.
 Cancellation/deadlines drain descendants; output is bounded. Windowed download helpers attach their

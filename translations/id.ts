@@ -173,6 +173,10 @@ Folder perbaikan: {directory}</translation>
       <translation>Mesin model bahasa diperlukan. Buka Pengaturan → Akselerasi dan pilih CPU atau GPU.</translation>
     </message>
     <message>
+      <source>A runtime is being installed. Try again when it finishes.</source>
+      <translation>Runtime sedang diinstal. Coba lagi setelah selesai.</translation>
+    </message>
+    <message>
       <source>A runtime wheel is missing its pinned SHA-256.</source>
       <translation>Wheel runtime kehilangan SHA-256 yang disematkan.</translation>
     </message>
@@ -2913,6 +2917,10 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
       <translation>Hapus dari daftar</translation>
     </message>
     <message>
+      <source>Remove older runtimes and runtime downloads that DanteTL no longer needs? The selected runtime, the newest runtime for each acceleration type and all models are kept.</source>
+      <translation>Hapus runtime lama dan unduhan runtime yang tidak lagi dibutuhkan DanteTL? Runtime yang dipilih, runtime terbaru untuk setiap jenis akselerasi, dan semua model tetap disimpan.</translation>
+    </message>
+    <message>
       <source>Remove this saved API key? {count} model entries use it and will need a connection again. This does not revoke the key at the provider.</source>
       <translation>Hapus kunci API tersimpan ini? {count} entri model menggunakannya dan perlu terhubung kembali. Ini tidak mencabut kunci di penyedia.</translation>
     </message>
@@ -2921,8 +2929,20 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
       <translation>Hapus kunci tersimpan ini untuk setiap model yang menggunakan koneksi ini.</translation>
     </message>
     <message>
+      <source>Remove unused runtime files…</source>
+      <translation>Hapus file runtime yang tidak digunakan…</translation>
+    </message>
+    <message>
       <source>Remove “{name}”? Its saved connection remains available.</source>
       <translation>Hapus “{name}”? Koneksi tersimpannya tetap tersedia.</translation>
+    </message>
+    <message>
+      <source>Removed {size}.</source>
+      <translation>{size} dihapus.</translation>
+    </message>
+    <message>
+      <source>Removed {size}. Files in use by a running DanteTL window were kept.</source>
+      <translation>{size} dihapus. File yang digunakan oleh jendela DanteTL yang sedang berjalan tetap disimpan.</translation>
     </message>
     <message>
       <source>Removes the registration only. Your model file is never deleted.</source>
@@ -3919,6 +3939,10 @@ Unduhan model: hingga {size:.2f} GB; file yang ada diverifikasi dan digunakan ul
     <message>
       <source>Unsupported settings format; defaults are being used.</source>
       <translation>Format pengaturan tidak didukung; default sedang digunakan.</translation>
+    </message>
+    <message>
+      <source>Unused runtime files: {size}</source>
+      <translation>File runtime yang tidak digunakan: {size}</translation>
     </message>
     <message>
       <source>Update CUDA</source>

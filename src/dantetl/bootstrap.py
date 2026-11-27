@@ -45,6 +45,14 @@ def main(*, cuda_update: bool = False) -> None:
     if sys.platform != "win32":
         raise SystemExit(tr("DanteTL currently requires Windows."))
     configure_logging()
+    from dantetl.runtime.setup import runtime_lease
+
+    # Until exit, unused-file removal by any DanteTL copy keeps this process's environment.
+    with runtime_lease(state_root()):
+        _run(cuda_update=cuda_update)
+
+
+def _run(*, cuda_update: bool) -> None:
     import shiboken6
     from PySide6.QtCore import QTimer
     from PySide6.QtGui import QIcon
@@ -119,6 +127,7 @@ def main(*, cuda_update: bool = False) -> None:
         source_models=source_models_for,
         notify=driver.notify,
         preferences=preferences,
+        runtime_root=state_root(),
         hardware=hardware,
         hotkeys=hotkeys,
     )
@@ -134,6 +143,8 @@ def main(*, cuda_update: bool = False) -> None:
     QTimer.singleShot(0, lambda: acknowledge_update(state_root(), updates.installed))
     if is_standalone() and os.environ.get("DANTETL_DISABLE_UPDATE_CHECK") != "1":
         QTimer.singleShot(0, lambda: updates.check(automatic=True))
+    # Wait for a restarted predecessor to exit and release the environment it was leasing.
+    QTimer.singleShot(30_000, application.cache.tidy_runtime_files)
     lease = (
         bundle_lease(resource_root().parent.parent, state_root())
         if is_standalone()

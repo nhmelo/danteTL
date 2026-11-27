@@ -5,6 +5,7 @@ from typing import Protocol
 from dantetl.application.model_values import ModelFile
 from dantetl.runtime.hardware_values import HardwareStatus
 from dantetl.runtime.setup_values import (
+    RuntimeFilesView,
     RuntimeStatus,
     RuntimeTarget,
     SetupJob,
@@ -29,8 +30,10 @@ class OllamaCommands(Protocol):
 
 class CacheCommands(Protocol):
     def snapshot(self) -> CacheView: ...
+    def runtime_files(self) -> RuntimeFilesView: ...
     def refresh(self) -> None: ...
     def clear(self, game: str | None) -> None: ...
+    def clear_runtime_files(self) -> None: ...
 
 
 class CloudCommands(Protocol):

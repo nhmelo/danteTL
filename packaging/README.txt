@@ -99,6 +99,9 @@ wheel offline and keep your existing CPU/CUDA/Vulkan dependencies. No setup is n
 Only a change to the required dependencies needs setup under Settings > Acceleration;
 the bundled CPU runtime works meanwhile. Existing environments, models and preferences
 are preserved. Prior app versions are retained for rollback and running instances.
+Settings > Cache > Remove unused runtime files deletes older runtimes and runtime
+downloads no longer needed; the selected runtime, the newest one per acceleration
+type and all models are kept. Installing a runtime also removes them automatically.
 Moving the extracted app folder does not move or delete your downloads.
 Uninstall: first use Forget key / Sign out for saved cloud connections. Deleting
 folders does not remove Windows Credential Manager keys or revoke provider access.

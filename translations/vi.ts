@@ -173,6 +173,10 @@ Thư mục sửa chữa: {directory}</translation>
       <translation>Cần có engine mô hình ngôn ngữ. Mở Cài đặt → Tăng tốc và chọn CPU hoặc GPU.</translation>
     </message>
     <message>
+      <source>A runtime is being installed. Try again when it finishes.</source>
+      <translation>Đang cài đặt runtime. Hãy thử lại khi hoàn tất.</translation>
+    </message>
+    <message>
       <source>A runtime wheel is missing its pinned SHA-256.</source>
       <translation>Một gói runtime wheel bị thiếu mã SHA-256 được ghim.</translation>
     </message>
@@ -2913,6 +2917,10 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
       <translation>Xóa khỏi danh sách</translation>
     </message>
     <message>
+      <source>Remove older runtimes and runtime downloads that DanteTL no longer needs? The selected runtime, the newest runtime for each acceleration type and all models are kept.</source>
+      <translation>Gỡ các runtime cũ và các tệp runtime đã tải xuống mà DanteTL không còn cần? Runtime đã chọn, runtime mới nhất cho mỗi loại tăng tốc và tất cả mô hình đều được giữ lại.</translation>
+    </message>
+    <message>
       <source>Remove this saved API key? {count} model entries use it and will need a connection again. This does not revoke the key at the provider.</source>
       <translation>Xóa khóa API đã lưu này? {count} mục mô hình sử dụng khóa này và sẽ cần kết nối lại. Thao tác này không thu hồi khóa tại nhà cung cấp.</translation>
     </message>
@@ -2921,8 +2929,20 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
       <translation>Xóa khóa đã lưu này cho mọi mô hình dùng kết nối này.</translation>
     </message>
     <message>
+      <source>Remove unused runtime files…</source>
+      <translation>Gỡ tệp runtime không dùng…</translation>
+    </message>
+    <message>
       <source>Remove “{name}”? Its saved connection remains available.</source>
       <translation>Xóa “{name}”? Kết nối đã lưu của mục này vẫn khả dụng.</translation>
+    </message>
+    <message>
+      <source>Removed {size}.</source>
+      <translation>Đã gỡ {size}.</translation>
+    </message>
+    <message>
+      <source>Removed {size}. Files in use by a running DanteTL window were kept.</source>
+      <translation>Đã gỡ {size}. Các tệp đang được một cửa sổ DanteTL đang chạy sử dụng đã được giữ lại.</translation>
     </message>
     <message>
       <source>Removes the registration only. Your model file is never deleted.</source>
@@ -3919,6 +3939,10 @@ Tải mô hình: tối đa {size:.2f} GB; các tệp hiện có sẽ được x�
     <message>
       <source>Unsupported settings format; defaults are being used.</source>
       <translation>Định dạng cài đặt không được hỗ trợ; đang dùng mặc định.</translation>
+    </message>
+    <message>
+      <source>Unused runtime files: {size}</source>
+      <translation>Tệp runtime không dùng: {size}</translation>
     </message>
     <message>
       <source>Update CUDA</source>

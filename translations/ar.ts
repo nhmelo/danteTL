@@ -173,6 +173,10 @@ Repairs folder: {directory}</source>
       <translation>يلزم وجود محرك نموذج لغوي. افتح الإعدادات ← التسريع واختر CPU أو GPU.</translation>
     </message>
     <message>
+      <source>A runtime is being installed. Try again when it finishes.</source>
+      <translation>يجري تثبيت وقت تشغيل. أعد المحاولة عند انتهائه.</translation>
+    </message>
+    <message>
       <source>A runtime wheel is missing its pinned SHA-256.</source>
       <translation>عجلة وقت التشغيل تفتقد SHA-256 المثبتة الخاصة بها.</translation>
     </message>
@@ -2913,6 +2917,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>إزالة من القائمة</translation>
     </message>
     <message>
+      <source>Remove older runtimes and runtime downloads that DanteTL no longer needs? The selected runtime, the newest runtime for each acceleration type and all models are kept.</source>
+      <translation>هل تريد إزالة أوقات التشغيل القديمة وتنزيلات وقت التشغيل التي لم يعد DanteTL بحاجة إليها؟ يتم الاحتفاظ بوقت التشغيل المحدد وأحدث وقت تشغيل لكل نوع من أنواع التسريع وجميع النماذج.</translation>
+    </message>
+    <message>
       <source>Remove this saved API key? {count} model entries use it and will need a connection again. This does not revoke the key at the provider.</source>
       <translation>إزالة مفتاح API المحفوظ هذا؟ تستخدمه {count} من إدخالات النماذج وستحتاج إلى اتصال مجددًا. لا يؤدي هذا إلى إلغاء المفتاح لدى المزوّد.</translation>
     </message>
@@ -2921,8 +2929,20 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>إزالة هذا المفتاح المحفوظ لكل نموذج يستخدم هذا الاتصال.</translation>
     </message>
     <message>
+      <source>Remove unused runtime files…</source>
+      <translation>إزالة ملفات وقت التشغيل غير المستخدمة…</translation>
+    </message>
+    <message>
       <source>Remove “{name}”? Its saved connection remains available.</source>
       <translation>إزالة «{name}»؟ يبقى اتصاله المحفوظ متاحًا.</translation>
+    </message>
+    <message>
+      <source>Removed {size}.</source>
+      <translation>تمت إزالة {size}.</translation>
+    </message>
+    <message>
+      <source>Removed {size}. Files in use by a running DanteTL window were kept.</source>
+      <translation>تمت إزالة {size}. تم الاحتفاظ بالملفات التي تستخدمها نافذة DanteTL قيد التشغيل.</translation>
     </message>
     <message>
       <source>Removes the registration only. Your model file is never deleted.</source>
@@ -3919,6 +3939,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Unsupported settings format; defaults are being used.</source>
       <translation>تنسيق إعدادات غير مدعوم؛ يتم استخدام الإعدادات الافتراضية.</translation>
+    </message>
+    <message>
+      <source>Unused runtime files: {size}</source>
+      <translation>ملفات وقت التشغيل غير المستخدمة: {size}</translation>
     </message>
     <message>
       <source>Update CUDA</source>

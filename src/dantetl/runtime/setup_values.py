@@ -54,6 +54,21 @@ class SetupAction(StrEnum):
     SETUP = "setup"
 
 
+@dataclass(frozen=True, slots=True)
+class RuntimeFiles:
+    """Bytes in runtime environments and setup downloads that no saved selection needs."""
+
+    unused: int = 0
+    removed: int | None = None  # Set by a removal pass; ``unused`` is then what it had to keep.
+
+
+@dataclass(frozen=True, slots=True)
+class RuntimeFilesView:
+    files: RuntimeFiles | None = None
+    busy: bool = False
+    error: str = ""
+
+
 @dataclass(frozen=True)
 class SetupJob:
     token: int = 0

@@ -30,6 +30,7 @@ from dantetl.paths import state_root
 from dantetl.runtime.hardware import HardwareCheck
 from dantetl.runtime.model_store import ModelBundle, mark_prepared, model_catalog
 from dantetl.runtime.restart import RestartOperation, RuntimeRestart
+from dantetl.runtime.setup_values import RuntimeFiles
 from dantetl.translation.cloud.chatgpt_auth import ChatGPTConnections
 from dantetl.translation.cloud.credentials import WindowsSecrets
 from dantetl.translation.cloud.profiles import CloudProfiles
@@ -55,6 +56,7 @@ def application_session(
     preferences_path: Path | None = None,
     preferences: PreferenceStore | None = None,
     cache_path: Path | None = None,
+    runtime_root: Path | None = None,
     ocr_backends: tuple[OcrChoice, ...] = (),
     source_models: Callable[[SourceLanguage], SourceModels],
     hardware: HardwareCheck | None = None,
@@ -65,7 +67,9 @@ def application_session(
     preferences = preferences or PreferenceStore(preferences_path)
     cache = cache_path or state_root() / "data/game-translations.sqlite3"
     ollama = OllamaServices(preferences.current.ollama, notify)
-    cache_management = CacheManagement(cache, notify)
+    cache_management = CacheManagement(
+        cache, notify, runtime_files_pass(runtime_root) if runtime_root else None
+    )
     initial_choices = ocr_backends or (OcrChoice("CPU", recognizer_factory, key="cpu"),)
 
     live = live_session or LiveSession(
@@ -97,7 +101,7 @@ def application_session(
             setup.busy or cloud.busy or ollama.snapshot().busy or not inventory.finished
         ),
         cancel_setup=cancel_setup,
-        preferences_idle=lambda: preferences.idle and not cache_management.snapshot().busy,
+        preferences_idle=lambda: preferences.idle and not cache_management.busy,
         hardware_finished=lambda: hardware is None or hardware.finished,
         release_hotkeys=lambda: hotkeys.release() if hotkeys else None,
         restart=lambda target: RestartOperation(state_root(), target, create=RuntimeRestart),
@@ -121,6 +125,12 @@ def application_session(
         notify=notify,
         hardware=hardware.snapshot if hardware else lambda: None,
     )
+
+
+def runtime_files_pass(root: Path) -> Callable[[bool, bool], RuntimeFiles]:
+    from dantetl.runtime.setup import unused_runtime_files
+
+    return lambda remove, downloads: unused_runtime_files(root, remove=remove, downloads=downloads)
 
 
 def setup_coordinator(inventory: ModelInventory, models: tuple[ModelBundle, ...], root: Path):

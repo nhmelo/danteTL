@@ -173,6 +173,10 @@ Repairs folder: {directory}</source>
       <translation>ต้องมีเอนจินโมเดลภาษา เปิดการตั้งค่า → การเร่งความเร็ว แล้วเลือก CPU หรือ GPU</translation>
     </message>
     <message>
+      <source>A runtime is being installed. Try again when it finishes.</source>
+      <translation>กำลังติดตั้งรันไทม์ โปรดลองอีกครั้งเมื่อเสร็จสิ้น</translation>
+    </message>
+    <message>
       <source>A runtime wheel is missing its pinned SHA-256.</source>
       <translation>runtime wheel ขาด SHA-256 ที่กำหนดไว้</translation>
     </message>
@@ -2913,6 +2917,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>นำออกจากรายการ</translation>
     </message>
     <message>
+      <source>Remove older runtimes and runtime downloads that DanteTL no longer needs? The selected runtime, the newest runtime for each acceleration type and all models are kept.</source>
+      <translation>ลบรันไทม์เก่าและไฟล์ดาวน์โหลดรันไทม์ที่ DanteTL ไม่ต้องการแล้วหรือไม่? รันไทม์ที่เลือก รันไทม์ล่าสุดของการเร่งความเร็วแต่ละประเภท และโมเดลทั้งหมดจะถูกเก็บไว้</translation>
+    </message>
+    <message>
       <source>Remove this saved API key? {count} model entries use it and will need a connection again. This does not revoke the key at the provider.</source>
       <translation>นำคีย์ API ที่บันทึกไว้นี้ออกหรือไม่ รายการโมเดล {count} รายการใช้คีย์นี้และจะต้องเชื่อมต่ออีกครั้ง การดำเนินการนี้ไม่ได้เพิกถอนคีย์ที่ผู้ให้บริการ</translation>
     </message>
@@ -2921,8 +2929,20 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
       <translation>นำคีย์ที่บันทึกไว้นี้ออกสำหรับทุกโมเดลที่ใช้การเชื่อมต่อนี้</translation>
     </message>
     <message>
+      <source>Remove unused runtime files…</source>
+      <translation>ลบไฟล์รันไทม์ที่ไม่ได้ใช้…</translation>
+    </message>
+    <message>
       <source>Remove “{name}”? Its saved connection remains available.</source>
       <translation>นำ “{name}” ออกหรือไม่ การเชื่อมต่อที่บันทึกไว้ยังคงใช้งานได้</translation>
+    </message>
+    <message>
+      <source>Removed {size}.</source>
+      <translation>ลบแล้ว {size}</translation>
+    </message>
+    <message>
+      <source>Removed {size}. Files in use by a running DanteTL window were kept.</source>
+      <translation>ลบแล้ว {size} ไฟล์ที่หน้าต่าง DanteTL ที่กำลังทำงานใช้อยู่ถูกเก็บไว้</translation>
     </message>
     <message>
       <source>Removes the registration only. Your model file is never deleted.</source>
@@ -3919,6 +3939,10 @@ Model downloads: up to {size:.2f} GB; existing files are verified and reused.
     <message>
       <source>Unsupported settings format; defaults are being used.</source>
       <translation>รูปแบบการตั้งค่าที่ไม่รองรับ กำลังใช้ค่าเริ่มต้น</translation>
+    </message>
+    <message>
+      <source>Unused runtime files: {size}</source>
+      <translation>ไฟล์รันไทม์ที่ไม่ได้ใช้: {size}</translation>
     </message>
     <message>
       <source>Update CUDA</source>

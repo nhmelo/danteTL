@@ -173,6 +173,10 @@ Pasta de reparos: {directory}</translation>
       <translation>É necessário um mecanismo de modelo de linguagem. Abra Configurações → Aceleração e selecione CPU ou GPU.</translation>
     </message>
     <message>
+      <source>A runtime is being installed. Try again when it finishes.</source>
+      <translation>Um runtime está sendo instalado. Tente novamente quando terminar.</translation>
+    </message>
+    <message>
       <source>A runtime wheel is missing its pinned SHA-256.</source>
       <translation>Um pacote runtime está sem seu SHA-256 fixado.</translation>
     </message>
@@ -2913,6 +2917,10 @@ Downloads de modelos: até {size:.2f} GB; arquivos existentes são verificados e
       <translation>Remover da lista</translation>
     </message>
     <message>
+      <source>Remove older runtimes and runtime downloads that DanteTL no longer needs? The selected runtime, the newest runtime for each acceleration type and all models are kept.</source>
+      <translation>Remover runtimes antigos e downloads de runtime de que o DanteTL não precisa mais? O runtime selecionado, o runtime mais recente de cada tipo de aceleração e todos os modelos são mantidos.</translation>
+    </message>
+    <message>
       <source>Remove this saved API key? {count} model entries use it and will need a connection again. This does not revoke the key at the provider.</source>
       <translation>Remover esta chave de API salva? {count} entradas de modelo a usam e precisarão de uma nova conexão. Isso não revoga a chave no provedor.</translation>
     </message>
@@ -2921,8 +2929,20 @@ Downloads de modelos: até {size:.2f} GB; arquivos existentes são verificados e
       <translation>Remover esta chave salva para todos os modelos que usam esta conexão.</translation>
     </message>
     <message>
+      <source>Remove unused runtime files…</source>
+      <translation>Remover arquivos de runtime não usados…</translation>
+    </message>
+    <message>
       <source>Remove “{name}”? Its saved connection remains available.</source>
       <translation>Remover “{name}”? A conexão salva permanece disponível.</translation>
+    </message>
+    <message>
+      <source>Removed {size}.</source>
+      <translation>{size} removidos.</translation>
+    </message>
+    <message>
+      <source>Removed {size}. Files in use by a running DanteTL window were kept.</source>
+      <translation>{size} removidos. Os arquivos em uso por uma janela do DanteTL em execução foram mantidos.</translation>
     </message>
     <message>
       <source>Removes the registration only. Your model file is never deleted.</source>
@@ -3919,6 +3939,10 @@ Downloads de modelos: até {size:.2f} GB; arquivos existentes são verificados e
     <message>
       <source>Unsupported settings format; defaults are being used.</source>
       <translation>Formato de configurações não suportado; os padrões estão sendo usados.</translation>
+    </message>
+    <message>
+      <source>Unused runtime files: {size}</source>
+      <translation>Arquivos de runtime não usados: {size}</translation>
     </message>
     <message>
       <source>Update CUDA</source>

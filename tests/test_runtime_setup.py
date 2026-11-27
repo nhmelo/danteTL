@@ -454,3 +454,103 @@ def test_selected_gpu_survives_reordering_and_disappearance(
         runtime_restart.RuntimeRestart(root, path, gpu=saved.gpu)
     child.assert_called_once()
     assert setup.runtime_selection(root) == saved
+
+
+def _environment(root, name, receipt=True):
+    target = root / ".runtimes" / name
+    (target / "Lib").mkdir(parents=True)
+    (target / "pyvenv.cfg").write_text("home = python")
+    (target / "Lib/module.py").write_bytes(b"x" * 1000)
+    if receipt:
+        (target / "ready.json").write_text(json.dumps({"environment": name}))
+    return target
+
+
+def test_unused_runtime_files_keep_selected_latest_and_open_environments(tmp_path, monkeypatch):
+    root = tmp_path.resolve()
+    selected = _environment(root, "cpu-" + "1" * 32)
+    latest = _environment(root, "nvidia-" + "2" * 32)
+    superseded = _environment(root, "nvidia-" + "3" * 32)
+    interrupted = _environment(root, "amd-" + "4" * 32, receipt=False)
+    leftover = _environment(root, ".trash-old")
+    unrelated = _environment(root, "notes")
+    (root / "data/runtimes").mkdir(parents=True)
+    (root / "data/runtime.json").write_text(json.dumps({"environment": selected.name}))
+    (root / "data/runtimes/nvidia.json").write_text(json.dumps({"environment": latest.name}))
+    wheel = root / ".runtime-downloads/wheels" / ("a" * 64) / "package.whl"
+    wheel.parent.mkdir(parents=True)
+    wheel.write_bytes(b"w" * 500)
+    size = {
+        p: sum(f.stat().st_size for f in p.rglob("*") if f.is_file())
+        for p in (superseded, interrupted, leftover)
+    }
+
+    measured = setup.unused_runtime_files(root, remove=False)
+    assert measured == setup.RuntimeFiles(sum(size.values()) + 500)
+    assert superseded.is_dir() and wheel.is_file()
+
+    with (superseded / "Lib/module.py").open("rb"):  # Another instance imports from it.
+        tidied = setup.unused_runtime_files(root, remove=True, downloads=False)
+    assert tidied == setup.RuntimeFiles(size[superseded], size[interrupted] + size[leftover])
+    assert not interrupted.exists() and not leftover.exists() and wheel.is_file()
+    assert {p.name for p in (root / ".runtimes").iterdir()} == {
+        selected.name,
+        latest.name,
+        superseded.name,
+        unrelated.name,
+    }
+
+    cleared = setup.unused_runtime_files(root, remove=True)
+    assert cleared == setup.RuntimeFiles(0, size[superseded] + 500)
+    assert not superseded.exists() and not (root / ".runtime-downloads/wheels").exists()
+    assert selected.is_dir() and latest.is_dir() and unrelated.is_dir()
+
+    # The running environment holds its lease; other copies cannot remove it while it imports.
+    running = _environment(root, "cpu-" + "5" * 32)
+    monkeypatch.setattr(sys, "prefix", str(running))
+    with setup.runtime_lease(root):
+        with pytest.raises(PermissionError):
+            running.rename(running.with_name("moved"))
+        assert setup.unused_runtime_files(root, remove=True).unused == 0
+    assert running.is_dir()
+
+
+def test_unreadable_receipt_or_active_install_removes_no_environment(tmp_path):
+    root = tmp_path.resolve()
+    orphan = _environment(root, "cpu-" + "1" * 32)
+    download = root / ".runtime-downloads/native/archive.zip"
+    download.parent.mkdir(parents=True)
+    download.write_bytes(b"z")
+    (root / "data").mkdir()
+    (root / "data/runtime.json").write_text("{")
+    with setup._install_lock(root, ""), pytest.raises(OSError, match="being installed"):
+        setup.unused_runtime_files(root, remove=True)
+    assert setup.unused_runtime_files(root, remove=True) == setup.RuntimeFiles(0, 1)
+    assert orphan.is_dir() and not download.exists()
+
+
+def test_install_removes_superseded_environment_and_consumed_downloads(project, monkeypatch):
+    root, _, run = project
+    root = root.resolve()
+    setup.install_runtime(root, setup.PROFILES[2], lambda p: None, threading.Event())
+    selected = setup.ready_runtime(root, "cpu")
+    assert selected
+    setup.select_runtime(root, selected)
+    setup.install_runtime(root, setup.PROFILES[0], lambda p: None, threading.Event())
+    broken = setup.ready_runtime(root, "nvidia")
+    assert broken
+    wheel = root / ".runtime-downloads/wheels" / ("a" * 64) / "package.whl"
+    wheel.parent.mkdir(parents=True)
+    wheel.write_bytes(b"w")
+
+    def fail_broken(args, *a, **kw):
+        if args[0] == str(broken / "Scripts/python.exe"):
+            raise RuntimeError("Broken library")
+        run(args, *a, **kw)
+
+    monkeypatch.setattr(setup, "run_setup_command", fail_broken)
+    setup.install_runtime(root, setup.PROFILES[0], lambda p: None, threading.Event())
+    replacement = setup.ready_runtime(root, "nvidia")
+    assert replacement and replacement != broken
+    assert set((root / ".runtimes").iterdir()) == {selected, replacement}
+    assert not (root / ".runtime-downloads/wheels").exists()

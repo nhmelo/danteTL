@@ -173,6 +173,10 @@ Herstelmap: {directory}</translation>
       <translation>Er is een taalmodel-engine nodig. Open Instellingen → Acceleratie en selecteer CPU of GPU.</translation>
     </message>
     <message>
+      <source>A runtime is being installed. Try again when it finishes.</source>
+      <translation>Er wordt een runtime geïnstalleerd. Probeer het opnieuw wanneer dat klaar is.</translation>
+    </message>
+    <message>
       <source>A runtime wheel is missing its pinned SHA-256.</source>
       <translation>Een runtime-wheel mist de vastgezette SHA-256.</translation>
     </message>
@@ -2913,6 +2917,10 @@ Modeldownloads: tot {size:.2f} GB; bestaande bestanden worden geverifieerd en he
       <translation>Verwijderen uit lijst</translation>
     </message>
     <message>
+      <source>Remove older runtimes and runtime downloads that DanteTL no longer needs? The selected runtime, the newest runtime for each acceleration type and all models are kept.</source>
+      <translation>Oudere runtimes en runtime-downloads verwijderen die DanteTL niet meer nodig heeft? De geselecteerde runtime, de nieuwste runtime voor elk type versnelling en alle modellen blijven behouden.</translation>
+    </message>
+    <message>
       <source>Remove this saved API key? {count} model entries use it and will need a connection again. This does not revoke the key at the provider.</source>
       <translation>Deze opgeslagen API-sleutel verwijderen? {count} modelvermeldingen gebruiken deze en hebben opnieuw een verbinding nodig. Dit trekt de sleutel niet in bij de provider.</translation>
     </message>
@@ -2921,8 +2929,20 @@ Modeldownloads: tot {size:.2f} GB; bestaande bestanden worden geverifieerd en he
       <translation>Verwijder deze opgeslagen sleutel voor elk model dat deze verbinding gebruikt.</translation>
     </message>
     <message>
+      <source>Remove unused runtime files…</source>
+      <translation>Ongebruikte runtimebestanden verwijderen…</translation>
+    </message>
+    <message>
       <source>Remove “{name}”? Its saved connection remains available.</source>
       <translation>‘{name}’ verwijderen? De opgeslagen verbinding blijft beschikbaar.</translation>
+    </message>
+    <message>
+      <source>Removed {size}.</source>
+      <translation>{size} verwijderd.</translation>
+    </message>
+    <message>
+      <source>Removed {size}. Files in use by a running DanteTL window were kept.</source>
+      <translation>{size} verwijderd. Bestanden die een actief DanteTL-venster gebruikt, zijn behouden.</translation>
     </message>
     <message>
       <source>Removes the registration only. Your model file is never deleted.</source>
@@ -3919,6 +3939,10 @@ Modeldownloads: tot {size:.2f} GB; bestaande bestanden worden geverifieerd en he
     <message>
       <source>Unsupported settings format; defaults are being used.</source>
       <translation>Niet-ondersteund instellingenformaat; standaardwaarden worden gebruikt.</translation>
+    </message>
+    <message>
+      <source>Unused runtime files: {size}</source>
+      <translation>Ongebruikte runtimebestanden: {size}</translation>
     </message>
     <message>
       <source>Update CUDA</source>
