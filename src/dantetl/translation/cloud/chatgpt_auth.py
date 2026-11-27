@@ -4,6 +4,7 @@ import base64
 import hashlib
 import hmac
 import json
+import logging
 import re
 import secrets
 import socket
@@ -20,6 +21,8 @@ from dantetl.translation.cloud.auth_work import AuthInterrupted, AuthWork
 from dantetl.translation.cloud.credentials import valid_credential
 from dantetl.translation.cloud.protected_store import ProtectedStore
 from dantetl.translation.cloud.values import ChatGPTAccount
+
+logger = logging.getLogger(__name__)
 
 ISSUER = "https://auth.openai.com"
 AUTHORIZE = ISSUER + "/api/accounts/authorize"
@@ -68,7 +71,9 @@ def _json_request(work: AuthWork, method: str, url: str, **kwargs) -> dict:
         return value
     except (AuthResponseError, SessionExpired, AuthInterrupted):
         raise
-    except Exception:
+    except Exception as error:
+        # Record only the type: messages can quote request bodies or tokens.
+        logger.warning("ChatGPT request failed: %s", type(error).__name__)
         raise OSError(tr("Could not connect to ChatGPT. Check your internet connection.")) from None
 
 
@@ -460,9 +465,9 @@ class ChatGPTConnections:
                         },
                     )
                     confirmed = True
-            except Exception:
+            except Exception as error:
                 # Revocation/network/parser failures must never retain local bearer tokens.
-                pass
+                logger.warning("ChatGPT token revocation failed: %s", type(error).__name__)
             finally:
                 self.store.write(account, self._without_tokens(record))
         return (

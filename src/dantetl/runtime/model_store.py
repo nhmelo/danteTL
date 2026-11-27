@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import logging
 import platform
 import threading
 from collections.abc import Callable
@@ -20,6 +21,8 @@ from dantetl.runtime.assets import ModelAsset, asset_directory, assets_present
 from dantetl.runtime.download_transport import download_file
 from dantetl.runtime.setup_values import Cancelled, DownloadProgress, ModelProgress, Progress
 from dantetl.runtime.verified_file import check_cancel, install_file, matches
+
+logger = logging.getLogger(__name__)
 
 LANGUAGE_RUNTIME_SETUP = mark(
     "The model is downloaded, but its language-model engine is not installed in this environment. "
@@ -239,6 +242,7 @@ class ModelOperation:
                 )
             )
         except Exception as error:
+            logger.exception("Model setup failed")
             self._progress(ModelProgress(tr("Setup failed."), done=True, error=str(error)))
 
 

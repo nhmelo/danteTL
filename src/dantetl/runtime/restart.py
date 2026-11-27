@@ -1,5 +1,6 @@
 """Launch a verified runtime and acknowledge a real GUI startup before closing the old app."""
 
+import logging
 import os
 import re
 import threading
@@ -24,6 +25,8 @@ from dantetl.runtime.setup import (
     verified_runtime,
 )
 from dantetl.runtime.setup_values import RuntimeTarget
+
+logger = logging.getLogger(__name__)
 
 
 def acknowledge_startup() -> None:
@@ -187,4 +190,5 @@ class RestartOperation:
                     return
                 self._cancelled.wait(0.05)
         except Exception as error:
+            logger.exception("Runtime restart failed")
             self._set(RestartSnapshot("failed", str(error) or tr("Runtime restart failed.")))

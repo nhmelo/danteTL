@@ -5,6 +5,7 @@ catalog and network work runs on the single setup worker; backend creation runs 
 the translation owner. Neither path retains a view.
 """
 
+import logging
 import threading
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
@@ -28,6 +29,8 @@ from dantetl.translation.cloud.values import (
     CloudProfile,
     CloudUsage,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(slots=True)
@@ -231,11 +234,14 @@ class CloudServices:
             try:
                 result = operation(self._secrets(), changes)
             except Exception as error:
+                # Provider messages are shown to the user, never logged: they may quote secrets.
+                logger.warning("Cloud operation failed: %s", type(error).__name__)
                 result = str(error) or tr("Operation cancelled.")
                 failed = True
             try:
                 completed = self._discover(result, failed, changes)
             except Exception as error:
+                logger.warning("Cloud discovery failed: %s", type(error).__name__)
                 changes.discovered = None
                 completed = SetupResult(
                     self.profiles,
