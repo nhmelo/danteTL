@@ -335,6 +335,22 @@ When the icon displaced an unread glyph, one bounded batch re-reads the line fro
 is accepted only if it keeps every remaining character and adds at most two confident glyphs at
 the cut. Pixels are inspected only at an edge whose recognized character could be removed.
 
+After every recognition, once lines are in frame coordinates, the OCR worker splits a line of
+menu labels merged across a row of evenly spaced icons (`icon_grid`). It examines the whole frame,
+so icons outside a regional crop still count, and keeps identical labels from overlapping
+detections once. Icons at least as tall as the line, within one line height above or below it,
+give a pitch. Three or more icons let the labels reach one cell past the row, while two cover
+only their own cells. Each cell boundary must fall in a gap of the line's own ink. Each label
+must be centered in its cell. The character pitch must step up at every cut (labels measured at
+1.16× and more, sentences 0.8–1.1×). A line with sentence punctuation stays whole. Split labels
+keep their own characters and the line's vertical bounds. A row read off those icons is removed
+when it sits in the icon band, mostly on the icon cells, with weak median confidence. Lettering
+in that band keeps its row. Only lines that could pass the split checks are analyzed: no sentence
+punctuation, and a character pitch that steps up somewhere. A line that cannot split is still
+analyzed when a weak row lies in its icon band, so a reading of the icons can be removed. At most
+16 such lines are analyzed per scan, so ordinary text elsewhere cannot use up the analysis. The step
+needs character boxes and converts only the analyzed areas of the captured frame.
+
 On a single regional request the OCR worker can read an edited character directly from a
 previously detected horizontal line. It compares every pixel of the requested area with the
 previous covered OCR source, requires an isolated change within one character, and verifies

@@ -8,9 +8,12 @@ from collections.abc import Callable
 from dataclasses import dataclass, replace
 from typing import Protocol, runtime_checkable
 
+import numpy as np
+
 from dantetl.domain import CapturedFrame, Rect, WindowGeometry
 from dantetl.i18n import tr
 from dantetl.ocr.fixed_line import LineReader, reread_line
+from dantetl.ocr.icon_grid import split_icon_grids
 from dantetl.ocr.regions import intersects, scan_regions
 from dantetl.ocr.scan_plan import ScanCosts, ScanLine, ScanPlan, ScanPlanner, preserves_lines
 from dantetl.ocr.values import OcrResult, OcrSnapshot, OcrState, TextRegion
@@ -283,6 +286,18 @@ class OcrSession:
             self._notify()
 
 
+def _layout(frame: CapturedFrame, regions: tuple[TextRegion, ...]) -> tuple[TextRegion, ...]:
+    """Layout that reaches past a scanned crop (icons above its labels) uses the whole source."""
+    if not any(r.characters for r in regions) or len(frame.bgra) != frame.width * frame.height * 4:
+        return regions  # Layout needs character boxes and source pixels.
+    pixels = np.frombuffer(frame.bgra, np.uint8).reshape(frame.height, frame.width, 4)
+    return split_icon_grids(pixels, regions)
+
+
+def _recognize_full(engine: Recognizer, frame: CapturedFrame) -> tuple[TextRegion, ...]:
+    return _layout(frame, engine.recognize(frame))
+
+
 def recognize_planned(
     engine: Recognizer,
     frame: CapturedFrame,
@@ -298,7 +313,7 @@ def recognize_planned(
         areas = scan_regions(plan.areas, frame.geometry.client.size)
         candidate = None
         if plan.areas is None:
-            candidate = engine.recognize(frame)
+            candidate = _recognize_full(engine, frame)
         elif areas is not None:
             candidate = _recognize_crops(engine, frame, areas)
         if candidate is not None and preserves_lines(
@@ -325,7 +340,7 @@ def recognize_regions(
         regions = _recognize_crops(engine, frame, areas)
         if regions is not None:
             return regions, areas
-    return engine.recognize(frame), None
+    return _recognize_full(engine, frame), None
 
 
 def _recognize_crops(
@@ -359,7 +374,7 @@ def _recognize_crops(
                 return None
 
             regions.append(region.translated(area.x, area.y))
-    return tuple(regions)
+    return _layout(frame, tuple(regions))
 
 
 def overlay_result_ready(result: OcrResult, latest: CapturedFrame, now: float) -> bool:
