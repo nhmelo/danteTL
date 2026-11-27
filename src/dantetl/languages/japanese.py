@@ -4,7 +4,11 @@ import re
 
 from dantetl.languages.source import DashQuotes, ListSyntax, SourceLanguage
 
-_SCRIPT = re.compile(r"[\u3040-\u30ff\u3400-\u9fff\uff66-\uff9f]")
+# Kana and kanji. Sound marks, the middle dot and the long-vowel mark, including halfwidth forms,
+# belong to words but are not letter evidence alone; OCR reads icons and bars as them.
+_SCRIPT = re.compile(
+    r"[\u3041-\u3096\u309d-\u309f\u30a1-\u30fa\u30fd-\u30ff\u3400-\u9fff\uff66-\uff6f\uff71-\uff9d]"
+)
 _READING = re.compile(r"(?:\([ぁ-ゖァ-ヺー・ ]+\)|（[ぁ-ゖァ-ヺー・ ]+）)$")
 _SET = re.compile(r"^[0-9０-９]+セット[:：]")
 _OPERATION = re.compile(

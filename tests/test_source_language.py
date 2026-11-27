@@ -202,6 +202,28 @@ def test_japanese_remains_selected_and_rejects_latin_only_ocr(tmp_path):
         until(lambda: session.finished)
 
 
+def test_japanese_marks_and_numbers_alone_are_not_translated(tmp_path):
+    regions = (
+        TextRegion("・137", Rect(50, 40, 100, 30)),
+        TextRegion("ー・ー", Rect(400, 40, 100, 30)),
+        TextRegion("ｰ12゛", Rect(50, 160, 100, 30)),
+        TextRegion("ｽﾃｰﾀｽ", Rect(50, 300, 100, 30)),
+    )
+    replay = Replay()
+    replay.observe(frame(1), regions)
+    scene = replay.observe(frame(2, 1.5), regions)
+    backend = Backend()
+    session = TranslationSession(lambda: backend, tmp_path / "cache.sqlite3")
+    session.start()
+    try:
+        replay.live.publish(session, scene.requests, scene.blocks)
+        until(lambda: session.snapshot().results)
+        assert backend.calls == [("ｽﾃｰﾀｽ",)]
+    finally:
+        session.request_stop()
+        until(lambda: session.finished)
+
+
 @pytest.mark.parametrize("lower_length, expected_blocks", [(255, 1), (256, 2)])
 def test_shared_request_budget_counts_the_language_specific_word_space(
     lower_length, expected_blocks
