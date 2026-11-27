@@ -1,6 +1,6 @@
 """Connected ink in a small area, separated by color from the area's own border."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import cv2
 import numpy as np
@@ -22,7 +22,11 @@ class Component:
 
 @dataclass(frozen=True, slots=True)
 class Ink:
-    """Components ordered by their left edge, with the mapping back to source pixels."""
+    """Components ordered by their left edge, with the mapping back to source pixels.
+
+    ``image`` is the analyzed BGR area the components were found in; ``level`` is the median
+    contrast of its ink against the area's border, on the same 0-255 scale.
+    """
 
     x: int
     y: int
@@ -30,6 +34,8 @@ class Ink:
     width: int
     height: int
     components: tuple[Component, ...]
+    level: float
+    image: np.ndarray = field(compare=False, repr=False)
 
     def source_x(self, value: float) -> float:
         return self.x + value / self.scale
@@ -75,4 +81,5 @@ def ink(bgr: np.ndarray, area: Rect, scale: float) -> Ink | None:
         for left, top, width, height, area_pixels in (rows[label],)
         if area_pixels >= minimum
     )
-    return Ink(x0, y0, scale, mask.shape[1], mask.shape[0], components)
+    level = float(np.median(distance[mask > 0])) if mask.any() else 0.0
+    return Ink(x0, y0, scale, mask.shape[1], mask.shape[0], components, level, crop)

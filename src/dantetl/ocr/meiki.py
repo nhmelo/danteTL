@@ -19,6 +19,7 @@ from dantetl.domain import CapturedFrame, Rect
 from dantetl.i18n import tr
 from dantetl.ocr.crop_recovery import recovery_preserves_lines, split_glyphs
 from dantetl.ocr.edge_icons import trim_edge_icons
+from dantetl.ocr.key_prompts import trim_key_prompts
 from dantetl.ocr.models import local_model_paths
 from dantetl.ocr.read_memory import ReadMemory
 from dantetl.ocr.scan_plan import ScanCosts
@@ -284,7 +285,8 @@ class MeikiRecognizer:
                 )
 
             remembered = self._reads.reader(source, reread)
-            return trim_edge_icons(source, recover_wide_lines(regions, remembered), remembered)
+            lines = trim_key_prompts(source, recover_wide_lines(regions, remembered))
+            return trim_edge_icons(source, lines, remembered)
 
         try:
             regions = read()
@@ -296,7 +298,7 @@ class MeikiRecognizer:
         return regions + self._unsure_lines(bgr, regions)
 
     def _unsure_lines(self, bgr: Any, regions: tuple[TextRegion, ...]) -> tuple[TextRegion, ...]:
-        """Doubted lines the recognizer reads confidently, with their own edge icons trimmed."""
+        """Doubted lines the recognizer reads confidently, their prompts and edge icons trimmed."""
         recoverable = self._device.startswith("auto") and self.provider != CPU
 
         def reread(boxes: list[Rect]) -> tuple[TextRegion, ...]:
@@ -305,7 +307,9 @@ class MeikiRecognizer:
             )
 
         found = self._unsure.lines(bgr, self._engine.unsure, [r.bounds for r in regions], reread)
-        return trim_edge_icons(bgr, found, self._reads.reader(bgr, reread)) if found else ()
+        if not found:
+            return ()
+        return trim_edge_icons(bgr, trim_key_prompts(bgr, found), self._reads.reader(bgr, reread))
 
     def close(self) -> None:
         """Release all native ONNX sessions on their owning worker before it completes."""

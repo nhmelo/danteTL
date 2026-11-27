@@ -324,12 +324,21 @@ if any join is uncertain, the result is shorter, or previously observed glyph po
 coverage. Recovered text and character boxes belong to one original detection. Bound the extra
 work per line and per scan.
 
+Before that, Meiki drops button prompts at either end of a horizontal line (`key_prompts`): short
+Latin key names inside their own outline, such as L2 + R2 or Esc. Edges, not ink, find the
+outline: a closed plate about a line high whose lettering floats apart from its rim, joined to a
+neighbouring prompt only by small marks. The outermost prompt must reach into the line with no
+glyph-height ink beyond it there. Only characters read as ASCII or weakly are dropped, and only
+on lines that keep a confidently read letter of the source script; an enclosing kanji such as 回
+is read as itself and stays. Filled caps whose letters are cut out of the fill are not yet
+recognized.
+
 Meiki separates an icon at either end of a horizontal line from the lettering beside it
 (`edge_icons`). Ink units at that edge are measured against the line's own glyphs. An icon is
 taller and heavier, or at glyph height much heavier, and may have one touching part of the same
 height. A unit OCR read only weakly needs less evidence: at glyph height and heavier, set apart
-from the lettering by a gap wider than twice the spacing between its glyphs. Its one or two characters are dropped only when the line keeps a letter read at word
-confidence. They must not be list bullets, letters read with high confidence, or brackets that
+from the lettering by a gap wider than twice the spacing between its glyphs. Its one or two
+characters are dropped only when the line keeps a letter read at word confidence. They must not be list bullets, letters read with high confidence, or brackets that
 are confident or paired in the line: pixels alone never remove a bold word, a number's digits or
 structure. Detector bounds stay;
 the remaining characters set the tracked box, so English no longer covers the icon.
