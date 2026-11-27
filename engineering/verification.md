@@ -128,6 +128,22 @@ The scan corpus includes five/eight compact demands and five widely separated de
 `--case` filters for investigation; candidate merged timings do not authorize relaxing the production
 crop limit. Compare individual target errors and actual coverage as well as total time.
 
+Icon, label-splitting and content-filter changes run `tools/benchmark_icons.py --device cpu
+--output artifacts/<slice>/icons-cpu.json` on the preceding code first, then again with
+`--baseline` on that output, and do the same with strict CUDA. `tools/icon_corpus.py` draws
+owned scenes in generic families (button prompts, silhouettes touching titles, icon grids, tab bars, stat rows,
+icon-only and text-only negatives) with exact ink ground truth. Each recognized character is
+attributed to a label or icon. The tool reports per-label edit errors, whether a label is read
+separately, merged, fragmented or missed, icon characters attached to labels, icon-only rows that
+the translation gate would admit, label boxes covering icons and first/warm recognition time.
+The baseline comparison fails if any label gains errors or goes missing. Removing icon ink must not
+cost real text, including in the text-only negatives. Scans run through the worker's full or
+regional path. Remembered unsure-line reads settle over several scans, so the tool reports the
+settled output and the number of scans it took.
+`--holdout` adds annotated real frames, optionally with regional scan areas.
+Its images and labels stay in ignored artifacts; see `--help` for the format. Synthetic gains
+alone do not establish game accuracy, so report holdout results separately.
+
 `tools/verify_ocr.py --dense` uses synthetic 4K labels and reports actual detection count, raw
 text/boxes, OCR and visual costs. It alternates full scans and a padded regional crop, checking
 coordinates and first/warm/after-full timings. Preserve raw accuracy evidence; installed providers

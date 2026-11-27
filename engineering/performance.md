@@ -18,7 +18,7 @@ Measure before changing scheduling, retention or accuracy. Current contracts are
   not establish game, HDR, mixed-DPI or anti-cheat compatibility.
 
 Tools include `benchmark_scan_selection.py`, `benchmark_crop_recovery.py`, `benchmark_regions.py`,
-`benchmark_tracking.py` and [translation comparison](benchmarks/README.md). Read `--help`.
+`benchmark_tracking.py`, `benchmark_icons.py` and [translation comparison](benchmarks/README.md). Read `--help`.
 Keep evidence in ignored `artifacts/`, label its limits and remove disposable environments safely.
 OCR consensus stays experimental; changing retention requires explicit replay/native acceptance.
 
