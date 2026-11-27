@@ -13,6 +13,7 @@ from uuid import uuid4
 
 from packaging.version import Version
 
+from dantetl.atomic_file import replace_file
 from dantetl.file_lock import file_lock
 from dantetl.runtime.owned_process import OwnedProcess
 from dantetl.runtime.package import bundled_application, check_portable_folder
@@ -190,8 +191,4 @@ def main() -> None:
 def acknowledge_update(state: Path, version: str) -> None:
     token = os.environ.pop("DANTETL_UPDATE_TOKEN", "")
     if len(token) == 32 and all(c in "0123456789abcdef" for c in token):
-        path = state / "data/restarts" / token
-        path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = path.with_suffix(".tmp")
-        temporary.write_text(version, "utf-8")
-        temporary.replace(path)
+        replace_file(state / "data/restarts" / token, version.encode("utf-8"))

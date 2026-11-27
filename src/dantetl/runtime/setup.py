@@ -11,6 +11,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from uuid import uuid4
 
+from dantetl.atomic_file import replace_file
 from dantetl.i18n import tr
 from dantetl.paths import is_standalone, module_command, runtime_project, state_root
 from dantetl.runtime.application import prepare_application
@@ -41,13 +42,7 @@ def _fingerprint(root: Path, profile: str) -> str:
 
 
 def _atomic_json(path: Path, value: dict[str, str]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(f".{path.name}-{uuid4().hex}.tmp")
-    try:
-        temporary.write_text(json.dumps(value), encoding="utf-8")
-        os.replace(temporary, path)
-    finally:
-        temporary.unlink(missing_ok=True)
+    replace_file(path, json.dumps(value).encode("utf-8"))
 
 
 def runtime_path(root: Path, name: str) -> Path:

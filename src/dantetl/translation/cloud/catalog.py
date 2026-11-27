@@ -2,16 +2,15 @@
 
 import asyncio
 import json
-import os
 import re
 import threading
 import time
 from dataclasses import asdict
 from pathlib import Path
-from uuid import uuid4
 
 import httpx2
 
+from dantetl.atomic_file import replace_file
 from dantetl.i18n import tr
 from dantetl.translation.cloud.credentials import valid_credential
 from dantetl.translation.cloud.protocol import request_headers
@@ -235,10 +234,4 @@ class CatalogCache:
         )
         if len(payload.encode("utf-8")) > 262_144:
             raise ValueError(tr("Catalog exceeded the size limit."))
-        path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = path.with_name("." + uuid4().hex + ".tmp")
-        try:
-            temporary.write_text(payload, "utf-8")
-            os.replace(temporary, path)
-        finally:
-            temporary.unlink(missing_ok=True)
+        replace_file(path, payload.encode("utf-8"))

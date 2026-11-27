@@ -2,15 +2,14 @@
 
 import hashlib
 import json
-import os
 import re
 import struct
 import threading
 from dataclasses import asdict
 from pathlib import Path
 from typing import BinaryIO
-from uuid import uuid4
 
+from dantetl.atomic_file import replace_file
 from dantetl.file_lock import file_lock
 from dantetl.i18n import tr
 from dantetl.paths import state_root
@@ -228,12 +227,7 @@ def save_registration(
             {"version": 1, "models": [asdict(m) for m in models]}, ensure_ascii=False
         ).encode("utf-8")
         _decode_registry(payload)
-        temporary = path.with_name(f".{path.name}-{uuid4().hex}.tmp")
-        try:
-            temporary.write_bytes(payload)
-            os.replace(temporary, path)
-        finally:
-            temporary.unlink(missing_ok=True)
+        replace_file(path, payload)
 
 
 def available(model: ImportedModel) -> bool:

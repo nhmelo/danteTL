@@ -18,8 +18,9 @@ The distribution, Python package and CLI are `dantetl`; app-specific environment
 | `ui` | Qt views, controls, layout and desktop event delivery |
 | `runtime` | Shared model assets, native library selection, downloads, contained processes and isolated runtime installation |
 
-The root contains shared physical-coordinate values, resource paths, worker wakeups and application
-entry/assembly modules. Package initializers do not import or re-export implementations. Consumers
+The root contains shared physical-coordinate values, resource paths, worker wakeups, state-file
+locking and atomic replacement (`file_lock`, `atomic_file`), and application entry/assembly modules.
+Package initializers do not import or re-export implementations. Consumers
 import the module that owns each API. Import Linter checks whole application/processing packages for
 Qt/view dependencies, all views for backend/service dependencies, and runtime services for UI coupling.
 Shared asset validation belongs in `runtime.assets`; OCR owns only its pinned model definitions.

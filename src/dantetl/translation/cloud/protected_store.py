@@ -2,14 +2,13 @@
 
 import ctypes
 import json
-import os
 import re
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from ctypes import wintypes
 from pathlib import Path
-from uuid import uuid4
 
+from dantetl.atomic_file import replace_file
 from dantetl.file_lock import file_lock
 from dantetl.i18n import tr
 
@@ -84,14 +83,7 @@ class ProtectedStore:
         ).encode("utf-8")
         if len(data) > 100_000:
             raise ValueError(tr("ChatGPT connection record exceeds its size limit."))
-        encrypted = _protect(data)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = path.with_name(f".{path.name}-{uuid4().hex}.tmp")
-        try:
-            temporary.write_bytes(encrypted)
-            os.replace(temporary, path)
-        finally:
-            temporary.unlink(missing_ok=True)
+        replace_file(path, _protect(data))
 
     def account_keys(self) -> tuple[str, ...]:
         return tuple(sorted(p.stem for p in self.directory.glob("account-*.dat")))[:8]

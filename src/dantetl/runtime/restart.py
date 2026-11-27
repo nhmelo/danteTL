@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Literal
 from uuid import uuid4
 
+from dantetl.atomic_file import replace_file
 from dantetl.i18n import mark, tr
 from dantetl.paths import is_standalone, module_command, resource_root
 from dantetl.runtime.application import prepare_application
@@ -28,11 +29,7 @@ from dantetl.runtime.setup_values import RuntimeTarget
 def acknowledge_startup() -> None:
     token = os.environ.pop("DANTETL_RESTART_TOKEN", "")
     if re.fullmatch("[a-f0-9]{32}", token):
-        path = project_root() / "data/restarts" / token
-        path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = path.with_suffix(".tmp")
-        temporary.write_text(str(os.getpid()), encoding="ascii")
-        os.replace(temporary, path)
+        replace_file(project_root() / "data/restarts" / token, str(os.getpid()).encode("ascii"))
 
 
 class RuntimeRestart:

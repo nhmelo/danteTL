@@ -1,15 +1,14 @@
 """Validated user preferences and coalesced atomic writes; no window handles or model paths."""
 
 import json
-import os
 import re
 import threading
 from dataclasses import asdict
 from pathlib import Path
-from uuid import uuid4
 
 from dantetl.application.hotkeys import parse_shortcut
 from dantetl.application.preference_values import MAX_CAPTURE_RATE, Preferences, valid_executable_id
+from dantetl.atomic_file import replace_file
 from dantetl.file_lock import file_lock
 from dantetl.i18n import INTERFACE_LANGUAGES, tr
 from dantetl.languages.selection import SOURCE_LANGUAGES
@@ -199,10 +198,5 @@ class PreferenceStore:
             data = json.dumps(record, indent=2).encode("utf-8")
             if len(data) > _MAX_BYTES:
                 raise ValueError(tr("Settings file is too large; defaults are being used."))
-            temporary = self.path.with_name(f".{self.path.name}-{uuid4().hex}.tmp")
-            try:
-                temporary.write_bytes(data)
-                os.replace(temporary, self.path)
-            finally:
-                temporary.unlink(missing_ok=True)
+            replace_file(self.path, data)
             self._written = value

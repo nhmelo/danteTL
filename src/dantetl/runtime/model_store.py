@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-import os
 import platform
 import threading
 from collections.abc import Callable
@@ -12,6 +11,7 @@ from pathlib import Path
 from typing import Literal
 
 from dantetl import paths
+from dantetl.atomic_file import replace_file
 from dantetl.i18n import CatalogText, mark, tr
 from dantetl.languages.selection import DEFAULT_SOURCE
 from dantetl.languages.source import SourceLanguage
@@ -267,8 +267,5 @@ def is_prepared(key: str) -> bool:
 
 
 def mark_prepared(key: str) -> None:
-    destination = preparation_file(key)
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    temporary = destination.with_suffix(".tmp")
-    temporary.write_text(json.dumps({"prepared": True, "id": key}), encoding="utf-8")
-    os.replace(temporary, destination)
+    record = json.dumps({"prepared": True, "id": key}).encode("utf-8")
+    replace_file(preparation_file(key), record)
