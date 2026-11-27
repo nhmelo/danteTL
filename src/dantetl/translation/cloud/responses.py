@@ -4,6 +4,7 @@ import json
 
 from dantetl.i18n import tr
 from dantetl.translation.backend import RequestRejected
+from dantetl.translation.limits import MAX_ENGLISH_CHARACTERS
 
 
 class ResponseStream:
@@ -81,7 +82,7 @@ class ResponseStream:
         ):
             raise RequestRejected(tr("ChatGPT refused or did not complete this translation."))
         text = "".join(item["text"] for item in content).strip()
-        if not text or len(text) > 4096 or "<think" in text.lower():
+        if not text or len(text) > MAX_ENGLISH_CHARACTERS or "<think" in text.lower():
             raise RequestRejected(tr("ChatGPT returned empty, oversized or reasoning text."))
         return text, response.get("usage")
 

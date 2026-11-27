@@ -24,6 +24,7 @@ from dantetl.translation.dialogue.classifier import (
     local_classification,
 )
 from dantetl.translation.dialogue.context import DialogueTurn
+from dantetl.translation.limits import MAX_ENGLISH_CHARACTERS
 
 REVISION = "675cff42a74c774d6cb76f76d8eacb49b48c9b93"
 ASSETS = (
@@ -94,7 +95,7 @@ def completed_translation(response: Any) -> str:
     text = choice["text"].strip()
     if (
         not text
-        or len(text) > 4096
+        or len(text) > MAX_ENGLISH_CHARACTERS
         or any(marker in text for marker in ("<|channel>", "<channel|>", "<|turn>", "<think>"))
     ):
         raise RequestRejected(tr("Gemma returned empty, oversized, or non-answer text."))

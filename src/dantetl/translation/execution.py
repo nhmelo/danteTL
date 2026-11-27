@@ -18,6 +18,7 @@ from dantetl.translation.backend import (
     TranslationBackend,
 )
 from dantetl.translation.cache import TranslationCache
+from dantetl.translation.limits import MAX_ENGLISH_CHARACTERS, MAX_SOURCE_CHARACTERS
 from dantetl.translation.schedule import Batch, Demand, TranslationSchedule
 
 logger = logging.getLogger(__name__)
@@ -123,12 +124,12 @@ def _translate_batch(
     rejected = {
         source: tr("Source text exceeds the 512-character translation limit.")
         for source in sources
-        if len(source[0]) > 512
+        if len(source[0]) > MAX_SOURCE_CHARACTERS
     }
     valid = tuple(source for source in sources if source not in rejected)
 
     def accept(source: Source, english: str) -> None:
-        if not english.strip() or len(english) > 4096:
+        if not english.strip() or len(english) > MAX_ENGLISH_CHARACTERS:
             rejected[source] = tr("Translation backend returned empty or oversized text.")
         else:
             answers[source] = english

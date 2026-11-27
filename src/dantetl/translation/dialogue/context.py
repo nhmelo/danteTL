@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from dantetl.domain import Rect
 from dantetl.ocr.observation import TextTrack
 from dantetl.translation.grouping import TextBlock
+from dantetl.translation.limits import MAX_CONTEXT_CHARACTERS, MAX_CONTEXT_TURNS
 
 
 @dataclass(frozen=True, slots=True)
@@ -112,9 +113,9 @@ class DialogueMemory:
             return
         history = tuple(t for t in self._history if t[0] != self._turn)
         turn = DialogueTurn(block.text, english)
-        if len(turn.source) + len(turn.english) > 512:
+        if len(turn.source) + len(turn.english) > MAX_CONTEXT_CHARACTERS:
             return
-        history = (*history, (self._turn, turn))[-2:]
-        while sum(len(t.source) + len(t.english) for _, t in history) > 512:
+        history = (*history, (self._turn, turn))[-MAX_CONTEXT_TURNS:]
+        while sum(len(t.source) + len(t.english) for _, t in history) > MAX_CONTEXT_CHARACTERS:
             history = history[1:]
         self._history, self._last_published = history, now

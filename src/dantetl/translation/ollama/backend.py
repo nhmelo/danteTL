@@ -14,6 +14,7 @@ from dantetl.languages.source import SourceLanguage
 from dantetl.languages.target import ENGLISH, TargetLanguage
 from dantetl.translation.backend import BatchResult, RequestRejected, Source
 from dantetl.translation.dialogue.context import DialogueTurn
+from dantetl.translation.limits import MAX_ENGLISH_CHARACTERS
 from dantetl.translation.ollama.client import OllamaClient
 from dantetl.translation.ollama.values import OllamaIdentity
 from dantetl.translation.prompt import PROMPT_VERSION, translation_instruction, translation_payload
@@ -95,7 +96,7 @@ class OllamaBackend:
             if (
                 not isinstance(answer, str)
                 or not answer.strip()
-                or len(answer) > 4096
+                or len(answer) > MAX_ENGLISH_CHARACTERS
                 or "<think" in answer.lower()
                 or "</think" in answer.lower()
             ):

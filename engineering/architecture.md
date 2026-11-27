@@ -471,7 +471,7 @@ intact. A quoted term followed by more words can continue an unfinished row on t
 On a plain menu, grouping skips the paragraph search when no row supplies textual evidence,
 no visual evidence supports a join, and no centered subtitle can fit. An edit rechecks those
 conditions. Paragraphs have no separate line-count cap. Work is bounded by the scene's track limit and the
-backend's 512-character source budget. Short inline
+shared source budget in `translation.limits`. Short inline
 labels start independent items and allow aligned/hanging continuations; bare choices stay separate. Compact
 percentage endings can complete established unfinished prose or a line that explicitly introduces
 a value. A colon immediately before a percentage can represent a misread plus in a wrapped

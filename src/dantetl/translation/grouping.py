@@ -16,6 +16,7 @@ from dantetl.ocr.lettering import Lettering
 from dantetl.ocr.observation import TextTrack
 from dantetl.ocr.tracking import TextActivity
 from dantetl.translation.dialogue_paths import prose_segments, reading_paths
+from dantetl.translation.limits import MAX_SOURCE_CHARACTERS
 
 _MAX_ROW_OVERLAP = 0.1
 _MAX_ROW_GAP = 0.95
@@ -319,7 +320,7 @@ def _centered_subtitle(
     tails = [row for row in available if _centered_subtitle_tail(language, first, row)]
     if len(tails) == 1:
         pair = (first, tails[0])
-        if len(join_lines(pair, language)) <= 512:
+        if len(join_lines(pair, language)) <= MAX_SOURCE_CHARACTERS:
             return pair
     return (first,)
 
@@ -578,7 +579,7 @@ def _physical_rows(
             text=join_lines(parts, language),
             bounds=union_bounds(tuple(t.bounds for t in parts)),
         )
-        if len(row.text) > 512:
+        if len(row.text) > MAX_SOURCE_CHARACTERS:
             continue
         center = row.bounds.y + row.bounds.height / 2
         if any(
@@ -802,7 +803,7 @@ def _adjacent_blocks(
                 )
             row_text = join_lines(row, language)
             separator = " " if language.needs_space(source[-1:], row_text[:1]) else ""
-            if len(source) + len(separator) + len(row_text) > 512:
+            if len(source) + len(separator) + len(row_text) > MAX_SOURCE_CHARACTERS:
                 break
             source += separator + row_text
             for prior in (*lines[-1:], *row[:-1]):

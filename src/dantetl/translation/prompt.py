@@ -6,6 +6,11 @@ from dantetl.i18n import tr
 from dantetl.languages.source import SourceLanguage
 from dantetl.languages.target import ENGLISH, TargetLanguage
 from dantetl.translation.backend import RequestRejected, Source
+from dantetl.translation.limits import (
+    MAX_CONTEXT_CHARACTERS,
+    MAX_CONTEXT_TURNS,
+    MAX_SOURCE_CHARACTERS,
+)
 
 
 def translation_instruction(language: SourceLanguage, target: TargetLanguage = ENGLISH) -> str:
@@ -27,9 +32,11 @@ PROMPT_VERSION = "game-translation-v1"
 
 def translation_payload(game: str, source: Source) -> str:
     text, context = source
-    if not text.strip() or len(text) > 512:
+    if not text.strip() or len(text) > MAX_SOURCE_CHARACTERS:
         raise RequestRejected(tr("Source text exceeds the 512-character translation limit."))
-    if len(context) > 2 or sum(len(t.source) + len(t.english) for t in context) > 512:
+    if len(context) > MAX_CONTEXT_TURNS or (
+        sum(len(t.source) + len(t.english) for t in context) > MAX_CONTEXT_CHARACTERS
+    ):
         raise RequestRejected(tr("Dialogue context exceeds the translation limit."))
     return json.dumps(
         {

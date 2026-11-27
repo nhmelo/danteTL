@@ -31,6 +31,7 @@ from dantetl.translation.dialogue.classifier import (
     local_classification,
 )
 from dantetl.translation.dialogue.context import DialogueTurn
+from dantetl.translation.limits import MAX_ENGLISH_CHARACTERS
 from dantetl.translation.models.gguf import fingerprint, inspect_gguf
 from dantetl.translation.models.values import ImportedModel
 
@@ -80,7 +81,7 @@ def completed_answer(response: Any) -> str:
     text = re.sub(r"^<think>\s*</think>\s*", "", text)
     if (
         not text
-        or len(text) > 4096
+        or len(text) > MAX_ENGLISH_CHARACTERS
         or any(
             marker in text
             for marker in (

@@ -6,6 +6,7 @@ from dantetl.languages.source import SourceLanguage
 from dantetl.languages.target import ENGLISH, TargetLanguage
 from dantetl.translation.backend import RequestRejected, Source
 from dantetl.translation.cloud.values import ENDPOINTS, CloudProfile
+from dantetl.translation.limits import MAX_ENGLISH_CHARACTERS
 from dantetl.translation.prompt import translation_instruction, translation_payload
 
 CLAUDE_VERSION = "2026-10-21"
@@ -248,7 +249,7 @@ def parse_answer(value: object, provider: str = "openai") -> str:
         if (
             not isinstance(text, str)
             or not text.strip()
-            or len(text) > 4096
+            or len(text) > MAX_ENGLISH_CHARACTERS
             or "<think" in text.lower()
         ):
             raise ValueError

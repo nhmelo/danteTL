@@ -6,6 +6,7 @@ from collections.abc import Iterator, Mapping, Sequence
 from dantetl.languages.source import SourceLanguage
 from dantetl.ocr.lettering import Lettering
 from dantetl.ocr.observation import TextTrack
+from dantetl.translation.limits import MAX_SOURCE_CHARACTERS
 
 _NUMERIC = re.compile(r"[*+＋]?\d+(\.\d+)?[%％]")
 
@@ -218,7 +219,8 @@ def prose_segments(
         text = row.text.strip()
         space = bool(part) and language.needs_space(part[-1].text.rstrip()[-1:], text[:1])
         if part and (
-            length + len(text) + space > 512 or _boundary(part, row, widest, styles, language)
+            length + len(text) + space > MAX_SOURCE_CHARACTERS
+            or _boundary(part, row, widest, styles, language)
         ):
             if _admit(rows, part, styles, language):
                 yield tuple(part)
