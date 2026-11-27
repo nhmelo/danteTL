@@ -12,13 +12,13 @@ from dantetl.application.cloud_services import CloudServices
 from dantetl.translation.cloud.chatgpt_auth import PLAN_SCOPE, ChatGPTConnections
 from dantetl.translation.cloud.profiles import CloudProfiles
 from dantetl.translation.cloud.state import CloudDraft
-from dantetl.translation.cloud.values import CatalogModel, CloudProfile
+from dantetl.translation.cloud.values import CatalogModel, CloudProfile, CloudProvider
 
 
 def test_save_remove_and_usage_are_application_owned_without_a_view(tmp_path):
     service, secrets = create(tmp_path)
     initial = service.snapshot()
-    profile = CloudProfile.new("deepseek")
+    profile = CloudProfile.new(CloudProvider.DEEPSEEK)
     service.save(CloudDraft(profile, "", "fixture-key"))
     saved = finish(service)
     assert saved.saved and saved.profiles[0].key == profile.key
@@ -56,7 +56,9 @@ def test_model_refresh_publishes_results_and_completion_together(tmp_path, monke
     monkeypatch.setattr("dantetl.application.cloud_services.fetch_models", fetch)
     monkeypatch.setattr(service.connections, "accounts", accounts)
     try:
-        service.refresh_models(CloudDraft(CloudProfile.new("deepseek"), "", "fixture-key"))
+        service.refresh_models(
+            CloudDraft(CloudProfile.new(CloudProvider.DEEPSEEK), "", "fixture-key")
+        )
         assert fetching.wait(3)
         before = service.snapshot()
         fetched.set()
@@ -91,7 +93,7 @@ def test_cancelled_worker_drains_before_new_commands_and_owner_cleanup(tmp_path,
     monkeypatch.setattr(
         "dantetl.application.cloud_services.CloudBackend", lambda *a, **k: Backend()
     )
-    draft = CloudDraft(CloudProfile.new("deepseek"), "", "fixture")
+    draft = CloudDraft(CloudProfile.new(CloudProvider.DEEPSEEK), "", "fixture")
     service.test(draft)
     assert entered.wait(3)
     service.cancel()
@@ -109,7 +111,7 @@ def test_cancelled_worker_drains_before_new_commands_and_owner_cleanup(tmp_path,
 
 def test_closed_owner_rejects_late_dialog_actions_and_resumes_after_failed_restart(tmp_path):
     service, secrets = create(tmp_path)
-    profile = CloudProfile.new("deepseek")
+    profile = CloudProfile.new(CloudProvider.DEEPSEEK)
     service.save(CloudDraft(profile, "", "fixture-key"))
     before = finish(service)
     service.close()
@@ -164,7 +166,7 @@ def test_account_refresh_scopes_recovery_even_if_later_discovery_fails(tmp_path,
         ChatGPTAccount("account-" + c * 32, c, True, (("fixture", "Fixture"),)) for c in ("a", "b")
     )
     profiles = tuple(
-        CloudProfile("cloud-" + c * 32, c, "chatgpt", "fixture", account=a.key)
+        CloudProfile("cloud-" + c * 32, c, CloudProvider.CHATGPT, "fixture", account=a.key)
         for c, a in zip(("a", "b"), accounts, strict=True)
     )
     service.catalog.write(profiles)
@@ -200,16 +202,16 @@ def test_discovery_isolates_corrupt_accounts_and_unreadable_api_keys(tmp_path, m
     good, bad = ("account-" + c * 32 for c in "ab")
     store.write(good, {"access_token": "fixture", "scopes": [PLAN_SCOPE], "models": [["m", "M"]]})
     (store.directory / (bad + ".dat")).write_bytes(b"invalid")
-    plan = CloudProfile("cloud-" + "e" * 32, "Plan", "chatgpt", "m", account=good)
+    plan = CloudProfile("cloud-" + "e" * 32, "Plan", CloudProvider.CHATGPT, "m", account=good)
     broken_plan = replace(plan, key="cloud-" + "f" * 32, account=bad)
     service.catalog.write((plan, broken_plan))
-    profiles = [CloudProfile.new("deepseek") for _ in range(2)]
+    profiles = [CloudProfile.new(CloudProvider.DEEPSEEK) for _ in range(2)]
     for p in profiles:
         service.save(CloudDraft(p, "", "fixture"))
         assert finish(service).saved
     saved = service.catalog.read()
     bad_key = saved[-1].credential_key
-    legacy = CloudProfile.new("openai")
+    legacy = CloudProfile.new(CloudProvider.OPENAI)
     service.catalog.write((*saved, legacy))
 
     def read(key):

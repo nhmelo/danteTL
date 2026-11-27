@@ -9,7 +9,13 @@ import pytest
 from dantetl.translation.cloud.api_connections import ApiConnections
 from dantetl.translation.cloud.credentials import WindowsSecrets
 from dantetl.translation.cloud.profiles import CloudProfiles
-from dantetl.translation.cloud.values import MAX_CLOUD_PROFILES, MODELS, CloudProfile
+from dantetl.translation.cloud.values import (
+    MAX_CLOUD_PROFILES,
+    MODELS,
+    ApiConnection,
+    CloudProfile,
+    CloudProvider,
+)
 
 
 class SecretsFixture:
@@ -31,7 +37,9 @@ def test_full_unicode_catalog_reopens_in_current_and_legacy_encoding(tmp_path):
     connections, secrets = ApiConnections(catalog), SecretsFixture()
     for index in range(MAX_CLOUD_PROFILES):
         profile = replace(
-            CloudProfile.new("gemini"), name="🎮" * 78 + f"{index:02}", model_revision="🌐" * 120
+            CloudProfile.new(CloudProvider.GEMINI),
+            name="🎮" * 78 + f"{index:02}",
+            model_revision="🌐" * 120,
         )
         connections.save_model(profile, "", "fixture-key", secrets)
 
@@ -54,7 +62,9 @@ def test_full_unicode_catalog_reopens_in_current_and_legacy_encoding(tmp_path):
 def test_oversized_edit_preserves_saved_models_connections_and_key(tmp_path):
     catalog = CloudProfiles(tmp_path / "models.json")
     connections, secrets = ApiConnections(catalog), SecretsFixture()
-    first, _ = connections.save_model(CloudProfile.new("openai"), "", "original", secrets)
+    first, _ = connections.save_model(
+        CloudProfile.new(CloudProvider.OPENAI), "", "original", secrets
+    )
     originals = {path: path.read_bytes() for path in (catalog.path, connections.path)}
     with pytest.raises(ValueError, match="too large"):
         connections.save_model(
@@ -68,12 +78,14 @@ def test_oversized_edit_preserves_saved_models_connections_and_key(tmp_path):
 def test_mixed_catalog_can_edit_at_full_capacity_without_mutating_keys_on_overflow(tmp_path):
     catalog = CloudProfiles(tmp_path / "models.json")
     connections, secrets = ApiConnections(catalog), SecretsFixture()
-    first, _ = connections.save_model(CloudProfile.new("openai"), "", "old-key", secrets)
+    first, _ = connections.save_model(
+        CloudProfile.new(CloudProvider.OPENAI), "", "old-key", secrets
+    )
     mixed = tuple(
         CloudProfile(
             "cloud-" + uuid4().hex,
             "Plan model",
-            "chatgpt",
+            CloudProvider.CHATGPT,
             "gpt-6-luna",
             account="account-" + "a" * 32,
         )
@@ -88,12 +100,14 @@ def test_mixed_catalog_can_edit_at_full_capacity_without_mutating_keys_on_overfl
     before = catalog.read()
     with pytest.raises(ValueError):
         connections.save_model(
-            CloudProfile.new("openai"), first.credential, "must-not-save", secrets
+            CloudProfile.new(CloudProvider.OPENAI), first.credential, "must-not-save", secrets
         )
     assert catalog.read() == before and connections.secret(edited, secrets) == "new-key"
 
 
-@pytest.mark.parametrize("provider", ["openai", "gemini", "claude"])
+@pytest.mark.parametrize(
+    "provider", [CloudProvider.OPENAI, CloudProvider.GEMINI, CloudProvider.CLAUDE]
+)
 def test_connection_is_reused_after_restart_model_removal_and_new_model(tmp_path, provider):
     catalog = CloudProfiles(tmp_path / "models.json")
     connections = ApiConnections(catalog)
@@ -119,13 +133,17 @@ def test_connection_is_reused_after_restart_model_removal_and_new_model(tmp_path
     assert reloaded.secret(third, secrets) == "" and not secrets.values
 
 
-@pytest.mark.parametrize("other", ["deepseek", "gemini", "claude"])
+@pytest.mark.parametrize(
+    "other", [CloudProvider.DEEPSEEK, CloudProvider.GEMINI, CloudProvider.CLAUDE]
+)
 def test_connection_never_crosses_provider_and_key_replacement_rolls_back(
     tmp_path, monkeypatch, other
 ):
     catalog = CloudProfiles(tmp_path / "models.json")
     connections, secrets = ApiConnections(catalog), SecretsFixture()
-    first, _ = connections.save_model(CloudProfile.new("openai"), "", "original-secret", secrets)
+    first, _ = connections.save_model(
+        CloudProfile.new(CloudProvider.OPENAI), "", "original-secret", secrets
+    )
     with pytest.raises(ValueError, match="this provider"):
         connections.save_model(CloudProfile.new(other), first.credential, "", secrets)
     forged = replace(CloudProfile.new(other), credential=first.credential)
@@ -139,14 +157,16 @@ def test_connection_never_crosses_provider_and_key_replacement_rolls_back(
         connections.save_model(first, first.credential, "new-secret", secrets)
     assert connections.secret(first, secrets) == "original-secret"
     with pytest.raises(OSError):
-        connections.save_model(CloudProfile.new("openai"), "", "abandoned-secret", secrets)
+        connections.save_model(
+            CloudProfile.new(CloudProvider.OPENAI), "", "abandoned-secret", secrets
+        )
     assert list(secrets.values.values()) == ["original-secret"]
     assert len(connections.discover(lambda: secrets, pytest.fail).connections) == 1
 
 
 def test_legacy_keys_are_adopted_without_moving_or_merging_accounts(tmp_path):
     catalog = CloudProfiles(tmp_path / "models.json")
-    first, second = CloudProfile.new("openai"), CloudProfile.new("openai")
+    first, second = CloudProfile.new(CloudProvider.OPENAI), CloudProfile.new(CloudProvider.OPENAI)
     catalog.write((first, second))
     secrets = SecretsFixture()
     secrets.write(first.key, "first-account")
@@ -175,11 +195,13 @@ def test_rollback_cannot_erase_another_instances_committed_connection(tmp_path, 
 
     def save_second():
         started.set()
-        return second.save_model(CloudProfile.new("openai"), "", "keep", secrets)
+        return second.save_model(CloudProfile.new(CloudProvider.OPENAI), "", "keep", secrets)
 
     monkeypatch.setattr(first.catalog, "write", fail_write)
     with ThreadPoolExecutor(max_workers=2) as pool:
-        failed = pool.submit(first.save_model, CloudProfile.new("openai"), "", "discard", secrets)
+        failed = pool.submit(
+            first.save_model, CloudProfile.new(CloudProvider.OPENAI), "", "discard", secrets
+        )
         try:
             assert staged.wait(5)
             saved = pool.submit(save_second)
@@ -209,3 +231,27 @@ def test_native_vault_round_trip_does_not_modify_stored_key_when_wiping_read_buf
         assert secrets.read("fixture") is None
     finally:
         secrets.delete("fixture")
+
+
+@pytest.mark.parametrize("provider", list(CloudProvider))
+def test_stored_provider_names_load_as_typed_providers_and_save_unchanged(provider):
+    if provider is CloudProvider.CHATGPT:
+        stored = asdict(
+            CloudProfile(
+                "cloud-" + "1" * 32, "Plan", provider, "gpt-x", account="account-" + "2" * 32
+            )
+        )
+    else:
+        stored = asdict(CloudProfile.new(provider))
+    record = json.loads(json.dumps(stored))
+    assert record["provider"] == provider.value
+    loaded = CloudProfile(**record)
+    assert loaded.provider is provider and asdict(loaded) == record
+
+
+def test_unknown_providers_and_plan_api_connections_are_rejected():
+    with pytest.raises(ValueError, match="supported provider"):
+        CloudProfile("cloud-" + "3" * 32, "Unknown", "other", "model")  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="API connection"):
+        ApiConnection("api-" + "4" * 32, CloudProvider.CHATGPT, "Plan")
+    assert ApiConnection("api-" + "5" * 32, "claude", "Key").provider is CloudProvider.CLAUDE  # type: ignore[arg-type]

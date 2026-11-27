@@ -29,7 +29,7 @@ from dantetl.translation.cloud.protocol import (
     response_usage,
 )
 from dantetl.translation.cloud.responses import PlanUnavailable, ResponseStream
-from dantetl.translation.cloud.values import CloudProfile, CloudUsage
+from dantetl.translation.cloud.values import CloudProfile, CloudProvider, CloudUsage
 from dantetl.translation.dialogue.classifier import (
     Classification,
     ClassificationInput,
@@ -263,7 +263,10 @@ class CloudBackend:
                         json=body,
                         headers=request_headers(self._profile, self._secret),
                     ) as response:
-                        if self._profile.provider == "chatgpt" and response.status_code == 200:
+                        if (
+                            self._profile.provider == CloudProvider.CHATGPT
+                            and response.status_code == 200
+                        ):
                             stream = ResponseStream()
                             try:
                                 async for chunk in response.aiter_bytes():
@@ -289,7 +292,7 @@ class CloudBackend:
                             if isinstance(value, dict) and isinstance(value.get("error"), dict)
                             else ""
                         )
-                        if self._profile.provider == "chatgpt" and (
+                        if self._profile.provider == CloudProvider.CHATGPT and (
                             status in (401, 403, 429)
                             or code == "subscription_sharing_usage_unavailable"
                         ):
@@ -305,7 +308,7 @@ class CloudBackend:
                             )
                             raise RequestRejected(self._blocked)
                         retryable = status in (429, 502, 503, 504) or (
-                            self._profile.provider == "claude" and status == 529
+                            self._profile.provider == CloudProvider.CLAUDE and status == 529
                         )
                         if retryable and attempt == 0:
                             await asyncio.sleep(1.0)

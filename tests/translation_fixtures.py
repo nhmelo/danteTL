@@ -13,7 +13,7 @@ from dantetl.domain import Rect
 from dantetl.languages.target import ENGLISH
 from dantetl.ocr.observation import TextTrack
 from dantetl.translation.backend import BackendChoice
-from dantetl.translation.cloud.values import CloudProfile
+from dantetl.translation.cloud.values import CloudProfile, CloudProvider
 from dantetl.translation.grouping import TextBlock
 from dantetl.translation.routing import RoutedTranslationSession
 from dantetl.translation.selection import AssignmentChange
@@ -100,7 +100,8 @@ class Routes:
             for key in ("a", "b", "c")
         }
         self.profiles = tuple(
-            replace(CloudProfile.new("deepseek"), key="cloud-" + key * 32) for key in self.remote
+            replace(CloudProfile.new(CloudProvider.DEEPSEEK), key="cloud-" + key * 32)
+            for key in self.remote
         )
         self.choice = BackendChoice(
             "Local labels", self.local, "local-cuda", "weights-v1", selection_id="local"

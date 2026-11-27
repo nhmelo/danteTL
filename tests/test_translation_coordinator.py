@@ -10,7 +10,7 @@ from dantetl.application.model_inventory import InventoryData
 from dantetl.application.preference_values import Preferences
 from dantetl.application.values import ModelConsent
 from dantetl.translation.backend import BackendChoice
-from dantetl.translation.cloud.values import CloudProfile
+from dantetl.translation.cloud.values import CloudProfile, CloudProvider
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.selection import AssignmentChange
 
@@ -149,7 +149,7 @@ def test_restore_legacy_explicit_none_disabled_and_unavailable_ids(tmp_path, val
 def test_route_revision_reconfigures_owner_without_factory_calls_on_render(tmp_path):
     replay = Replay(tmp_path)
     try:
-        remote = CloudProfile.new("deepseek")
+        remote = CloudProfile.new(CloudProvider.DEEPSEEK)
         replay.cloud.profiles = (remote,)
         replay.cloud._available = {remote.key}
         reference = "cloud:" + remote.key

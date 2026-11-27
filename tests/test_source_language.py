@@ -17,7 +17,7 @@ from dantetl.translation.backend import RequestRejected
 from dantetl.translation.backends import gemma, gguf, plamo
 from dantetl.translation.cache import TranslationCache, translation_key
 from dantetl.translation.cloud.protocol import request_body
-from dantetl.translation.cloud.values import CloudProfile
+from dantetl.translation.cloud.values import CloudProfile, CloudProvider
 from dantetl.translation.dialogue.layout import PanelLayout
 from dantetl.translation.grouping import DialogueGrouper, TextBlock
 from dantetl.translation.worker import TranslationSession
@@ -262,7 +262,7 @@ def test_backends_use_the_selected_language_in_their_native_prompt():
     prompt = plamo.translation_prompt("Mapa", (), language=source_language("es"))
     assert "<|plamo:val|>es<|plamo:msg|>Mapa" in prompt
     assert prompt.endswith("<|plamo:val|>en<|plamo:msg|>")
-    profile = CloudProfile.new("claude")
+    profile = CloudProfile.new(CloudProvider.CLAUDE)
     body = request_body(profile, "", ("Mapa", ()), language=language)
     assert "Translate CURRENT from Portuguese" in str(body["system"])
 
@@ -276,7 +276,9 @@ def test_backends_request_the_same_output_language(target):
         gemma.translation_prompt("設定", history, target=target),
         gguf.user_prompt("設定", history, target=target),
         str(
-            request_body(CloudProfile.new("claude"), "", ("設定", history), target=target)["system"]
+            request_body(
+                CloudProfile.new(CloudProvider.CLAUDE), "", ("設定", history), target=target
+            )["system"]
         ),
     ):
         assert target.name in prompt

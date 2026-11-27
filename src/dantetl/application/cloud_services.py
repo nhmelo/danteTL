@@ -27,6 +27,7 @@ from dantetl.translation.cloud.values import (
     CatalogModel,
     ChatGPTAccount,
     CloudProfile,
+    CloudProvider,
     CloudUsage,
 )
 
@@ -176,7 +177,9 @@ class CloudServices:
         return key in self._available
 
     def credential_revision(self, profile: CloudProfile) -> int:
-        key = profile.account if profile.provider == "chatgpt" else profile.credential_key
+        key = (
+            profile.account if profile.provider == CloudProvider.CHATGPT else profile.credential_key
+        )
         return self._credential_revisions.get((profile.provider, key), 0)
 
     def create_backend(
@@ -185,13 +188,13 @@ class CloudServices:
         return CloudBackend(
             profile,
             "chatgpt-plan"
-            if profile.provider == "chatgpt"
+            if profile.provider == CloudProvider.CHATGPT
             else self.api_connections.secret(profile, self._secrets()),
             game=game,
             language=language,
             allowance=self.allowance(profile.key),
             access_token=(lambda work: self.connections.access_token(profile.account, work))
-            if profile.provider == "chatgpt"
+            if profile.provider == CloudProvider.CHATGPT
             else None,
         )
 
@@ -282,7 +285,7 @@ class CloudServices:
             for p in profiles
             if (
                 (p.account, p.model) in account_models
-                if p.provider == "chatgpt"
+                if p.provider == CloudProvider.CHATGPT
                 else (p.provider, p.credential_key) in ready
             )
         }
@@ -335,11 +338,11 @@ class CloudServices:
             for key in result.changes.credentials:
                 self._credential_revisions[key] = self.revision
         referenced = {
-            (p.provider, p.account if p.provider == "chatgpt" else p.credential_key)
+            (p.provider, p.account if p.provider == CloudProvider.CHATGPT else p.credential_key)
             for p in self.profiles
         }
         referenced.update((c.provider, c.key) for c in self.api_accounts)
-        referenced.update(("chatgpt", a.key) for a in self.accounts)
+        referenced.update((CloudProvider.CHATGPT, a.key) for a in self.accounts)
         self._credential_revisions = {
             k: v for k, v in self._credential_revisions.items() if k in referenced
         }
@@ -361,7 +364,7 @@ class CloudServices:
             if self._cancelled.is_set():
                 raise ValueError(tr("Save cancelled."))
             profile = draft.profile
-            if profile.provider != "chatgpt":
+            if profile.provider != CloudProvider.CHATGPT:
                 saved, key_changed = self.api_connections.save_model(
                     profile, draft.connection, draft.secret, secrets
                 )
@@ -424,12 +427,12 @@ class CloudServices:
                 return tr("Test cancelled.")
             source = (
                 replace(profile, credential=draft.connection)
-                if profile.provider != "chatgpt"
+                if profile.provider != CloudProvider.CHATGPT
                 else profile
             )
             key = (
                 (draft.secret or self.api_connections.secret(source, secrets))
-                if profile.provider != "chatgpt"
+                if profile.provider != CloudProvider.CHATGPT
                 else "chatgpt-plan"
             )
             backend = CloudBackend(
@@ -438,7 +441,7 @@ class CloudServices:
                 language=self.language,
                 allowance=self.allowance(profile.key),
                 access_token=(lambda work: self.connections.access_token(profile.account, work))
-                if profile.provider == "chatgpt"
+                if profile.provider == CloudProvider.CHATGPT
                 else None,
             )
             try:
@@ -496,7 +499,7 @@ class CloudServices:
 
         def sign_in(_: Secrets, changes: OperationChanges) -> str:
             key = self.connections.sign_in(selected, self._open_browser, self._cancelled)
-            changes.credentials.add(("chatgpt", key))
+            changes.credentials.add((CloudProvider.CHATGPT, key))
             record = self.connections.store.read(key)
             changes.new_account = key
             if not record.get("welcomed") and PLAN_SCOPE in record.get("scopes", []):
@@ -523,7 +526,7 @@ class CloudServices:
             self._changed()
 
             def sign_out(_: Secrets, changes: OperationChanges) -> str:
-                changes.credentials.add(("chatgpt", account))
+                changes.credentials.add((CloudProvider.CHATGPT, account))
                 return self.connections.sign_out(account, AuthWork(self._cancelled))
 
             self._run(
@@ -538,7 +541,7 @@ class CloudServices:
         if account:
 
             def refresh(_: Secrets, changes: OperationChanges) -> str:
-                changes.credentials.add(("chatgpt", account))
+                changes.credentials.add((CloudProvider.CHATGPT, account))
                 self.connections.refresh_models(account, AuthWork(self._cancelled))
                 return tr("ChatGPT models refreshed.")
 

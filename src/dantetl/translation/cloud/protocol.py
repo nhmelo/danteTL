@@ -5,7 +5,7 @@ from dantetl.languages.selection import DEFAULT_SOURCE
 from dantetl.languages.source import SourceLanguage
 from dantetl.languages.target import ENGLISH, TargetLanguage
 from dantetl.translation.backend import RequestRejected, Source
-from dantetl.translation.cloud.values import ENDPOINTS, CloudProfile
+from dantetl.translation.cloud.values import ENDPOINTS, CloudProfile, CloudProvider
 from dantetl.translation.limits import MAX_ENGLISH_CHARACTERS
 from dantetl.translation.prompt import translation_instruction, translation_payload
 
@@ -14,17 +14,17 @@ CLAUDE_VERSION = "2026-10-21"
 
 def request_url(profile: CloudProfile) -> str:
     endpoint = ENDPOINTS[profile.provider]
-    if profile.provider == "gemini":
+    if profile.provider == CloudProvider.GEMINI:
         # Profile validation admits bounded model identifiers, never arbitrary URLs.
         return endpoint + profile.model + ":generateContent"
     return endpoint
 
 
 def request_headers(profile: CloudProfile, secret: str) -> dict[str, str]:
-    if profile.provider == "gemini":
+    if profile.provider == CloudProvider.GEMINI:
         return {"x-goog-api-key": secret}
     headers = {"Authorization": "Bearer " + secret}
-    if profile.provider == "claude":
+    if profile.provider == CloudProvider.CLAUDE:
         headers["anthropic-version"] = CLAUDE_VERSION
     return headers
 
@@ -67,9 +67,9 @@ def _claude_decoding(profile: CloudProfile) -> dict[str, object]:
 
 def decoding_identity(profile: CloudProfile) -> tuple[object, ...]:
     revision = (profile.model_revision,) if profile.model_revision else ()
-    if profile.provider == "gemini":
+    if profile.provider == CloudProvider.GEMINI:
         return ("generate-content-v1", _gemini_generation(profile), *revision)
-    if profile.provider == "claude":
+    if profile.provider == CloudProvider.CLAUDE:
         return (CLAUDE_VERSION, _claude_decoding(profile), *revision)
     if profile.decoding != "preset":
         return ("provider-default-v1", 2048, *revision)
@@ -92,13 +92,13 @@ def request_body(
 def prompt_body(profile: CloudProfile, instruction: str, user: str) -> dict[str, object]:
     """Build the selected provider's request for translation or classification."""
     match profile.provider:
-        case "openai":
+        case CloudProvider.OPENAI:
             return _openai_body(profile, instruction, user)
-        case "deepseek":
+        case CloudProvider.DEEPSEEK:
             return _deepseek_body(profile, instruction, user)
-        case "chatgpt":
+        case CloudProvider.CHATGPT:
             return _chatgpt_body(profile, instruction, user)
-        case "claude":
+        case CloudProvider.CLAUDE:
             return {
                 "model": profile.model,
                 "system": instruction,
@@ -106,7 +106,7 @@ def prompt_body(profile: CloudProfile, instruction: str, user: str) -> dict[str,
                 "stream": False,
                 **_claude_decoding(profile),
             }
-        case "gemini":
+        case CloudProvider.GEMINI:
             return {
                 "systemInstruction": {"parts": [{"text": instruction}]},
                 "contents": [{"role": "user", "parts": [{"text": user}]}],
@@ -235,15 +235,15 @@ def _completion_text(value: dict) -> str:
     return message["content"]
 
 
-def parse_answer(value: object, provider: str = "openai") -> str:
+def parse_answer(value: object, provider: CloudProvider = CloudProvider.OPENAI) -> str:
     try:
         if not isinstance(value, dict):
             raise ValueError
         text = (
             _gemini_text(value)
-            if provider == "gemini"
+            if provider == CloudProvider.GEMINI
             else _claude_text(value)
-            if provider == "claude"
+            if provider == CloudProvider.CLAUDE
             else _completion_text(value)
         )
         if (
@@ -260,17 +260,17 @@ def parse_answer(value: object, provider: str = "openai") -> str:
         ) from None
 
 
-def response_usage(provider: str, value: object) -> object:
+def response_usage(provider: CloudProvider, value: object) -> object:
     if not isinstance(value, dict):
         return None
-    if provider not in ("gemini", "claude"):
+    if provider not in (CloudProvider.GEMINI, CloudProvider.CLAUDE):
         return value.get("usage")
-    usage = value.get("usageMetadata" if provider == "gemini" else "usage")
+    usage = value.get("usageMetadata" if provider == CloudProvider.GEMINI else "usage")
     if not isinstance(usage, dict):
         return None
     keys = (
         (("promptTokenCount",), ("candidatesTokenCount", "thoughtsTokenCount"))
-        if provider == "gemini"
+        if provider == CloudProvider.GEMINI
         else (
             ("input_tokens", "cache_creation_input_tokens", "cache_read_input_tokens"),
             ("output_tokens",),

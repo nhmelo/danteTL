@@ -16,7 +16,7 @@ from dantetl.translation.cloud.backend import CloudAllowance, CloudBackend
 from dantetl.translation.cloud.profiles import CloudProfiles
 from dantetl.translation.cloud.protocol import parse_answer, request_body
 from dantetl.translation.cloud.responses import PlanUnavailable, ResponseStream
-from dantetl.translation.cloud.values import CloudProfile
+from dantetl.translation.cloud.values import CloudProfile, CloudProvider
 from dantetl.translation.dialogue.context import DialogueTurn
 from dantetl.translation.grouping import TextBlock
 from dantetl.translation.routing import RoutedTranslationSession
@@ -55,7 +55,7 @@ def test_transport_overlaps_two_requests_and_cancels_both_on_stop(tmp_path):
 
     allowance = CloudAllowance()
     engine = CloudBackend(
-        replace(CloudProfile.new("openai"), requests_per_minute=600),
+        replace(CloudProfile.new(CloudProvider.OPENAI), requests_per_minute=600),
         "fixture",
         allowance=allowance,
         transport=httpx2.MockTransport(handle),
@@ -73,8 +73,8 @@ def test_transport_overlaps_two_requests_and_cancels_both_on_stop(tmp_path):
     assert not engine._thread.is_alive()
 
 
-def response(text="Settings", *, provider="openai", **changes):
-    if provider == "gemini":
+def response(text="Settings", *, provider=CloudProvider.OPENAI, **changes):
+    if provider == CloudProvider.GEMINI:
         return {
             "candidates": [
                 {
@@ -86,7 +86,7 @@ def response(text="Settings", *, provider="openai", **changes):
                 }
             ]
         }
-    if provider == "claude":
+    if provider == CloudProvider.CLAUDE:
         return {
             "type": "message",
             "role": "assistant",
@@ -114,7 +114,7 @@ def test_target_switch_cancels_old_cloud_work_and_sends_new_language(tmp_path):
         return httpx2.Response(200, json=response("Ajustes"))
 
     engine = CloudBackend(
-        replace(CloudProfile.new("openai"), requests_per_minute=600),
+        replace(CloudProfile.new(CloudProvider.OPENAI), requests_per_minute=600),
         "fixture",
         transport=httpx2.MockTransport(handle),
     )
@@ -156,7 +156,7 @@ def test_ocr_revision_interrupts_only_the_obsolete_cloud_request(tmp_path):
         )
 
     engine = CloudBackend(
-        replace(CloudProfile.new("openai"), requests_per_minute=600),
+        replace(CloudProfile.new(CloudProvider.OPENAI), requests_per_minute=600),
         "fixture",
         transport=httpx2.MockTransport(handle),
     )
@@ -181,11 +181,11 @@ def test_ocr_revision_interrupts_only_the_obsolete_cloud_request(tmp_path):
 
 def test_profile_storage_is_bounded_and_contains_no_credentials(tmp_path):
     store = CloudProfiles(tmp_path / "profiles.json")
-    profile = CloudProfile.new("openai")
+    profile = CloudProfile.new(CloudProvider.OPENAI)
     store.write((profile,))
     assert store.read() == (profile,)
     assert "api_key" not in store.path.read_text()
-    full = tuple(CloudProfile.new("openai") for _ in range(16))
+    full = tuple(CloudProfile.new(CloudProvider.OPENAI) for _ in range(16))
     store.write(full)
     assert store.read() == full
     with pytest.raises(ValueError):
@@ -205,7 +205,7 @@ def test_transport_error_and_traceback_never_reveal_credentials(tmp_path, caplog
 
     def backend():
         return CloudBackend(
-            CloudProfile.new("openai"), secret, transport=httpx2.MockTransport(broken)
+            CloudProfile.new(CloudProvider.OPENAI), secret, transport=httpx2.MockTransport(broken)
         )
 
     session = TranslationSession(backend, tmp_path / "cache")
@@ -220,7 +220,7 @@ def test_transport_error_and_traceback_never_reveal_credentials(tmp_path, caplog
         stop(session)
 
 
-@pytest.mark.parametrize("provider", ["openai", "deepseek"])
+@pytest.mark.parametrize("provider", [CloudProvider.OPENAI, CloudProvider.DEEPSEEK])
 def test_prompt_bounds_and_provider_specific_reasoning(provider):
     profile = CloudProfile.new(provider)
     context = (DialogueTurn("私の名前はリナです。", "My name is Rina."),)
@@ -231,7 +231,7 @@ def test_prompt_bounds_and_provider_specific_reasoning(provider):
     assert json.loads(messages[1]["content"])["RECENT"] == [[context[0].source, context[0].english]]
     assert (
         body.get("thinking") == {"type": "disabled"}
-        if provider == "deepseek"
+        if provider == CloudProvider.DEEPSEEK
         else body["reasoning_effort"] == "none"
     )
     assert body["stream"] is False and "tools" not in body
@@ -240,7 +240,7 @@ def test_prompt_bounds_and_provider_specific_reasoning(provider):
 
 
 def test_cache_identity_includes_provider_model_game_and_excludes_key():
-    profile = CloudProfile.new("openai")
+    profile = CloudProfile.new(CloudProvider.OPENAI)
     engines = [
         CloudBackend(profile, "fake-one", game="A"),
         CloudBackend(profile, "fake-two", game="A"),
@@ -273,7 +273,10 @@ def test_rejects_partial_refused_malformed_or_reasoning_output(body):
         parse_answer(body)
 
 
-@pytest.mark.parametrize("provider", ["openai", "deepseek", "gemini", "claude"])
+@pytest.mark.parametrize(
+    "provider",
+    [CloudProvider.OPENAI, CloudProvider.DEEPSEEK, CloudProvider.GEMINI, CloudProvider.CLAUDE],
+)
 def test_cached_text_publishes_while_cloud_is_blocked_and_static_text_is_stable(tmp_path, provider):
     entered, release = threading.Event(), threading.Event()
     calls = []
@@ -315,7 +318,10 @@ def test_cached_text_publishes_while_cloud_is_blocked_and_static_text_is_stable(
     assert not engine._thread.is_alive()
 
 
-@pytest.mark.parametrize("provider", ["openai", "deepseek", "gemini", "claude"])
+@pytest.mark.parametrize(
+    "provider",
+    [CloudProvider.OPENAI, CloudProvider.DEEPSEEK, CloudProvider.GEMINI, CloudProvider.CLAUDE],
+)
 def test_cancelled_generation_never_publishes_or_leaves_network_owner_running(tmp_path, provider):
     entered = threading.Event()
     cancelled = threading.Event()
@@ -342,7 +348,10 @@ def test_cancelled_generation_never_publishes_or_leaves_network_owner_running(tm
     assert not engine._thread.is_alive()
 
 
-@pytest.mark.parametrize("provider", ["openai", "deepseek", "gemini", "claude"])
+@pytest.mark.parametrize(
+    "provider",
+    [CloudProvider.OPENAI, CloudProvider.DEEPSEEK, CloudProvider.GEMINI, CloudProvider.CLAUDE],
+)
 def test_account_failure_stops_network_attempts_but_keeps_existing_english(tmp_path, provider):
     calls = []
 
@@ -374,7 +383,10 @@ def test_account_failure_stops_network_attempts_but_keeps_existing_english(tmp_p
         stop(session)
 
 
-@pytest.mark.parametrize("provider", ["openai", "deepseek", "gemini", "claude"])
+@pytest.mark.parametrize(
+    "provider",
+    [CloudProvider.OPENAI, CloudProvider.DEEPSEEK, CloudProvider.GEMINI, CloudProvider.CLAUDE],
+)
 def test_hybrid_groups_dialogue_and_local_work_is_not_blocked(tmp_path, provider):
     entered, release = threading.Event(), threading.Event()
     sources = []
@@ -383,7 +395,7 @@ def test_hybrid_groups_dialogue_and_local_work_is_not_blocked(tmp_path, provider
         body = json.loads(request.content)
         user = (
             body["contents"][0]["parts"][0]["text"]
-            if provider == "gemini"
+            if provider == CloudProvider.GEMINI
             else body["messages"][-1]["content"]
         )
         sources.append(json.loads(user))
@@ -480,7 +492,11 @@ def test_plan_stream_requires_completion_and_handles_usage_failure_after_partial
 
 def test_chatgpt_uses_only_oauth_responses_and_no_api_billing_fallback(tmp_path):
     profile = CloudProfile(
-        "cloud-" + "a" * 32, "My plan", "chatgpt", "gpt-6-luna", account="account-" + "b" * 32
+        "cloud-" + "a" * 32,
+        "My plan",
+        CloudProvider.CHATGPT,
+        "gpt-6-luna",
+        account="account-" + "b" * 32,
     )
     calls = []
 
@@ -515,7 +531,7 @@ def test_chatgpt_uses_only_oauth_responses_and_no_api_billing_fallback(tmp_path)
 
 
 def test_budget_is_shared_across_backend_recreation_and_cache_does_not_spend_it():
-    profile = replace(CloudProfile.new("deepseek"), request_limit=1)
+    profile = replace(CloudProfile.new(CloudProvider.DEEPSEEK), request_limit=1)
     allowance = CloudAllowance()
     engines = [
         CloudBackend(

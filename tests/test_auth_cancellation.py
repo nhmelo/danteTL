@@ -11,7 +11,7 @@ from dantetl.translation.cloud.auth_work import AuthInterrupted, AuthWork
 from dantetl.translation.cloud.backend import CloudBackend
 from dantetl.translation.cloud.chatgpt_auth import PLAN_SCOPE, ChatGPTConnections
 from dantetl.translation.cloud.protected_store import ProtectedStore
-from dantetl.translation.cloud.values import CloudProfile
+from dantetl.translation.cloud.values import CloudProfile, CloudProvider
 from dantetl.translation.values import TranslationState
 from dantetl.translation.worker import TranslationSession
 
@@ -68,7 +68,9 @@ def test_translation_owner_drains_slow_auth_without_losing_saved_tokens(tmp_path
         work.transport = httpx2.MockTransport(handle)
         return service.access_token(key, work)
 
-    profile = CloudProfile("cloud-" + "b" * 32, "Plan", "chatgpt", "gpt-6-luna", account=key)
+    profile = CloudProfile(
+        "cloud-" + "b" * 32, "Plan", CloudProvider.CHATGPT, "gpt-6-luna", account=key
+    )
     backend = CloudBackend(profile, "plan", access_token=token)
     session = TranslationSession(lambda: backend, tmp_path / "cache")
     session.start()
@@ -117,7 +119,9 @@ def test_total_auth_deadline_rejects_only_request_and_preserves_credentials(tmp_
         work.transport = httpx2.MockTransport(handle)
         return service.access_token(key, work)
 
-    profile = CloudProfile("cloud-" + "b" * 32, "Plan", "chatgpt", "gpt-6-luna", account=key)
+    profile = CloudProfile(
+        "cloud-" + "b" * 32, "Plan", CloudProvider.CHATGPT, "gpt-6-luna", account=key
+    )
     backend = CloudBackend(profile, "plan", access_token=token, timeout=0.15)
     session = TranslationSession(lambda: backend, tmp_path / "cache")
     session.start()

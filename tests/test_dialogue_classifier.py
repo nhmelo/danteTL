@@ -14,7 +14,7 @@ from dantetl.domain import Rect
 from dantetl.ocr.observation import TextTrack
 from dantetl.translation.backend import RequestRejected
 from dantetl.translation.cloud.backend import CloudAllowance, CloudBackend
-from dantetl.translation.cloud.values import CloudProfile
+from dantetl.translation.cloud.values import CloudProfile, CloudProvider
 from dantetl.translation.dialogue.classifier import (
     Classification,
     ClassificationInput,
@@ -460,7 +460,10 @@ def test_history_defaults_off_and_preferences_validate_model_ids():
     )
 
 
-@pytest.mark.parametrize("provider", ["openai", "deepseek", "gemini", "claude"])
+@pytest.mark.parametrize(
+    "provider",
+    [CloudProvider.OPENAI, CloudProvider.DEEPSEEK, CloudProvider.GEMINI, CloudProvider.CLAUDE],
+)
 @pytest.mark.parametrize("detached", (False, True))
 def test_cloud_classifies_in_one_call_with_shared_allowance_and_no_transcript(provider, detached):
     received = []
@@ -468,7 +471,7 @@ def test_cloud_classifies_in_one_call_with_shared_allowance_and_no_transcript(pr
 
     def handler(request):
         received.append(json.loads(request.content))
-        if provider == "gemini":
+        if provider == CloudProvider.GEMINI:
             value = {
                 "candidates": [
                     {
@@ -477,7 +480,7 @@ def test_cloud_classifies_in_one_call_with_shared_allowance_and_no_transcript(pr
                     }
                 ]
             }
-        elif provider == "claude":
+        elif provider == CloudProvider.CLAUDE:
             value = {
                 "type": "message",
                 "role": "assistant",
@@ -528,7 +531,7 @@ def test_cloud_classification_cancel_drains_io():
 
     session = ClassifierSession(
         lambda: CloudBackend(
-            replace(CloudProfile.new("openai"), requests_per_minute=600),
+            replace(CloudProfile.new(CloudProvider.OPENAI), requests_per_minute=600),
             "fixture",
             transport=httpx2.MockTransport(handler),
         )

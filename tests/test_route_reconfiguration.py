@@ -13,7 +13,7 @@ from dantetl.application.preference_values import Preferences
 from dantetl.application.translation_coordinator import TranslationCoordinator
 from dantetl.languages.selection import source_language
 from dantetl.translation.backend import BackendChoice
-from dantetl.translation.cloud.values import CloudProfile
+from dantetl.translation.cloud.values import CloudProfile, CloudProvider
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.routing import RoutedTranslationSession
 from dantetl.translation.values import TranslationState
@@ -191,7 +191,9 @@ def test_cloud_edits_preserve_unaffected_work_and_scope_credential_changes(tmp_p
     from dantetl.translation.cloud.state import CloudDraft
 
     service, _ = create(tmp_path)
-    a, b, c = (replace(CloudProfile.new("deepseek"), name=name) for name in ("A", "B", "C"))
+    a, b, c = (
+        replace(CloudProfile.new(CloudProvider.DEEPSEEK), name=name) for name in ("A", "B", "C")
+    )
 
     def save(profile, connection="", secret=""):
         service.save(CloudDraft(profile, connection, secret))

@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from dantetl.translation.cloud.values import CloudProfile
+from dantetl.translation.cloud.values import CloudProfile, CloudProvider
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.references import ModelKind, reference_key, reference_kind
 
@@ -56,7 +56,7 @@ class LocalIdentity:
 
 @dataclass(frozen=True)
 class CloudIdentity:
-    provider: str
+    provider: CloudProvider
     model: str
     connection: str
     decoding: str
@@ -71,7 +71,9 @@ class CloudIdentity:
         return cls(
             profile.provider,
             profile.model,
-            profile.account if profile.provider == "chatgpt" else profile.credential_key,
+            profile.account
+            if profile.provider == CloudProvider.CHATGPT
+            else profile.credential_key,
             profile.decoding,
             profile.model_revision,
             profile.requests_per_minute,

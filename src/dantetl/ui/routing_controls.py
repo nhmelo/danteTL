@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 
 from dantetl.application.preference_values import Preferences
 from dantetl.i18n import display, mark, tr
-from dantetl.translation.cloud.values import PROVIDERS
+from dantetl.translation.cloud.values import PROVIDERS, CloudProvider
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.selection import AssignmentChange, ModelOption
 from dantetl.ui.controls import InfoButton, StatusBanner, Switch, add_combo_section
@@ -248,7 +248,7 @@ class RoutingControls(QWidget):
             if profiles:
                 label = (
                     tr("{provider} API", provider=label.partition(" · ")[0])
-                    if provider != "chatgpt"
+                    if provider != CloudProvider.CHATGPT
                     else tr(label)
                 )
                 add_combo_section(combo, label)
@@ -299,7 +299,9 @@ class RoutingControls(QWidget):
             else ""
         )
         self.cloud_fields.setVisible(bool(self.active_cloud))
-        self.plan_notice.setVisible(any(p.provider == "chatgpt" for p in self.active_cloud))
+        self.plan_notice.setVisible(
+            any(p.provider == CloudProvider.CHATGPT for p in self.active_cloud)
+        )
         self._disclosed(notify=False)
 
     def _disclosed(self, *, notify: bool = True) -> None:

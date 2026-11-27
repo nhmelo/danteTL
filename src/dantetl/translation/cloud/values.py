@@ -2,41 +2,56 @@
 
 import re
 from dataclasses import dataclass
+from enum import StrEnum
 from uuid import uuid4
 
 from dantetl.i18n import mark, tr
 
 MAX_CLOUD_PROFILES = 16
 
+
+class CloudProvider(StrEnum):
+    """Supported cloud services. Values are the persisted profile and connection names."""
+
+    CHATGPT = "chatgpt"
+    OPENAI = "openai"
+    DEEPSEEK = "deepseek"
+    GEMINI = "gemini"
+    CLAUDE = "claude"
+
+
 PROVIDERS = {
-    "chatgpt": mark("ChatGPT plan"),
-    "openai": mark("OpenAI · API key"),
-    "deepseek": mark("DeepSeek · API key"),
-    "gemini": mark("Gemini · API key"),
-    "claude": mark("Claude · API key"),
+    CloudProvider.CHATGPT: mark("ChatGPT plan"),
+    CloudProvider.OPENAI: mark("OpenAI · API key"),
+    CloudProvider.DEEPSEEK: mark("DeepSeek · API key"),
+    CloudProvider.GEMINI: mark("Gemini · API key"),
+    CloudProvider.CLAUDE: mark("Claude · API key"),
 }
 
 MODELS = {
-    "openai": (("gpt-5.4-mini-2026-03-17", "GPT-5.4 mini"), ("gpt-6-luna", "GPT-6 Luna")),
-    "deepseek": (("deepseek-flash", "DeepSeek Flash"),),
-    "gemini": (
+    CloudProvider.OPENAI: (
+        ("gpt-5.4-mini-2026-03-17", "GPT-5.4 mini"),
+        ("gpt-6-luna", "GPT-6 Luna"),
+    ),
+    CloudProvider.DEEPSEEK: (("deepseek-flash", "DeepSeek Flash"),),
+    CloudProvider.GEMINI: (
         ("gemini-3.5-flash-lite", "Gemini 3.5 Flash-Lite"),
         ("gemini-3.8-flash", "Gemini 3.8 Flash"),
         ("gemini-4-hydrogen", "Gemini 4 Hydrogen"),
     ),
-    "claude": (
+    CloudProvider.CLAUDE: (
         ("claude-haiku-5-5", "Claude Haiku 5.5"),
         ("claude-sonnet-5-5", "Claude Sonnet 5.5"),
     ),
-    "chatgpt": (),
+    CloudProvider.CHATGPT: (),
 }
 
 ENDPOINTS = {
-    "openai": "https://api.openai.com/v1/chat/completions",
-    "deepseek": "https://api.deepseek.com/chat/completions",
-    "chatgpt": "https://api.openai.com/v1/responses",
-    "gemini": "https://generativelanguage.googleapis.com/v1beta/models/",
-    "claude": "https://api.anthropic.com/v1/messages",
+    CloudProvider.OPENAI: "https://api.openai.com/v1/chat/completions",
+    CloudProvider.DEEPSEEK: "https://api.deepseek.com/chat/completions",
+    CloudProvider.CHATGPT: "https://api.openai.com/v1/responses",
+    CloudProvider.GEMINI: "https://generativelanguage.googleapis.com/v1beta/models/",
+    CloudProvider.CLAUDE: "https://api.anthropic.com/v1/messages",
 }
 
 
@@ -44,7 +59,7 @@ ENDPOINTS = {
 class CloudProfile:
     key: str
     name: str
-    provider: str
+    provider: CloudProvider
     model: str
     requests_per_minute: int = 120
     request_limit: int = 1000
@@ -78,7 +93,7 @@ class CloudProfile:
             raise ValueError(tr("Choose a name of at most 80 characters."))
         if self.credential and not re.fullmatch(r"(?:api|cloud)-[0-9a-f]{32}", self.credential):
             raise ValueError(tr("Invalid API connection ID."))
-        if self.provider == "chatgpt":
+        if self.provider == CloudProvider.CHATGPT:
             if self.credential:
                 raise ValueError(tr("ChatGPT plan models cannot use API credentials."))
             if not re.fullmatch(r"account-[0-9a-f]{32}", self.account) or not re.fullmatch(
@@ -90,11 +105,11 @@ class CloudProfile:
         ):
             raise ValueError(tr("Choose a supported provider and model."))
         allowed = {
-            "chatgpt": ("preset",),
-            "openai": ("preset", "default"),
-            "deepseek": ("preset", "default"),
-            "gemini": ("preset", "default", "gemini-no-thinking"),
-            "claude": (
+            CloudProvider.CHATGPT: ("preset",),
+            CloudProvider.OPENAI: ("preset", "default"),
+            CloudProvider.DEEPSEEK: ("preset", "default"),
+            CloudProvider.GEMINI: ("preset", "default", "gemini-no-thinking"),
+            CloudProvider.CLAUDE: (
                 "preset",
                 "default",
                 "claude-disabled-low",
@@ -107,16 +122,17 @@ class CloudProfile:
         if self.decoding not in allowed[self.provider] or len(self.model_revision) > 120:
             raise ValueError(tr("Unsupported cloud request settings."))
         if (
-            self.provider != "chatgpt"
+            self.provider != CloudProvider.CHATGPT
             and self.decoding == "preset"
             and self.model not in dict(MODELS[self.provider])
         ):
             raise ValueError(tr("Refresh models to configure this model's request settings."))
         if not 10 <= self.requests_per_minute <= 600 or not 1 <= self.request_limit <= 100_000:
             raise ValueError(tr("Cloud request limits are out of range."))
+        object.__setattr__(self, "provider", CloudProvider(self.provider))
 
     @classmethod
-    def new(cls, provider: str) -> "CloudProfile":
+    def new(cls, provider: CloudProvider) -> "CloudProfile":
         if not MODELS.get(provider):
             raise ValueError(tr("Choose an account model after signing in to ChatGPT."))
         model, label = MODELS[provider][0]
@@ -130,7 +146,7 @@ class CloudProfile:
 @dataclass(frozen=True, slots=True)
 class ApiConnection:
     key: str
-    provider: str
+    provider: CloudProvider
     name: str
 
     def __post_init__(self) -> None:
@@ -138,12 +154,13 @@ class ApiConnection:
             not isinstance(self.key, str)
             or not re.fullmatch(r"(?:api|cloud)-[0-9a-f]{32}", self.key)
             or self.provider not in PROVIDERS
-            or self.provider == "chatgpt"
+            or self.provider == CloudProvider.CHATGPT
             or not isinstance(self.name, str)
             or not self.name.strip()
             or len(self.name) > 90
         ):
             raise ValueError(tr("Invalid API connection settings."))
+        object.__setattr__(self, "provider", CloudProvider(self.provider))
 
 
 @dataclass(frozen=True, slots=True)
@@ -162,7 +179,7 @@ class CatalogModel:
     revision: str = ""
     lifecycle: str = "active"
 
-    def profile(self, provider: str) -> CloudProfile:
+    def profile(self, provider: CloudProvider) -> CloudProfile:
         return CloudProfile(
             "cloud-" + "0" * 32,
             self.label[:80],
@@ -173,7 +190,7 @@ class CatalogModel:
         )
 
 
-def recommended(provider: str) -> tuple[CatalogModel, ...]:
+def recommended(provider: CloudProvider) -> tuple[CatalogModel, ...]:
     return tuple(CatalogModel(key, label, "preset") for key, label in MODELS.get(provider, ()))
 
 

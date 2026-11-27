@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (
 
 from dantetl.i18n import mark, tr
 from dantetl.translation.cloud.state import CloudDraft
-from dantetl.translation.cloud.values import PROVIDERS, CloudProfile
+from dantetl.translation.cloud.values import PROVIDERS, CloudProfile, CloudProvider
 from dantetl.ui.cloud_editor import CloudModelDialog
 from dantetl.ui.localization import localized, on_language_change
 
@@ -184,7 +184,11 @@ class CloudSettings(QWidget):
             )
             ready = profile.key in self._view.available
             status = (
-                (tr("✓ Signed in") if profile.provider == "chatgpt" else tr("✓ Key saved"))
+                (
+                    tr("✓ Signed in")
+                    if profile.provider == CloudProvider.CHATGPT
+                    else tr("✓ Key saved")
+                )
                 if ready
                 else tr("⚠ Connection needed")
             )
@@ -332,7 +336,7 @@ class CloudSettings(QWidget):
                 )
                 + (
                     tr("This uses your ChatGPT plan permissions; review Manage usage first.")
-                    if profile.provider == "chatgpt"
+                    if profile.provider == CloudProvider.CHATGPT
                     else tr("This makes one small API request and may incur a charge.")
                 )
                 + tr(" Model edits and new keys are not saved by this test."),
@@ -366,7 +370,9 @@ class CloudSettings(QWidget):
     def _forget_key(self, key: str) -> None:
         if not key:
             return
-        count = sum(p.credential_key == key for p in self.profiles if p.provider != "chatgpt")
+        count = sum(
+            p.credential_key == key for p in self.profiles if p.provider != CloudProvider.CHATGPT
+        )
         if (
             QMessageBox.question(
                 self.editor or self,

@@ -14,13 +14,13 @@ from dantetl.translation.cloud.protocol import (
     request_body,
     response_usage,
 )
-from dantetl.translation.cloud.values import ENDPOINTS, MODELS, CloudProfile
+from dantetl.translation.cloud.values import ENDPOINTS, MODELS, CloudProfile, CloudProvider
 from dantetl.translation.dialogue.context import DialogueTurn
 from dantetl.translation.prompt import translation_instruction
 
 
 def answer(provider, text="Critical Rate", *, reason=None, parts=None):
-    if provider == "gemini":
+    if provider == CloudProvider.GEMINI:
         return {
             "candidates": [
                 {
@@ -50,7 +50,11 @@ def answer(provider, text="Critical Rate", *, reason=None, parts=None):
 
 @pytest.mark.parametrize(
     "provider,model",
-    [(provider, model) for provider in ("gemini", "claude") for model, _ in MODELS[provider]],
+    [
+        (provider, model)
+        for provider in (CloudProvider.GEMINI, CloudProvider.CLAUDE)
+        for model, _ in MODELS[provider]
+    ],
 )
 def test_offered_models_send_native_text_only_requests_and_count_all_tokens(provider, model):
     profile = replace(CloudProfile.new(provider), model=model)
@@ -62,7 +66,7 @@ def test_offered_models_send_native_text_only_requests_and_count_all_tokens(prov
         body = json.loads(request.content)
         assert "fixture-secret" not in str(request.url) + json.dumps(body)
         assert not request.url.query and "tools" not in body and "temperature" not in body
-        if provider == "gemini":
+        if provider == CloudProvider.GEMINI:
             assert str(request.url) == ENDPOINTS[provider] + model + ":generateContent"
             assert request.headers["x-goog-api-key"] == "fixture-secret"
             assert "Authorization" not in request.headers
@@ -115,7 +119,7 @@ def test_offered_models_send_native_text_only_requests_and_count_all_tokens(prov
     assert not engine._thread.is_alive()
 
 
-@pytest.mark.parametrize("provider", ["gemini", "claude"])
+@pytest.mark.parametrize("provider", [CloudProvider.GEMINI, CloudProvider.CLAUDE])
 def test_native_responses_require_complete_text_without_tools_thoughts_or_refusals(provider):
     bad = [
         None,
@@ -124,7 +128,7 @@ def test_native_responses_require_complete_text_without_tools_thoughts_or_refusa
         answer(provider, "x" * 4097),
         answer(provider, "<think>Internal</think>English"),
     ]
-    if provider == "gemini":
+    if provider == CloudProvider.GEMINI:
         for reason in ("MAX_TOKENS", "SAFETY", "RECITATION", "OTHER"):
             bad.append(answer(provider, reason=reason))
         for part in (
@@ -166,7 +170,7 @@ def test_native_responses_require_complete_text_without_tools_thoughts_or_refusa
     )
 
 
-@pytest.mark.parametrize("provider", ["gemini", "claude"])
+@pytest.mark.parametrize("provider", [CloudProvider.GEMINI, CloudProvider.CLAUDE])
 def test_rejected_answer_is_scoped_and_does_not_poison_next_request(provider):
     replies = iter([answer(provider, reason="max_tokens"), answer(provider)])
     engine = CloudBackend(
@@ -185,8 +189,8 @@ def test_rejected_answer_is_scoped_and_does_not_poison_next_request(provider):
 @pytest.mark.parametrize(
     "provider,status,body",
     [
-        ("gemini", 400, {"error": {"details": [{"reason": "API_KEY_INVALID"}]}}),
-        ("claude", 401, {"error": {"type": "authentication_error"}}),
+        (CloudProvider.GEMINI, 400, {"error": {"details": [{"reason": "API_KEY_INVALID"}]}}),
+        (CloudProvider.CLAUDE, 401, {"error": {"type": "authentication_error"}}),
     ],
 )
 def test_native_account_error_blocks_further_attempts_without_exposing_provider_body(
@@ -212,7 +216,9 @@ def test_native_account_error_blocks_further_attempts_without_exposing_provider_
         engine.close()
 
 
-@pytest.mark.parametrize("provider,status", [("gemini", 429), ("claude", 529)])
+@pytest.mark.parametrize(
+    "provider,status", [(CloudProvider.GEMINI, 429), (CloudProvider.CLAUDE, 529)]
+)
 def test_native_overload_retries_once_and_never_changes_provider(provider, status):
     calls = []
 
@@ -234,12 +240,17 @@ def test_native_overload_retries_once_and_never_changes_provider(provider, statu
 def test_existing_cache_identities_survive_protocol_extraction_and_new_models_are_distinct():
     engines = []
     try:
-        for provider in ("openai", "deepseek", "gemini", "claude"):
+        for provider in (
+            CloudProvider.OPENAI,
+            CloudProvider.DEEPSEEK,
+            CloudProvider.GEMINI,
+            CloudProvider.CLAUDE,
+        ):
             for model, _ in MODELS[provider]:
                 profile = replace(CloudProfile.new(provider), model=model)
                 engine = CloudBackend(profile, "fixture", game="Game")
                 engines.append(engine)
-                if provider in ("openai", "deepseek"):
+                if provider in (CloudProvider.OPENAI, CloudProvider.DEEPSEEK):
                     old = [
                         ENDPOINTS[provider],
                         model,

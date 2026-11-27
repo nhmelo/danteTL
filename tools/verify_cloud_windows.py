@@ -18,7 +18,7 @@ from dantetl.paths import state_root
 from dantetl.translation.cloud.chatgpt_auth import PLAN_SCOPE, ChatGPTConnections
 from dantetl.translation.cloud.profiles import CloudProfiles
 from dantetl.translation.cloud.protected_store import ProtectedStore
-from dantetl.translation.cloud.values import CatalogModel, CloudProfile
+from dantetl.translation.cloud.values import CatalogModel, CloudProfile, CloudProvider
 from dantetl.ui.desktop_driver import DesktopDriver
 from dantetl.ui.main_window import MainWindow
 
@@ -55,12 +55,15 @@ def main() -> None:
             },
         )
         profile = CloudProfile(
-            "cloud-" + "b" * 32, "GPT-6 Luna", "chatgpt", "gpt-6-luna", account=account
+            "cloud-" + "b" * 32, "GPT-6 Luna", CloudProvider.CHATGPT, "gpt-6-luna", account=account
         )
         catalog = CloudProfiles(root / "cloud.json")
-        api_profile = CloudProfile.new("deepseek")
-        missing_profile = CloudProfile.new("openai")
-        gemini, claude = CloudProfile.new("gemini"), CloudProfile.new("claude")
+        api_profile = CloudProfile.new(CloudProvider.DEEPSEEK)
+        missing_profile = CloudProfile.new(CloudProvider.OPENAI)
+        gemini, claude = (
+            CloudProfile.new(CloudProvider.GEMINI),
+            CloudProfile.new(CloudProvider.CLAUDE),
+        )
         catalog.write((profile, api_profile, missing_profile, gemini, claude))
         secrets = Mock()
         secrets.read.side_effect = lambda key: (
@@ -163,7 +166,7 @@ def main() -> None:
             panel.add.click()
             editor = panel.editor
             assert editor
-            editor.provider.setCurrentIndex(editor.provider.findData("deepseek"))
+            editor.provider.setCurrentIndex(editor.provider.findData(CloudProvider.DEEPSEEK))
             app.processEvents()
             assert editor.key.isVisible() and not editor.chatgpt.isVisible()
             assert not editor.limits.isVisible()
@@ -175,7 +178,7 @@ def main() -> None:
             editor.grab().save(str(args.output / "editor-small-advanced.png"))
             editor.reject()
             assert panel.editor is None and len(panel.profiles) == 5
-            for provider, expected_count in (("gemini", 3), ("claude", 2)):
+            for provider, expected_count in ((CloudProvider.GEMINI, 3), (CloudProvider.CLAUDE, 2)):
                 panel.add.click()
                 editor = panel.editor
                 assert editor
@@ -187,7 +190,7 @@ def main() -> None:
                 editor.model.setCurrentIndex(expected_count - 1)
                 editor.grab().save(str(args.output / f"add-{provider}.png"))
                 editor.reject()
-                selected = gemini if provider == "gemini" else claude
+                selected = gemini if provider == CloudProvider.GEMINI else claude
                 index = find_model(window.routing.simple, selected)
                 window.routing.simple.setCurrentIndex(index)
                 assert (

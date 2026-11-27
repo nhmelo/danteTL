@@ -8,7 +8,12 @@ from dantetl.i18n import mark, tr
 from dantetl.translation.cloud.credentials import Secrets
 from dantetl.translation.cloud.profiles import CloudProfiles
 from dantetl.translation.cloud.settings_file import SettingsFile
-from dantetl.translation.cloud.values import MAX_CLOUD_PROFILES, ApiConnection, CloudProfile
+from dantetl.translation.cloud.values import (
+    MAX_CLOUD_PROFILES,
+    ApiConnection,
+    CloudProfile,
+    CloudProvider,
+)
 
 # Includes full version-1 catalogs with JSON-escaped Unicode names.
 _FILE = SettingsFile(24 * 1024, mark("API connection settings are too large."))
@@ -69,7 +74,11 @@ class ApiConnections:
         # Adopt previous model-owned credentials in place, without copying secret material.
         legacy = []
         for p in profiles:
-            if p.provider == "chatgpt" or p.credential or any(c.key == p.key for c in connections):
+            if (
+                p.provider == CloudProvider.CHATGPT
+                or p.credential
+                or any(c.key == p.key for c in connections)
+            ):
                 continue
             try:
                 if secrets.read(p.key):

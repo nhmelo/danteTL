@@ -30,6 +30,7 @@ from dantetl.translation.cloud.values import (
     CatalogModel,
     ChatGPTAccount,
     CloudProfile,
+    CloudProvider,
     recommended,
 )
 from dantetl.ui.chatgpt_controls import ChatGPTControls
@@ -87,9 +88,9 @@ class CloudModelDialog(QDialog):
             QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
         )
         for key, label in PROVIDERS.items():
-            localized_item(self.provider, label, key)
+            localized_item(self.provider, label, key.value)
         if profile:
-            self.provider.setCurrentIndex(self.provider.findData(profile.provider))
+            self.provider.setCurrentIndex(self.provider.findData(profile.provider.value))
         self.provider.setEnabled(profile is None)
         form.addRow(localized(QLabel(), text=mark("Provider")), self.provider)
         self.chatgpt = ChatGPTControls()
@@ -283,7 +284,7 @@ class CloudModelDialog(QDialog):
 
     def _provider_changed(self) -> None:
         self.key.clear()
-        chatgpt = self.provider.currentData() == "chatgpt"
+        chatgpt = self.provider.currentData() == CloudProvider.CHATGPT
         if self._last_provider != self.provider.currentData():
             self._models = {}
             self._discovered = None
@@ -329,7 +330,7 @@ class CloudModelDialog(QDialog):
             )
             + (
                 tr(" Use a workspace-scoped Claude API key.")
-                if self.provider.currentData() == "claude"
+                if self.provider.currentData() == CloudProvider.CLAUDE
                 else ""
             )
         )
@@ -359,7 +360,7 @@ class CloudModelDialog(QDialog):
             self._models[p.model] = CatalogModel(p.model, p.name, p.decoding, p.model_revision)
         models = (
             (account.models if account else ())
-            if provider == "chatgpt"
+            if provider == CloudProvider.CHATGPT
             else tuple(
                 (
                     m.model,
@@ -402,7 +403,7 @@ class CloudModelDialog(QDialog):
         )
         self.forget.setEnabled(bool(self.connection.currentData()))
         account = self.chatgpt.selected
-        chatgpt = self.provider.currentData() == "chatgpt"
+        chatgpt = self.provider.currentData() == CloudProvider.CHATGPT
         ready = bool(account and account.enabled) if chatgpt else saved
         self.badge.setText(
             (tr("✓ Signed in") if ready else tr("Sign in to choose models"))
@@ -419,7 +420,7 @@ class CloudModelDialog(QDialog):
         self._model_label = label[:80]
         self.status.clear()
         selected = self._models.get(self.model.currentData())
-        if self.provider.currentData() == "chatgpt":
+        if self.provider.currentData() == CloudProvider.CHATGPT:
             self.model_note.setText(tr("Account models · list order is not a speed ranking."))
         else:
             source = (
@@ -458,14 +459,14 @@ class CloudModelDialog(QDialog):
                 self.model.currentData() or (MODELS[provider][0][0] if refresh else ""),
                 self.rate.value(),
                 self.limit.value(),
-                account=self.account_key if provider == "chatgpt" else "",
+                account=self.account_key if provider == CloudProvider.CHATGPT else "",
                 decoding=selected.decoding if selected else "preset",
                 model_revision=selected.revision if selected else "",
             )
             draft = CloudDraft(
                 profile,
                 self.connection.currentData() or "",
-                self.key.text().strip() if provider != "chatgpt" else "",
+                self.key.text().strip() if provider != CloudProvider.CHATGPT else "",
                 self._discovered,
             )
         except ValueError as error:

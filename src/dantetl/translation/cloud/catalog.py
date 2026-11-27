@@ -14,34 +14,36 @@ from dantetl.atomic_file import replace_file
 from dantetl.i18n import tr
 from dantetl.translation.cloud.credentials import valid_credential
 from dantetl.translation.cloud.protocol import request_headers
-from dantetl.translation.cloud.values import CatalogModel, CloudProfile, recommended
+from dantetl.translation.cloud.values import CatalogModel, CloudProfile, CloudProvider, recommended
 from dantetl.translation.http_request import ResponseTooLarge, read_response
 
 URLS = {
-    "openai": "https://api.openai.com/v1/models",
-    "deepseek": "https://api.deepseek.com/models",
-    "gemini": "https://generativelanguage.googleapis.com/v1beta/models",
-    "claude": "https://api.anthropic.com/v1/models",
+    CloudProvider.OPENAI: "https://api.openai.com/v1/models",
+    CloudProvider.DEEPSEEK: "https://api.deepseek.com/models",
+    CloudProvider.GEMINI: "https://generativelanguage.googleapis.com/v1beta/models",
+    CloudProvider.CLAUDE: "https://api.anthropic.com/v1/models",
 }
 
 
-def _model(provider: str, row: object) -> CatalogModel | None:
+def _model(provider: CloudProvider, row: object) -> CatalogModel | None:
     if not isinstance(row, dict):
         return None
-    key = row.get("name" if provider == "gemini" else "id", "")
+    key = row.get("name" if provider == CloudProvider.GEMINI else "id", "")
     if not isinstance(key, str):
         return None
-    if provider == "gemini":
+    if provider == CloudProvider.GEMINI:
         key = key.removeprefix("models/")
     if not re.fullmatch(r"[A-Za-z0-9._:-]{1,120}", key):
         return None
     # Catalogs also contain embeddings, audio and image generators. Unknown text models
     # remain testable; an ID alone never earns a compatibility badge.
-    if provider == "gemini" and "generateContent" not in row.get("supportedGenerationMethods", []):
+    if provider == CloudProvider.GEMINI and "generateContent" not in row.get(
+        "supportedGenerationMethods", []
+    ):
         return None
-    if provider == "deepseek" and "text" not in row.get("output_modalities", ["text"]):
+    if provider == CloudProvider.DEEPSEEK and "text" not in row.get("output_modalities", ["text"]):
         return None
-    if provider == "openai" and any(
+    if provider == CloudProvider.OPENAI and any(
         word in key.lower()
         for word in (
             "embedding",
@@ -63,9 +65,9 @@ def _model(provider: str, row: object) -> CatalogModel | None:
     if known:
         label = known.label
     decoding = known.decoding if known else "default"
-    if not known and provider == "gemini" and row.get("thinking") is False:
+    if not known and provider == CloudProvider.GEMINI and row.get("thinking") is False:
         decoding = "gemini-no-thinking"
-    if not known and provider == "claude":
+    if not known and provider == CloudProvider.CLAUDE:
         capabilities = row.get("capabilities")
         if isinstance(capabilities, dict):
             thinking, effort = capabilities.get("thinking", {}), capabilities.get("effort", {})
@@ -89,7 +91,7 @@ def _model(provider: str, row: object) -> CatalogModel | None:
                     ):
                         decoding = "claude-" + mode + ("-low" if low else "")
                         break
-    revision = row.get("version", "") if provider == "gemini" else ""
+    revision = row.get("version", "") if provider == CloudProvider.GEMINI else ""
     revision = revision if isinstance(revision, str) and len(revision) <= 120 else ""
     lifecycle = row.get("lifecycle", "active")
     if lifecycle not in ("active", "deprecated", "retired"):
@@ -104,7 +106,7 @@ class _DiscoveryError(ValueError):
 
 
 def fetch_models(
-    provider: str,
+    provider: CloudProvider,
     secret: str,
     cancel: threading.Event,
     *,
@@ -145,7 +147,7 @@ def fetch_models(
                 )
             value = json.loads(content)
             page = (
-                value.get("models" if provider == "gemini" else "data")
+                value.get("models" if provider == CloudProvider.GEMINI else "data")
                 if isinstance(value, dict)
                 else None
             )
@@ -159,7 +161,7 @@ def fetch_models(
                     raise _DiscoveryError(tr("Provider model catalog exceeded the model limit."))
             token = (
                 value.get("nextPageToken", "")
-                if provider == "gemini"
+                if provider == CloudProvider.GEMINI
                 else value.get("last_id", "")
                 if value.get("has_more")
                 else ""
@@ -173,7 +175,7 @@ def fetch_models(
             if not isinstance(token, str) or len(token) > 2048 or token in tokens:
                 raise _DiscoveryError(tr("Provider returned invalid catalog pagination."))
             tokens.add(token)
-            params = {"pageToken" if provider == "gemini" else "after_id": token}
+            params = {"pageToken" if provider == CloudProvider.GEMINI else "after_id": token}
         raise _DiscoveryError(tr("Provider catalog exceeded the pagination limit."))
     except InterruptedError:
         raise _DiscoveryError(tr("Model refresh cancelled.")) from None
@@ -205,7 +207,7 @@ class CatalogCache:
             raise ValueError(tr("Invalid catalog connection."))
         return self.root / (connection + ".json")
 
-    def read(self, provider: str, connection: str) -> tuple[CatalogModel, ...] | None:
+    def read(self, provider: CloudProvider, connection: str) -> tuple[CatalogModel, ...] | None:
         try:
             path = self._path(connection)
             if not path.exists() or path.stat().st_size > 262_144:
@@ -225,7 +227,9 @@ class CatalogCache:
         except (OSError, ValueError, TypeError, KeyError, AttributeError):
             return None
 
-    def write(self, provider: str, connection: str, models: tuple[CatalogModel, ...]) -> None:
+    def write(
+        self, provider: CloudProvider, connection: str, models: tuple[CatalogModel, ...]
+    ) -> None:
         path = self._path(connection)
         if len(models) > 512:
             raise ValueError(tr("Catalog exceeded the model limit."))

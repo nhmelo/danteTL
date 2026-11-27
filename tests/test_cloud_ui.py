@@ -31,7 +31,11 @@ from dantetl.translation.cloud.backend import CloudBackend  # noqa: E402
 from dantetl.translation.cloud.chatgpt_auth import PLAN_SCOPE, ChatGPTConnections  # noqa: E402
 from dantetl.translation.cloud.profiles import CloudProfiles  # noqa: E402
 from dantetl.translation.cloud.protected_store import ProtectedStore  # noqa: E402
-from dantetl.translation.cloud.values import CatalogModel, CloudProfile  # noqa: E402
+from dantetl.translation.cloud.values import (
+    CatalogModel,  # noqa: E402
+    CloudProfile,  # noqa: E402
+    CloudProvider,
+)
 from dantetl.translation.grouping import TextBlock  # noqa: E402
 from dantetl.translation.plan import TranslationPlan  # noqa: E402
 from dantetl.translation.routing import RoutedTranslationSession  # noqa: E402
@@ -97,8 +101,8 @@ def test_cloud_welcome_allows_desktop_updates_until_acknowledged(app, tmp_path, 
 
 
 def test_usage_label_names_selected_model_and_switches_without_configuration_change(app, tmp_path):
-    first = replace(CloudProfile.new("deepseek"), name="Translation")
-    second = replace(CloudProfile.new("openai"), name="Classifier")
+    first = replace(CloudProfile.new(CloudProvider.DEEPSEEK), name="Translation")
+    second = replace(CloudProfile.new(CloudProvider.OPENAI), name="Classifier")
     catalog = CloudProfiles(tmp_path / "cloud.json")
     catalog.write((first, second))
     panel = CloudSettings(
@@ -147,14 +151,14 @@ def test_model_refresh_preserves_draft_and_route_caches_offline_and_keeps_old_li
         panel.open_editor()
         editor = panel.editor
         assert editor
-        editor.provider.setCurrentIndex(editor.provider.findData("openai"))
+        editor.provider.setCurrentIndex(editor.provider.findData(CloudProvider.OPENAI))
         editor.key.setText("fixture-new-key")
         previous = editor.model.currentData()
         editor.refresh_models.click()
         drain(app, lambda: not cloud_owner(panel).busy)
         assert editor.model.currentData() == previous
         assert not panel.profiles and not secrets.values
-        assert calls == [("openai", "fixture-new-key", calls[0][2])]
+        assert calls == [(CloudProvider.OPENAI, "fixture-new-key", calls[0][2])]
         assert calls[0][2] != threading.get_ident()
         editor.model.setCurrentIndex(editor.model.findData("future-chat"))
         editor.save.click()
@@ -162,9 +166,9 @@ def test_model_refresh_preserves_draft_and_route_caches_offline_and_keeps_old_li
         saved = panel.profiles[0]
         assert saved.model == "future-chat" and saved.decoding == "default"
         assert len(secrets.values) == 1
-        assert cloud_owner(panel).catalog_cache.read("openai", saved.credential) == fetch(
-            "openai", "", None
-        )
+        assert cloud_owner(panel).catalog_cache.read(
+            CloudProvider.OPENAI, saved.credential
+        ) == fetch(CloudProvider.OPENAI, "", None)
         revision = cloud_owner(panel).revision
         panel.open_editor(saved)
         editor = panel.editor
@@ -207,7 +211,7 @@ def test_models_setup_saves_secret_off_gui_and_does_not_make_a_request(app, tmp_
         panel.open_editor()
         editor = panel.editor
         assert editor
-        editor.provider.setCurrentIndex(editor.provider.findData("deepseek"))
+        editor.provider.setCurrentIndex(editor.provider.findData(CloudProvider.DEEPSEEK))
         editor.key.setText("fixture-secret")
         editor.model.setCurrentIndex(1)
         editor.save.click()
@@ -224,9 +228,9 @@ def test_models_setup_saves_secret_off_gui_and_does_not_make_a_request(app, tmp_
         panel.open_editor()
         editor = panel.editor
         assert editor
-        editor.provider.setCurrentIndex(editor.provider.findData("deepseek"))
+        editor.provider.setCurrentIndex(editor.provider.findData(CloudProvider.DEEPSEEK))
         editor.key.setText("must-not-cross-providers")
-        editor.provider.setCurrentIndex(editor.provider.findData("chatgpt"))
+        editor.provider.setCurrentIndex(editor.provider.findData(CloudProvider.CHATGPT))
         assert not editor.key.text()
         editor.reject()
     finally:
@@ -293,7 +297,7 @@ def test_cloud_tab_saves_on_next_and_reviews_only_selected_downloads(
         drain(app, lambda: guide.cloud_tab.editor is not None)
         editor = guide.cloud_tab.editor
         assert editor and editor.isVisible() and not editor.isWindow()
-        editor.provider.setCurrentIndex(editor.provider.findData("deepseek"))
+        editor.provider.setCurrentIndex(editor.provider.findData(CloudProvider.DEEPSEEK))
         editor.model.setCurrentIndex(1)
         # An invalid draft stays on the form and cannot start downloads.
         guide.next.click()
@@ -307,7 +311,7 @@ def test_cloud_tab_saves_on_next_and_reviews_only_selected_downloads(
             )
             second = guide.cloud_tab.editor
             assert second and not second.key.text() and not second.model.currentData()
-            second.provider.setCurrentIndex(second.provider.findData("openai"))
+            second.provider.setCurrentIndex(second.provider.findData(CloudProvider.OPENAI))
             second.model.setCurrentIndex(1)
             second.key.setText("second-fixture")
         guide.sources.setCurrentIndex(0)
@@ -320,7 +324,7 @@ def test_cloud_tab_saves_on_next_and_reviews_only_selected_downloads(
             guide.next.click()
         drain(app, lambda: guide.pages.currentIndex() in (2, 3))
         assert {p.provider for p in service.profiles} == (
-            {"deepseek"} if local else {"deepseek", "openai"}
+            {CloudProvider.DEEPSEEK} if local else {CloudProvider.DEEPSEEK, CloudProvider.OPENAI}
         )
         assert service.allowance(service.profiles[0].key).snapshot().requests == 0
         if local:
@@ -335,7 +339,7 @@ def test_cloud_tab_saves_on_next_and_reviews_only_selected_downloads(
             guide.back.click()
             guide.sources.setCurrentWidget(guide.cloud_tab)
             assert guide.cloud_tab.choice.currentData() == next(
-                p.key for p in service.profiles if p.provider == "openai"
+                p.key for p in service.profiles if p.provider == CloudProvider.OPENAI
             )
             assert not guide.cloud_tab.editor
         guide.skip.click()
@@ -349,7 +353,7 @@ def test_cloud_tab_saves_on_next_and_reviews_only_selected_downloads(
 def test_cloud_only_needs_no_local_model_and_keeps_english_until_real_change(
     app, tmp_path, monkeypatch
 ):
-    profile = CloudProfile.new("openai")
+    profile = CloudProfile.new(CloudProvider.OPENAI)
     catalog = CloudProfiles(tmp_path / "cloud.json")
     catalog.write((profile,))
     secrets = MemorySecrets()
@@ -465,7 +469,7 @@ def test_cloud_only_needs_no_local_model_and_keeps_english_until_real_change(
 def test_simple_selection_declined_preparation_and_custom_disclosure_preserve_route(
     app, tmp_path, monkeypatch
 ):
-    profile = CloudProfile.new("openai")
+    profile = CloudProfile.new(CloudProvider.OPENAI)
     catalog = CloudProfiles(tmp_path / "cloud.json")
     catalog.write((profile,))
     secrets = MemorySecrets()
@@ -531,7 +535,9 @@ def test_simple_selection_declined_preparation_and_custom_disclosure_preserve_ro
         window.deleteLater()
 
 
-@pytest.mark.parametrize("provider", ["openai", "gemini", "claude"])
+@pytest.mark.parametrize(
+    "provider", [CloudProvider.OPENAI, CloudProvider.GEMINI, CloudProvider.CLAUDE]
+)
 def test_new_model_reuses_saved_api_connection_in_settings_after_reopen(app, tmp_path, provider):
     secrets = MemorySecrets()
     catalog = CloudProfiles(tmp_path / "cloud.json")
@@ -743,7 +749,7 @@ def test_mixed_route_prepares_assigned_gemma_once_and_restores_deepseek(app, tmp
     from dantetl.runtime import model_store
 
     monkeypatch.setattr(model_store, "state_root", lambda: tmp_path)
-    cloud = CloudProfile.new("deepseek")
+    cloud = CloudProfile.new(CloudProvider.DEEPSEEK)
     catalog = CloudProfiles(tmp_path / "cloud.json")
     catalog.update(cloud)
     secrets = MemorySecrets()
@@ -901,7 +907,7 @@ def test_edit_cancel_and_failed_save_preserve_committed_model_and_shared_key(
         panel.open_editor()
         editor = panel.editor
         assert editor
-        editor.provider.setCurrentIndex(editor.provider.findData("openai"))
+        editor.provider.setCurrentIndex(editor.provider.findData(CloudProvider.OPENAI))
         editor.key.setText("original-key")
         editor.model.setCurrentIndex(1)
         editor.save.click()
@@ -962,7 +968,7 @@ def test_test_connection_is_explicit_and_does_not_save_draft_or_credentials(
         panel.open_editor()
         editor = panel.editor
         assert editor
-        editor.provider.setCurrentIndex(editor.provider.findData("deepseek"))
+        editor.provider.setCurrentIndex(editor.provider.findData(CloudProvider.DEEPSEEK))
         editor.key.setText("unsaved-secret")
         target = TARGET_LANGUAGES["pt-PT"]
         cloud_owner(panel).test_target = target
@@ -1019,7 +1025,7 @@ def test_cancel_dialog_drains_test_cleanup_before_releasing_editor(app, tmp_path
         panel.open_editor()
         editor = panel.editor
         assert editor
-        editor.provider.setCurrentIndex(editor.provider.findData("deepseek"))
+        editor.provider.setCurrentIndex(editor.provider.findData(CloudProvider.DEEPSEEK))
         editor.key.setText("fake-key")
         editor.model.setCurrentIndex(1)
         editor.test.click()
@@ -1053,7 +1059,7 @@ def test_remove_model_keeps_shared_connection_for_other_models(app, tmp_path, mo
             panel.open_editor()
             editor = panel.editor
             assert editor
-            editor.provider.setCurrentIndex(editor.provider.findData("openai"))
+            editor.provider.setCurrentIndex(editor.provider.findData(CloudProvider.OPENAI))
             editor.model.setCurrentIndex(index + 1)
             if not index:
                 editor.key.setText("shared-secret")

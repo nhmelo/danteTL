@@ -9,12 +9,14 @@ import pytest
 
 from dantetl.translation.backend import RequestRejected
 from dantetl.translation.cloud.backend import CloudAllowance, CloudBackend
-from dantetl.translation.cloud.values import CloudProfile
+from dantetl.translation.cloud.values import CloudProfile, CloudProvider
 
 
 @pytest.mark.parametrize("cancel", [True, False])
 def test_unsent_wait_does_not_consume_budget_or_delay_replacement(cancel):
-    profile = replace(CloudProfile.new("openai"), request_limit=2, requests_per_minute=10)
+    profile = replace(
+        CloudProfile.new(CloudProvider.OPENAI), request_limit=2, requests_per_minute=10
+    )
     allowance, waiting = CloudAllowance(), threading.Event()
     now = 0.0
     calls = []
@@ -68,7 +70,7 @@ def test_unsent_wait_does_not_consume_budget_or_delay_replacement(cancel):
 
 def test_fifo_admission_skips_cancelled_waiter_without_reserving_future_slots():
     async def replay():
-        profile = replace(CloudProfile.new("openai"), requests_per_minute=10)
+        profile = replace(CloudProfile.new(CloudProvider.OPENAI), requests_per_minute=10)
         allowance, order = CloudAllowance(), []
         now = 0.0
         await allowance.admit(profile, clock=lambda: now)
@@ -93,7 +95,7 @@ def test_fifo_admission_skips_cancelled_waiter_without_reserving_future_slots():
 
 def test_wait_queue_is_bounded_and_cancelled_entries_release_capacity():
     async def replay():
-        profile = replace(CloudProfile.new("openai"), requests_per_minute=10)
+        profile = replace(CloudProfile.new(CloudProvider.OPENAI), requests_per_minute=10)
         allowance = CloudAllowance()
         await allowance.admit(profile, clock=lambda: 0)
         tasks = [asyncio.create_task(allowance.admit(profile, clock=lambda: 0)) for _ in range(16)]
@@ -116,5 +118,5 @@ def test_dispatch_guard_failure_does_not_consume_allowance():
 
     allowance = CloudAllowance()
     with pytest.raises(RequestRejected, match="Account unavailable"):
-        asyncio.run(allowance.admit(CloudProfile.new("openai"), check=blocked))
+        asyncio.run(allowance.admit(CloudProfile.new(CloudProvider.OPENAI), check=blocked))
     assert allowance.snapshot().requests == 0

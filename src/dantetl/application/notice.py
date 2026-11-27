@@ -10,6 +10,7 @@ from dantetl.languages.target import ENGLISH, TargetLanguage
 from dantetl.ocr.values import OcrState
 from dantetl.runtime.hardware_values import HardwareStatus
 from dantetl.runtime.setup_values import RuntimeTarget
+from dantetl.translation.cloud.values import CloudProvider
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.references import ModelKind, format_reference, is_imported, reference_kind
 from dantetl.translation.selection import AssignmentChange, ModelOption
@@ -222,7 +223,7 @@ def project_notices(value: NoticeInput) -> Notices:
         message, action, destination = warning, model_action, model_destination
     elif value.rejected:
         message, action = value.translation_message, ""
-        if any(p.provider == "chatgpt" for p in cloud):
+        if any(p.provider == CloudProvider.CHATGPT for p in cloud):
             action, destination = tr("Manage usage"), NoticeDestination.USAGE
     advice = acceleration_advice(
         value.hardware, value.ocr_device, actual_provider=value.provider, fallback=value.fallback
