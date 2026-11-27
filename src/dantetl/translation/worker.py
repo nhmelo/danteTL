@@ -5,7 +5,7 @@ import threading
 import time
 from collections import OrderedDict, deque
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 from dantetl.i18n import tr
@@ -42,6 +42,51 @@ class _FirstAnswer:
     scope: CacheScope | None
 
 
+@dataclass(slots=True)
+class _Requests:
+    """What is requested now and what the loaded backend has produced for it.
+
+    Owned under the session condition. Resets replace the whole value, so a new field cannot be
+    missed by one reset path.
+    """
+
+    desired: tuple[TranslationRequest, ...] = ()
+    candidates: tuple[TranslationRequest, ...] = ()
+    retained: tuple[TranslationRequest, ...] = ()
+    blocks: dict[TranslationRequest, TextBlock] = field(default_factory=dict)
+    contexts: dict[TranslationRequest, tuple[DialogueTurn, ...]] = field(default_factory=dict)
+    queued_at: dict[TranslationRequest, float] = field(default_factory=dict)
+    first_answers: dict[TranslationRequest, _FirstAnswer] = field(default_factory=dict)
+    results: dict[TranslationRequest, TranslatedText] = field(default_factory=dict)
+    rejections: OrderedDict[tuple[TranslationRequest, tuple[DialogueTurn, ...]], str] = field(
+        default_factory=OrderedDict
+    )
+    dialogue: DialogueMemory = field(default_factory=DialogueMemory)
+
+    def for_new_backend(self, now: float) -> "_Requests":
+        """Keep what is requested; the new backend produces every answer and context again."""
+        return _Requests(
+            desired=self.desired,
+            candidates=self.candidates,
+            retained=self.retained,
+            blocks=self.blocks,
+            queued_at=dict.fromkeys(self.desired, now),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class _Metrics:
+    """Timings for the loaded backend. Cache hits and translated sources cover its latest batch."""
+
+    load_ms: float = 0.0
+    last_batch_ms: float = 0.0
+    queue_ms: float = 0.0
+    last_inference_ms: float = 0.0
+    cache_hits: int = 0
+    translated_sources: int = 0
+    cancelled_obsolete: int = 0
+
+
 class TranslationSession:
     """One model owner or two independent cloud calls; at most 128 current requests.
 
@@ -68,30 +113,14 @@ class TranslationSession:
         self._stop = False
         self._generation = 0
         self._backend_generation = 0
-        self._desired: tuple[TranslationRequest, ...] = ()
-        self._candidates: tuple[TranslationRequest, ...] = ()
-        self._first_answers: dict[TranslationRequest, _FirstAnswer] = {}
+        self._requests = _Requests()
+        self._metrics = _Metrics()
+        # Confirmed answers survive every reset: their cache keys already name the backend.
         self._cache_writes: deque[_FirstAnswer] = deque(maxlen=128)
-        self._retained: tuple[TranslationRequest, ...] = ()
         self._demand_changed = False
-        self._cancelled_obsolete = 0
-        self._results: dict[TranslationRequest, TranslatedText] = {}
         self._state = TranslationState.LOADING
         self._message = ""
-        self._duration = 0.0
         self._processing_since: float | None = None
-        self._queued_at: dict[TranslationRequest, float] = {}
-        self._queue_ms = 0.0
-        self._cache_hits = 0
-        self._translated_sources = 0
-        self._load_ms = 0.0
-        self._last_inference_ms = 0.0
-        self._dialogue = DialogueMemory()
-        self._blocks: dict[TranslationRequest, TextBlock] = {}
-        self._contexts: dict[TranslationRequest, tuple[DialogueTurn, ...]] = {}
-        self._rejections: OrderedDict[tuple[TranslationRequest, tuple[DialogueTurn, ...]], str] = (
-            OrderedDict()
-        )
         self._thread = threading.Thread(target=self._run, name="translation-owner", daemon=True)
 
     def start(self) -> None:
@@ -133,52 +162,57 @@ class TranslationSession:
                 self._target = target
                 self._game = game
                 self._invalidate_locked()
+            requests = self._requests
             now = time.monotonic()
             blocks = tuple(t for t in tracks[:128] if isinstance(t, TextBlock))
             allowed = demanded.union(retained)
-            self._blocks = {
+            requests.blocks = {
                 key: b
                 for b in (*retain[:128], *candidates[:128], *blocks)
                 if (key := TranslationRequest.from_block(b)) in allowed
             }
             if reset_context:
-                self._dialogue.reset()
-            self._dialogue.observe(retain[:128] or blocks, now, corrections=corrections)
+                requests.dialogue.reset()
+            requests.dialogue.observe(retain[:128] or blocks, now, corrections=corrections)
             contexts = {
                 key: () if reset_context else context
-                for key, context in self._contexts.items()
+                for key, context in requests.contexts.items()
                 if key in allowed
             }
-            first_readings = set(provisional).union(self._candidates)
+            first_readings = set(provisional).union(requests.candidates)
             for key in (*desired, *provisional):
                 if key not in contexts or key in first_readings:
                     contexts[key] = (
-                        self._dialogue.context_for(self._blocks[key]) if key in self._blocks else ()
+                        requests.dialogue.context_for(requests.blocks[key])
+                        if key in requests.blocks
+                        else ()
                     )
             if (
                 self._stop
                 or self._state == TranslationState.FAILED
                 or (
-                    desired == self._desired
-                    and provisional == self._candidates
-                    and retained == self._retained
-                    and contexts == self._contexts
+                    desired == requests.desired
+                    and provisional == requests.candidates
+                    and retained == requests.retained
+                    and contexts == requests.contexts
                 )
             ):
                 return
-            self._desired, self._retained = desired, retained
-            self._candidates = provisional
-            self._first_answers = {
+            requests.desired, requests.retained = desired, retained
+            requests.candidates = provisional
+            requests.first_answers = {
                 key: answer
-                for key, answer in self._first_answers.items()
-                if key in demanded and self._contexts.get(key) == contexts.get(key)
+                for key, answer in requests.first_answers.items()
+                if key in demanded and requests.contexts.get(key) == contexts.get(key)
             }
-            self._contexts = contexts
+            requests.contexts = contexts
             self._demand_changed = True
-            self._queued_at = {key: self._queued_at.get(key, now) for key in demanded}
-            self._results = {key: value for key, value in self._results.items() if key in allowed}
+            requests.queued_at = {key: requests.queued_at.get(key, now) for key in demanded}
+            requests.results = {
+                key: value for key, value in requests.results.items() if key in allowed
+            }
             for key in desired:
-                if (answer := self._first_answers.pop(key, None)) is not None:
+                if (answer := requests.first_answers.pop(key, None)) is not None:
                     self._publish_answer(answer.translation, now)
                     if answer.cache_key is not None:
                         self._cache_writes.append(answer)
@@ -190,16 +224,7 @@ class TranslationSession:
 
     def _invalidate_locked(self) -> None:
         self._generation += 1
-        self._desired = ()
-        self._candidates = ()
-        self._first_answers.clear()
-        self._retained = ()
-        self._results.clear()
-        self._rejections.clear()
-        self._queued_at.clear()
-        self._dialogue.reset()
-        self._contexts.clear()
-        self._blocks.clear()
+        self._requests = _Requests()
         self._condition.notify()
 
     def set_source(
@@ -217,30 +242,17 @@ class TranslationSession:
                 return
             self._factory = factory
             self._backend_generation += 1
-            self._first_answers.clear()
             self._generation += 1
-            self._results.clear()
-            self._rejections.clear()
+            self._requests = self._requests.for_new_backend(time.monotonic())
+            self._metrics = _Metrics()
             self._state = TranslationState.LOADING
             self._message = ""
-            self._queued_at = {key: time.monotonic() for key in self._desired}
-            self._duration = self._queue_ms = self._load_ms = 0
-            self._last_inference_ms = 0
-            self._dialogue.reset()
-            self._contexts.clear()
-            self._cache_hits = self._translated_sources = 0
-            self._cancelled_obsolete = 0
             self._condition.notify()
 
     def request_stop(self) -> None:
         with self._condition:
             self._stop = True
-            self._candidates = ()
-            self._first_answers.clear()
-            self._desired = ()
-            self._retained = ()
-            self._results.clear()
-            self._rejections.clear()
+            self._requests = _Requests()
             if self._state not in (TranslationState.FAILED, TranslationState.STOPPED):
                 self._state = TranslationState.STOPPING
             self._condition.notify()
@@ -253,14 +265,18 @@ class TranslationSession:
         with self._condition:
             rejected = tuple(
                 TranslationRejection(key, message)
-                for key in self._desired
-                if (message := self._rejections.get((key, self._contexts.get(key, ()))))
+                for key in self._requests.desired
+                if (
+                    message := self._requests.rejections.get(
+                        (key, self._requests.contexts.get(key, ()))
+                    )
+                )
             )
             return TranslationSnapshot(
                 self._state,
-                tuple(self._results.values()),
-                sum(self._needs_translation(key) for key in self._desired),
-                self._duration,
+                tuple(self._requests.results.values()),
+                sum(self._needs_translation(key) for key in self._requests.desired),
+                self._metrics.last_batch_ms,
                 " · ".join(
                     filter(
                         None,
@@ -277,38 +293,69 @@ class TranslationSession:
                     )
                 ),
                 processing_since=self._processing_since,
-                queue_ms=self._queue_ms,
-                cache_hits=self._cache_hits,
-                translated_sources=self._translated_sources,
-                load_ms=self._load_ms,
-                last_inference_ms=self._last_inference_ms,
+                queue_ms=self._metrics.queue_ms,
+                cache_hits=self._metrics.cache_hits,
+                translated_sources=self._metrics.translated_sources,
+                load_ms=self._metrics.load_ms,
+                last_inference_ms=self._metrics.last_inference_ms,
                 backend_generation=self._backend_generation,
                 rejected=rejected,
                 cached_candidates=tuple(
                     answer.translation
-                    for answer in self._first_answers.values()
+                    for answer in self._requests.first_answers.values()
                     if answer.cache_key is None
                 ),
-                cancelled_obsolete=self._cancelled_obsolete,
+                cancelled_obsolete=self._metrics.cancelled_obsolete,
             )
 
     def _needs_translation(self, key: TranslationRequest) -> bool:
         return (
-            key not in self._results and (key, self._contexts.get(key, ())) not in self._rejections
+            key not in self._requests.results
+            and (key, self._requests.contexts.get(key, ())) not in self._requests.rejections
         )
 
     def _jobs(self) -> tuple[TranslationRequest, ...]:
         return tuple(
             key
-            for key in (*self._desired, *self._candidates)
-            if key not in self._first_answers and self._needs_translation(key)
+            for key in (*self._requests.desired, *self._requests.candidates)
+            if key not in self._requests.first_answers and self._needs_translation(key)
+        )
+
+    def _take_demand_locked(self, schedule: TranslationSchedule) -> Demand:
+        """Consume a demand change and describe the requests that still need translation."""
+        requests = self._requests
+        if self._demand_changed:
+            self._demand_changed = False
+            if schedule.processing_since is not None:
+                wanted = {
+                    (key.source, requests.contexts.get(key, ()))
+                    for key in (*requests.desired, *requests.retained)
+                }
+                cancelled = schedule.cancel_unused(wanted)
+                self._metrics = replace(
+                    self._metrics,
+                    cancelled_obsolete=self._metrics.cancelled_obsolete + cancelled,
+                )
+                self._processing_since = schedule.processing_since
+        jobs = self._jobs()
+        return Demand(
+            self._generation,
+            jobs,
+            {key: requests.contexts.get(key) or () for key in jobs},
+            frozenset(
+                key for key in jobs if key in requests.blocks and requests.blocks[key].dialogue
+            ),
+            target=self._target,
+            language=self._language,
+            game=self._game,
+            candidates=frozenset(requests.candidates),
         )
 
     def _publish_answer(self, translation: TranslatedText, now: float) -> None:
         key = translation.request
-        self._results[key] = translation
-        if key in self._blocks:
-            self._dialogue.published(self._blocks[key], translation.english, now)
+        self._requests.results[key] = translation
+        if key in self._requests.blocks:
+            self._requests.dialogue.published(self._requests.blocks[key], translation.english, now)
 
     def _flush_confirmed(self, cache: TranslationCache) -> None:
         with self._condition:
@@ -362,7 +409,10 @@ class TranslationSession:
                             or schedule.stale(self._generation)
                             or schedule.needs_plan(
                                 self._generation,
-                                ((key, self._contexts.get(key, ())) for key in self._jobs()),
+                                (
+                                    (key, self._requests.contexts.get(key, ()))
+                                    for key in self._jobs()
+                                ),
                             )
                         )
                     )
@@ -371,33 +421,7 @@ class TranslationSession:
                     if schedule.has_completion() or schedule.stale(self._generation):
                         continue
                     backend_generation, factory = self._backend_generation, self._factory
-                    if self._demand_changed:
-                        self._demand_changed = False
-                        if schedule.processing_since is not None:
-                            wanted = {
-                                (key.source, self._contexts.get(key, ()))
-                                for key in (*self._desired, *self._retained)
-                            }
-                            self._cancelled_obsolete += schedule.cancel_unused(wanted)
-                            self._processing_since = schedule.processing_since
-                    jobs = self._jobs()
-                    contexts: dict[TranslationRequest, tuple[DialogueTurn, ...]] = {
-                        key: self._contexts.get(key) or () for key in jobs
-                    }
-                    demand = Demand(
-                        self._generation,
-                        jobs,
-                        contexts,
-                        frozenset(
-                            key
-                            for key in jobs
-                            if key in self._blocks and self._blocks[key].dialogue
-                        ),
-                        target=self._target,
-                        language=self._language,
-                        game=self._game,
-                        candidates=frozenset(self._candidates),
-                    )
+                    demand = self._take_demand_locked(schedule)
                 self._flush_confirmed(cache)
                 if (
                     active_backend == backend_generation
@@ -419,7 +443,9 @@ class TranslationSession:
                         if published:
                             self._state = TranslationState.READY
                             self._message = cache.warning
-                            self._load_ms = (time.perf_counter() - started) * 1000
+                            self._metrics = replace(
+                                self._metrics, load_ms=(time.perf_counter() - started) * 1000
+                            )
                     if published:
                         self._notify()
                     continue
@@ -434,13 +460,16 @@ class TranslationSession:
                     if (
                         self._stop
                         or batch.generation != self._generation
-                        or (self._demand_changed and (demand.candidates or self._candidates))
+                        or (
+                            self._demand_changed
+                            and (demand.candidates or self._requests.candidates)
+                        )
                     ):
                         continue
                     if not batch.activate(
-                        (*self._desired, *self._candidates),
-                        self._contexts,
-                        self._queued_at,
+                        (*self._requests.desired, *self._requests.candidates),
+                        self._requests.contexts,
+                        self._requests.queued_at,
                         now=time.monotonic(),
                         measured=time.perf_counter(),
                     ):
@@ -466,8 +495,8 @@ class TranslationSession:
             logger.exception("Translation failed")
             with self._condition:
                 self._state = TranslationState.FAILED
-                self._results.clear()
-                self._first_answers.clear()
+                self._requests.results.clear()
+                self._requests.first_answers.clear()
                 self._message = str(error)
             self._notify()
         finally:
@@ -501,12 +530,14 @@ class TranslationSession:
         translated, rejected_sources = outcome
         if batch.parallel_label:
             with self._condition:
+                # Invalidation can replace the request state whenever the lock is released.
+                requests = self._requests
                 if (
                     self._stop
                     or batch.generation != self._generation
                     or not any(
-                        (key.source, self._contexts.get(key, ())) == batch.missing[0]
-                        for key in (*self._desired, *self._retained)
+                        (key.source, requests.contexts.get(key, ())) == batch.missing[0]
+                        for key in (*requests.desired, *requests.retained)
                     )
                 ):
                     self._processing_since = remaining_since
@@ -517,22 +548,23 @@ class TranslationSession:
             batch.answers[source] = english
         duration = (time.perf_counter() - batch.measured) * 1000
         with self._condition:
+            requests = self._requests
             if inference:
                 self._processing_since = remaining_since
             published = not self._stop and batch.generation == self._generation
             if published:
-                confirmed = set(self._desired)
-                current = confirmed.union(self._candidates)
+                confirmed = set(requests.desired)
+                current = confirmed.union(requests.candidates)
                 for key in batch.jobs:
-                    if key not in current or batch.contexts[key] != self._contexts.get(key, ()):
+                    if key not in current or batch.contexts[key] != requests.contexts.get(key, ()):
                         continue
                     source = batch.inputs[key]
                     if source in rejected_sources:
                         failure = (key, batch.contexts[key])
-                        self._rejections[failure] = rejected_sources[source][:512]
-                        self._rejections.move_to_end(failure)
-                        while len(self._rejections) > 256:
-                            self._rejections.popitem(last=False)
+                        requests.rejections[failure] = rejected_sources[source][:512]
+                        requests.rejections.move_to_end(failure)
+                        while len(requests.rejections) > 256:
+                            requests.rejections.popitem(last=False)
                     english = batch.answers.get(source)
                     if english is not None:
                         translation = TranslatedText(key, english, batch.target)
@@ -542,17 +574,20 @@ class TranslationSession:
                             batch.cache_scope,
                         )
                         if key not in confirmed:
-                            self._first_answers[key] = answer
+                            requests.first_answers[key] = answer
                             continue
                         self._publish_answer(translation, time.monotonic())
                         if batch.speculative:
                             self._cache_writes.append(answer)
                             self._demand_changed = True
-                self._duration, self._queue_ms = duration, batch.queue_ms
-                self._cache_hits = len(batch.sources) - len(batch.missing)
-                self._translated_sources = len(batch.missing) - len(rejected_sources)
-                if inference:
-                    self._last_inference_ms = duration
+                self._metrics = replace(
+                    self._metrics,
+                    last_batch_ms=duration,
+                    queue_ms=batch.queue_ms,
+                    cache_hits=len(batch.sources) - len(batch.missing),
+                    translated_sources=len(batch.missing) - len(rejected_sources),
+                    last_inference_ms=duration if inference else self._metrics.last_inference_ms,
+                )
                 self._message = cache.warning
         if published:
             self._notify()

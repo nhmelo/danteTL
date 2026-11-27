@@ -482,7 +482,7 @@ def test_rejected_history_is_bounded_and_reset_does_not_suppress_new_work(tmp_pa
         for key in range(280):
             session.update((track(key=key),))
             until(lambda: session.snapshot().pending == 0)
-        assert len(session._rejections) == 256
+        assert len(session._requests.rejections) == 256
         assert len(backend.calls) == 280
         session.update((track(key=279),))
         assert session.snapshot().pending == 0
@@ -973,6 +973,47 @@ def test_backend_swap_closes_old_before_loading_new_and_uses_separate_cache(tmp_
         old.release.set()
         stop(session)
     assert new.closed
+
+
+def test_backend_switch_keeps_demand_but_reports_only_the_new_backends_work(tmp_path) -> None:
+    old, new = Backend("old"), Backend("new")
+    new.release.clear()
+    session = TranslationSession(lambda: old, tmp_path / "cache.sqlite3")
+    session.start()
+    try:
+        session.update((track(),))
+        until(lambda: len(session.snapshot().results) == 1)
+        before = session.snapshot()
+        assert before.translated_sources == 1 and before.last_batch_ms > 0
+        session.switch_backend(lambda: new)
+        switched = session.snapshot()
+        # Results, timings and counts belong to the old backend; the request itself survives.
+        assert switched.results == () and switched.pending == 1
+        assert switched.translated_sources == switched.cache_hits == 0
+        assert switched.last_batch_ms == switched.queue_ms == switched.last_inference_ms == 0
+        assert switched.load_ms == 0 and switched.cancelled_obsolete == 0
+        assert new.entered.wait(3)
+        new.release.set()
+        until(lambda: len(session.snapshot().results) == 1)
+        assert session.snapshot().results[0].english == "new: 日本語"
+        assert session.snapshot().translated_sources == 1
+    finally:
+        new.release.set()
+        stop(session)
+
+
+def test_stop_releases_every_request_and_answer(tmp_path) -> None:
+    backend = Backend()
+    session = TranslationSession(lambda: backend, tmp_path / "cache.sqlite3")
+    session.start()
+    session.update((track(key=1),), candidates=(TextBlock((track("候補", key=2),)),))
+    until(lambda: len(session.snapshot().results) == 1)
+    session.request_stop()
+    stopped = session.snapshot()
+    assert stopped.results == () and stopped.pending == 0
+    assert stopped.rejected == () and stopped.cached_candidates == ()
+    until(lambda: session.finished)
+    assert backend.closed
 
 
 def test_switching_game_credits_cached_labels_without_another_model_call(tmp_path):
