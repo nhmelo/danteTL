@@ -14,12 +14,11 @@ from uuid import uuid4
 
 from dantetl.atomic_file import replace_file
 from dantetl.i18n import mark, tr
-from dantetl.paths import is_standalone, module_command, resource_root
+from dantetl.paths import is_standalone, module_command, resource_root, state_root
 from dantetl.runtime.application import prepare_application
 from dantetl.runtime.hardware import require_profile
 from dantetl.runtime.owned_process import OwnedProcess
 from dantetl.runtime.setup import (
-    project_root,
     runtime_selection,
     select_runtime,
     verified_runtime,
@@ -32,7 +31,7 @@ logger = logging.getLogger(__name__)
 def acknowledge_startup() -> None:
     token = os.environ.pop("DANTETL_RESTART_TOKEN", "")
     if re.fullmatch("[a-f0-9]{32}", token):
-        replace_file(project_root() / "data/restarts" / token, str(os.getpid()).encode("ascii"))
+        replace_file(state_root() / "data/restarts" / token, str(os.getpid()).encode("ascii"))
 
 
 class RuntimeRestart:

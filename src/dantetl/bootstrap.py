@@ -62,7 +62,6 @@ def main(*, cuda_update: bool = False) -> None:
     )
     from dantetl.runtime.hardware import HardwareCheck
     from dantetl.runtime.restart import acknowledge_startup
-    from dantetl.runtime.setup import project_root
     from dantetl.runtime.update_swap import acknowledge_update, bundle_lease
     from dantetl.ui.bug_reports import error_dialog
     from dantetl.ui.desktop_driver import DesktopDriver
@@ -77,7 +76,7 @@ def main(*, cuda_update: bool = False) -> None:
     app.setApplicationName("DanteTL")
     app.setWindowIcon(QIcon(str(APP_ICON)))
     app.setOrganizationName("DanteTL")
-    preferences = PreferenceStore(project_root() / "data/preferences.json")
+    preferences = PreferenceStore(state_root() / "data/preferences.json")
     install_language(app, preferences.current.interface_language)
 
     def report_exception(
@@ -107,7 +106,7 @@ def main(*, cuda_update: bool = False) -> None:
     language = source_language(preferences.current.source_language)
     models = source_models_for(language)
     inventory = model_inventory(models)
-    setup = setup_coordinator(inventory, models.bundles, project_root())
+    setup = setup_coordinator(inventory, models.bundles, state_root())
 
     application = application_session(
         windows,

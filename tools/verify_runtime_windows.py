@@ -23,7 +23,7 @@ from dantetl.application.model_factories import create_recognizer, ocr_backends
 from dantetl.application.preference_values import Preferences
 from dantetl.application.preferences import PreferenceStore
 from dantetl.capture.windows import Windows
-from dantetl.paths import is_standalone
+from dantetl.paths import is_standalone, state_root
 from dantetl.runtime import downloads as runtime_downloads
 from dantetl.runtime import setup as runtime_setup
 from dantetl.runtime.model_store import model_catalog
@@ -45,7 +45,7 @@ def main() -> int:
     )
     args = parser.parse_args()
     os.environ["DANTETL_DISABLE_UPDATE_CHECK"] = "1"
-    root = runtime_setup.project_root()
+    root = state_root()
     if "artifacts" not in root.parts:
         raise SystemExit(
             "Run this installer check from a disposable extracted copy under artifacts."

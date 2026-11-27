@@ -73,7 +73,6 @@ def test_standalone_models_and_state_share_appdata_without_writing_beside_execut
     before = set(package.rglob("*"))
     state = paths.state_root()
     assert state.name == "DanteTL" and state.parent.name == "User AppData"
-    assert runtime_setup.project_root() == state
     assert models.model_directory() == state / "models/meiki"
     assert gemma.model_directory() == state / "models/gemma-4-e2b"
     assert set(package.rglob("*")) == before

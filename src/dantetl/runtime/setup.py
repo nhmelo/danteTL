@@ -14,7 +14,7 @@ from uuid import uuid4
 from dantetl.atomic_file import replace_file
 from dantetl.file_lock import file_lock
 from dantetl.i18n import tr
-from dantetl.paths import is_standalone, module_command, runtime_project, state_root
+from dantetl.paths import is_standalone, module_command, runtime_project
 from dantetl.runtime.application import prepare_application
 from dantetl.runtime.downloads import prepare_wheels
 from dantetl.runtime.hardware import require_profile
@@ -26,11 +26,6 @@ from dantetl.runtime.requirements import (
 from dantetl.runtime.setup_process import clean_runtime_environment, run_setup_command
 from dantetl.runtime.setup_values import Cancelled, ModelProgress, Progress
 from dantetl.runtime.values import PROFILES, RuntimeProfile
-
-
-def project_root() -> Path:
-    """Compatibility name for the writable installation/state root."""
-    return state_root()
 
 
 def _fingerprint(root: Path, profile: str) -> str:
