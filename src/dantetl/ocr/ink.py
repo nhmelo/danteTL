@@ -7,6 +7,9 @@ import numpy as np
 
 from dantetl.domain import Rect
 
+# Otsu classes whose mean color distances from the border (0-255) differ less are noise.
+_MIN_SEPARATION = 8
+
 
 @dataclass(frozen=True, slots=True)
 class Component:
@@ -69,6 +72,10 @@ def ink(bgr: np.ndarray, area: Rect, scale: float) -> Ink | None:
     # Per-channel differences, weighted into one plane: colored text on gray still separates.
     distance = cv2.cvtColor(cv2.absdiff(crop, np.full_like(crop, background)), cv2.COLOR_BGR2GRAY)
     _, mask = cv2.threshold(distance, 0, 1, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    # Otsu always splits, even flat noise or a gentle gradient. Its threshold is no
+    # contrast measure (a clean flat background yields 0), so compare the class means.
+    if cv2.mean(distance, mask)[0] - cv2.mean(distance, 1 - mask)[0] < _MIN_SEPARATION:
+        mask = np.zeros_like(mask)
     count, labels, stats, _ = cv2.connectedComponentsWithStats(mask, connectivity=8)
     flat = labels.ravel()
     pixels = np.bincount(flat, minlength=count).tolist()
