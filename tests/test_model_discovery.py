@@ -109,7 +109,7 @@ def test_incomplete_models_stay_absent(catalog, monkeypatch):
 def test_broken_optional_registry_keeps_healthy_inventory_and_recovers(
     catalog, tmp_path, monkeypatch
 ):
-    from test_model_inventory import settle
+    from ownership_fixtures import settle
 
     from dantetl.application.model_discovery import inspect_models
     from dantetl.application.model_inventory import ModelInventory

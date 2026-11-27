@@ -145,8 +145,7 @@ def test_first_show_failure_is_hidden_until_retry_or_preference_change(app, chan
 
 
 def test_first_show_failure_offers_one_working_retry_while_capture_continues(app, tmp_path):
-    from ownership_fixtures import Replay
-    from test_application_transitions import observe
+    from ownership_fixtures import Replay, observe
 
     from dantetl.ui.desktop_driver import DesktopDriver
     from dantetl.ui.main_window import MainWindow as View
@@ -179,9 +178,8 @@ def test_first_show_failure_offers_one_working_retry_while_capture_continues(app
 
 
 def test_capture_status_and_loading_stay_inside_game_panel_without_inspection(app, tmp_path):
-    from ownership_fixtures import Replay
+    from ownership_fixtures import Replay, observe
     from PySide6.QtWidgets import QLabel
-    from test_application_transitions import observe
 
     from dantetl.application.model_inventory import InventoryData
     from dantetl.ocr.values import OcrSnapshot, OcrState
@@ -717,8 +715,8 @@ def test_startup_shortcut_conflict_is_visible_and_retryable(app, tmp_path):
 def test_hotkeys_keep_selected_window_and_respect_stop_close_and_modal_guards(
     app, tmp_path, monkeypatch
 ):
+    from live_fixtures import frame
     from PySide6.QtWidgets import QDialog
-    from test_live_session import frame
 
     from dantetl.application.hotkeys import HotkeyAction, Hotkeys
     from dantetl.domain import CaptureSnapshot, CaptureState, WindowTarget

@@ -85,7 +85,7 @@ def test_successful_preparation_updates_options_even_if_receipt_write_fails(tmp_
         # A transient persistence failure must not hide readiness in the running app.
         replay.receipts.clear()
         replay.inventory.record_prepared = Mock(side_effect=OSError("read-only"))
-        from test_model_lifecycle import Worker
+        from ownership_fixtures import Worker
 
         from dantetl.application.translation_coordinator import TranslationCoordinator
 

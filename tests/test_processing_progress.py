@@ -3,7 +3,7 @@
 from dataclasses import replace
 
 import pytest
-from test_live_session import frame
+from live_fixtures import frame
 
 from dantetl.application.presentation import processing_progress
 from dantetl.application.translation_activity import TranslationMode

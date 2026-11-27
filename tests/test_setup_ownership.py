@@ -5,53 +5,11 @@ from dataclasses import replace
 from unittest.mock import Mock
 
 import pytest
-from ownership_fixtures import Replay
+from ownership_fixtures import Replay, configured
 
 from dantetl.application.model_inventory import InventoryData
-from dantetl.application.model_values import ModelFile
-from dantetl.application.setup_coordinator import SetupCoordinator
 from dantetl.runtime.hardware_values import HardwareStatus
-from dantetl.runtime.model_store import ModelBundle
 from dantetl.runtime.setup_values import SetupLane
-from dantetl.runtime.values import PROFILES
-
-
-def configured(tmp_path):
-    replay = Replay(tmp_path)
-    bundles = tuple(
-        ModelBundle(
-            key,
-            key,
-            tmp_path / key,
-            (),
-            "",
-            category="recognition" if key == "ocr" else "translation",
-        )
-        for key in ("ocr", "model")
-    )
-    files = tuple(
-        ModelFile(
-            b.key,
-            b.name,
-            "",
-            b.category,
-            0,
-            False,
-            False,
-            False,
-            False,
-            str(b.directory),
-            "",
-            str(b.directory),
-            "",
-            "cpu",
-            False,
-        )
-        for b in bundles
-    )
-    replay.discover(InventoryData(files=files, device="cpu"))
-    replay.setup = SetupCoordinator(replay.inventory, bundles, PROFILES, replay.dependencies)
-    return replay
 
 
 def test_setup_lanes_are_bounded_and_cancel_waits_for_owner_cleanup(tmp_path):

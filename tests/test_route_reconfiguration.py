@@ -5,7 +5,7 @@ from dataclasses import replace
 from unittest.mock import Mock
 
 import pytest
-from test_translation_plan import Engine, block, until
+from translation_fixtures import Engine, Routes, block, remote_ref, until
 
 from dantetl.application.cloud_services import CloudServices
 from dantetl.application.model_inventory import InventoryData, InventorySnapshot, ModelInventory
@@ -16,74 +16,7 @@ from dantetl.translation.backend import BackendChoice
 from dantetl.translation.cloud.values import CloudProfile
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.routing import RoutedTranslationSession
-from dantetl.translation.selection import AssignmentChange
 from dantetl.translation.values import TranslationState
-from dantetl.translation.worker import TranslationSession
-
-
-def remote_ref(key):
-    return "cloud:cloud-" + key * 32
-
-
-class Routes:
-    def __init__(self, root, *, blocked=False):
-        self.release = threading.Event()
-        self.local = Mock(side_effect=lambda: Engine("local"))
-        self.remote = {
-            key: Mock(
-                side_effect=lambda key=key: Engine(
-                    key, self.release if key == "a" and blocked else None
-                )
-            )
-            for key in ("a", "b", "c")
-        }
-        self.profiles = tuple(
-            replace(CloudProfile.new("deepseek"), key="cloud-" + key * 32) for key in self.remote
-        )
-        self.choice = BackendChoice(
-            "Local labels", self.local, "local-cuda", "weights-v1", selection_id="local"
-        )
-        self.inventory = Mock(spec=ModelInventory)
-        self.inventory.snapshot.return_value = InventorySnapshot(
-            loaded=True, data=InventoryData((self.choice,))
-        )
-        self.inventory.prepared.return_value = True
-        self.cloud = Mock(spec=CloudServices)
-        self.cloud.profiles = self.profiles
-        self.cloud.revision = 0
-        self.cloud.credential_revision.return_value = 0
-        self.cloud.available.return_value = True
-        self.cloud.create_backend.side_effect = lambda profile, game, language: self.remote[
-            profile.key[-1]
-        ]()
-        self.owner = TranslationCoordinator(
-            self.inventory,
-            self.cloud,
-            lambda choice, language: TranslationSession(
-                choice.create, root / "cache", language=language
-            ),
-            RoutedTranslationSession,
-            root / "cache",
-            Preferences(model="none", short_model="local:local", long_model=remote_ref("a")),
-        )
-        self.owner.refresh_route()
-        worker = self.owner.advance_activity(running=True, enabled=True).worker
-        assert isinstance(worker, RoutedTranslationSession)
-        self.worker = worker
-
-    def assign(self, plan, reference):
-        assert self.owner.assign(AssignmentChange(plan, reference)) in ("committed", "unchanged")
-        self.owner.refresh_route()
-        assert self.owner.advance_activity(running=True, enabled=True).worker is self.worker
-
-    def ready(self):
-        self.owner.advance_activity(running=True, enabled=True)
-        return all(lane.state == TranslationState.READY for lane in self.worker.snapshot().lanes)
-
-    def close(self):
-        self.release.set()
-        self.owner.lifecycle.shutdown()
-        until(self.owner.lifecycle.finish_shutdown)
 
 
 def test_cloud_switch_keeps_local_loaded_and_republishes_exact_results(tmp_path):
@@ -253,7 +186,7 @@ def test_shutdown_drains_retirement_without_starting_pending_model(tmp_path):
 def test_cloud_edits_preserve_unaffected_work_and_scope_credential_changes(tmp_path, monkeypatch):
     from collections import Counter
 
-    from test_cloud_services import create, finish
+    from remote_fixtures import create, finish
 
     from dantetl.translation.cloud.state import CloudDraft
 

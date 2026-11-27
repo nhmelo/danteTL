@@ -1,9 +1,9 @@
 import threading
-import time
 from dataclasses import replace
 
 import pytest
-from test_live_session import Replay, frame
+from live_fixtures import Replay, frame
+from translation_fixtures import Backend, stop, track, until
 
 from dantetl.application.live_session import LiveSession
 from dantetl.domain import CapturedFrame, Rect, WindowGeometry
@@ -18,38 +18,6 @@ from dantetl.translation.dialogue.context import DialogueTurn
 from dantetl.translation.grouping import DialogueGrouper, TextBlock
 from dantetl.translation.values import TranslationRequest, TranslationState
 from dantetl.translation.worker import TranslationSession
-
-
-def track(text="日本語", revision=1, key=1) -> TextTrack:
-    return TextTrack(key, text, Rect(100, 100, 200, 40), text_revision=revision)
-
-
-def until(predicate) -> None:
-    deadline = time.monotonic() + 4
-    while not predicate():
-        assert time.monotonic() < deadline, "Translation worker did not reach expected state"
-        time.sleep(0.005)
-
-
-class Backend:
-    batch_size = 4
-
-    def __init__(self, identity="fake-v1") -> None:
-        self.cache_identity = identity
-        self.calls: list[tuple[str, ...]] = []
-        self.closed = False
-        self.entered = threading.Event()
-        self.release = threading.Event()
-        self.release.set()
-
-    def translate(self, texts: tuple[str, ...], *, target=ENGLISH) -> tuple[str, ...]:
-        self.calls.append(texts)
-        self.entered.set()
-        assert self.release.wait(3)
-        return tuple(f"{self.cache_identity}: {text}" for text in texts)
-
-    def close(self) -> None:
-        self.closed = True
 
 
 @pytest.mark.parametrize("confirm", [False, True])
@@ -492,11 +460,6 @@ def test_rejected_history_is_bounded_and_reset_does_not_suppress_new_work(tmp_pa
         assert len(backend.calls) == 281
     finally:
         stop(session)
-
-
-def stop(session: TranslationSession) -> None:
-    session.request_stop()
-    until(lambda: session.finished)
 
 
 def test_context_is_frozen_per_request_menu_independent_and_cache_scoped(tmp_path):

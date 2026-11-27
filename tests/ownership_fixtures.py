@@ -3,13 +3,13 @@
 import time
 from unittest.mock import Mock
 
-from test_live_session import Capture, Ocr, Visual, frame
-from test_model_lifecycle import Worker
+from live_fixtures import Capture, Ocr, Visual, frame
 
 from dantetl.application.cache_management import CacheManagement
 from dantetl.application.cloud_services import CloudServices
 from dantetl.application.live_session import LiveSession
 from dantetl.application.model_inventory import InventoryData, ModelInventory, SourceModels
+from dantetl.application.model_values import ModelFile
 from dantetl.application.ollama_services import OllamaServices
 from dantetl.application.preference_values import Preferences
 from dantetl.application.preferences import PreferenceStore
@@ -17,16 +17,24 @@ from dantetl.application.session import ApplicationSession
 from dantetl.application.setup_coordinator import SetupCoordinator, SetupDependencies
 from dantetl.application.shutdown import ShutdownCoordinator
 from dantetl.application.translation_coordinator import TranslationCoordinator
+from dantetl.domain import CaptureSnapshot, CaptureState, Rect
 from dantetl.languages.selection import source_language
+from dantetl.ocr.observation import CandidateReview
+from dantetl.ocr.values import OcrResult, OcrSnapshot, OcrState, TextRegion
+from dantetl.ocr.visual_values import VisualState
 from dantetl.ocr.worker import OcrChoice
-from dantetl.runtime.model_store import ModelOperation
+from dantetl.runtime.model_store import ModelBundle, ModelOperation
 from dantetl.runtime.setup_values import ModelProgress
 from dantetl.runtime.values import PROFILES
 from dantetl.translation.cloud.chatgpt_auth import ChatGPTConnections
 from dantetl.translation.cloud.profiles import CloudProfiles
 from dantetl.translation.cloud.protected_store import ProtectedStore
 from dantetl.translation.routing import RoutedTranslationSession
-from dantetl.translation.values import TranslationSnapshot, TranslationState
+from dantetl.translation.values import (
+    TranslationSnapshot,
+    TranslationState,
+)
+from dantetl.translation.worker import TranslationSession
 
 
 class InventorySource:
@@ -85,6 +93,33 @@ class Route(RoutedTranslationSession):
     def finish(self):
         self.ended = True
         self.state = TranslationState.STOPPED
+
+
+class Worker(TranslationSession):
+    def __init__(self, choice):
+        self.choice = choice
+        self.state = TranslationState.LOADING
+        self.ended = False
+        self.stops = 0
+        self.started = False
+
+    @property
+    def finished(self):
+        return self.ended
+
+    def start(self):
+        self.started = True
+
+    def request_stop(self):
+        self.stops += 1
+
+    def snapshot(self):
+        return TranslationSnapshot(
+            self.state, message="fixture failure" if self.state == TranslationState.FAILED else ""
+        )
+
+    def switch_backend(self, factory):
+        self.state = TranslationState.LOADING
 
 
 class PreparedWorker(Worker):
@@ -272,3 +307,64 @@ class Replay:
             self.inventory.advance(time.monotonic())
             assert time.monotonic() < deadline
             time.sleep(0.001)
+
+
+def observe(replay, sequence=1, *, regions=None):
+    source = frame(sequence, sequence)
+    if regions is None:
+        regions = (TextRegion("設定", Rect(50, 40, 100, 30)),)
+    result = OcrResult(source, regions, 25, sequence)
+    replay.capture.current = CaptureSnapshot(CaptureState.RUNNING, source)
+    replay.ocr.current = OcrSnapshot(OcrState.READY, result)
+    replay.visual.current = VisualState(
+        review=CandidateReview(sequence=sequence), frame=source, ocr_sequence=sequence
+    )
+    replay.app.advance(sequence + 0.1)
+    replay.app.advance(sequence + 0.7)
+    return result
+
+
+def settle(owner, predicate, now=1.0):
+    deadline = time.monotonic() + 2
+    while not predicate():
+        owner.advance(now)
+        assert time.monotonic() < deadline
+        time.sleep(0.001)
+
+
+def configured(tmp_path):
+    replay = Replay(tmp_path)
+    bundles = tuple(
+        ModelBundle(
+            key,
+            key,
+            tmp_path / key,
+            (),
+            "",
+            category="recognition" if key == "ocr" else "translation",
+        )
+        for key in ("ocr", "model")
+    )
+    files = tuple(
+        ModelFile(
+            b.key,
+            b.name,
+            "",
+            b.category,
+            0,
+            False,
+            False,
+            False,
+            False,
+            str(b.directory),
+            "",
+            str(b.directory),
+            "",
+            "cpu",
+            False,
+        )
+        for b in bundles
+    )
+    replay.discover(InventoryData(files=files, device="cpu"))
+    replay.setup = SetupCoordinator(replay.inventory, bundles, PROFILES, replay.dependencies)
+    return replay

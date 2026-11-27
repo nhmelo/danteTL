@@ -11,8 +11,8 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+from live_fixtures import frame
 from ownership_fixtures import Replay
-from test_live_session import frame
 
 from dantetl.application.model_inventory import InventoryData
 from dantetl.application.preference_values import Preferences

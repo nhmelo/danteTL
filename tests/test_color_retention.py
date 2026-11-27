@@ -6,8 +6,8 @@ from unittest.mock import Mock
 import cv2
 import numpy as np
 import pytest
-from test_live_session import Replay as LiveReplay
-from test_visual_retention import Replay
+from live_fixtures import Replay as LiveReplay
+from visual_fixtures import Replay
 
 from dantetl.domain import CapturedFrame, Rect, WindowGeometry
 from dantetl.ocr.values import OcrResult, OcrSnapshot, OcrState, TextCharacter, TextRegion

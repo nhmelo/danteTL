@@ -4,7 +4,7 @@ from dataclasses import replace
 
 import numpy as np
 import pytest
-from test_live_session import Replay
+from live_fixtures import Replay
 
 from dantetl.domain import CapturedFrame, Rect, WindowGeometry
 from dantetl.languages.selection import source_language

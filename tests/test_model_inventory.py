@@ -1,19 +1,11 @@
 import threading
-import time
 from unittest.mock import Mock
 
 import pytest
+from ownership_fixtures import settle
 
 from dantetl.application.model_inventory import InventoryData, ModelInventory
 from dantetl.translation.backend import BackendChoice
-
-
-def settle(owner, predicate, now=1.0):
-    deadline = time.monotonic() + 2
-    while not predicate():
-        owner.advance(now)
-        assert time.monotonic() < deadline
-        time.sleep(0.001)
 
 
 def test_refresh_coalesces_and_late_inventory_cannot_replace_newer_request():

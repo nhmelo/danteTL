@@ -6,7 +6,7 @@ from dataclasses import replace
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from test_live_session import Capture, frame
+from live_fixtures import Capture, frame
 
 from dantetl.application.cloud_services import CloudServices
 from dantetl.application.live_session import LiveSession

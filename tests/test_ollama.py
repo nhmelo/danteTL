@@ -1,14 +1,13 @@
 """Native Ollama contract, persistence and cancellation with an in-memory server."""
 
-import asyncio
 import json
 import threading
 import time
 from contextlib import suppress
 from dataclasses import asdict, replace
 
-import httpx2
 import pytest
+from remote_fixtures import MODEL, REMOTE, Server, settle
 
 from dantetl.application.ollama_services import OllamaServices
 from dantetl.application.preference_values import Preferences
@@ -23,54 +22,8 @@ from dantetl.translation.ollama.values import (
     OllamaConfig,
     OllamaIdentity,
     OllamaListing,
-    OllamaModel,
     server_address,
 )
-
-MODEL = OllamaModel("my-model:7b", "a" * 64)
-REMOTE = "http://game-pc:11434"
-
-
-class Server:
-    def __init__(self):
-        self.rows = [asdict(MODEL)]
-        self.info: dict[str, object] = {"capabilities": ["completion", "vision"]}
-        self.answer = {
-            "model": MODEL.name,
-            "message": {"role": "assistant", "content": "  Carte "},
-            "done": True,
-            "done_reason": "stop",
-        }
-        self.calls = []
-        self.hold = ""
-        self.entered = threading.Event()
-        self.cancelled = threading.Event()
-        self.transport = httpx2.MockTransport(self.handle)
-
-    async def handle(self, request):
-        path = request.url.path
-        self.calls.append((path, json.loads(request.content) if request.content else None))
-        if self.hold == path:
-            self.entered.set()
-            try:
-                await asyncio.sleep(60)
-            finally:
-                self.cancelled.set()
-        value = {
-            "/api/tags": {"models": self.rows},
-            "/api/show": self.info,
-            "/api/chat": self.answer,
-        }[path]
-        return httpx2.Response(200, json=value)
-
-
-def settle(service):
-    deadline = time.monotonic() + 3
-    while service.snapshot().busy:
-        service.advance()
-        assert time.monotonic() < deadline
-        time.sleep(0.002)
-    return service.snapshot()
 
 
 def test_catalog_save_is_explicit_and_stale_completion_cannot_commit(tmp_path):
@@ -185,8 +138,7 @@ def test_changed_or_cloud_model_fails_before_worker_can_reuse_cache():
 def test_live_ollama_lane_uses_saved_server_and_retires_only_its_worker(tmp_path):
     from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-    from test_route_reconfiguration import Routes, remote_ref
-    from test_translation_plan import block, until
+    from translation_fixtures import Routes, block, remote_ref, until
 
     from dantetl.translation.plan import TranslationPlan
 
@@ -273,7 +225,7 @@ def test_live_ollama_lane_uses_saved_server_and_retires_only_its_worker(tmp_path
 
 
 def test_ollama_reuses_persistent_cache_only_for_matching_translation_inputs(tmp_path):
-    from test_translation import stop, track, until
+    from translation_fixtures import stop, track, until
 
     from dantetl.languages.selection import source_language
     from dantetl.translation.grouping import TextBlock

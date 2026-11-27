@@ -9,8 +9,8 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest  # noqa: E402
 import shiboken6  # noqa: E402
+from ownership_fixtures import configured  # noqa: E402
 from PySide6.QtWidgets import QFrame, QMessageBox, QWidget  # noqa: E402
-from test_setup_ownership import configured  # noqa: E402
 
 from dantetl.runtime.hardware_values import Adapter, CudaDevice, HardwareStatus, VulkanDevice  # noqa: E402
 from dantetl.runtime.setup_values import (  # noqa: E402

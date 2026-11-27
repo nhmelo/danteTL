@@ -4,52 +4,15 @@ import asyncio
 import subprocess
 import sys
 import threading
-import time
 from dataclasses import replace
+
+from remote_fixtures import create, finish
 
 from dantetl.application.cloud_services import CloudServices
 from dantetl.translation.cloud.chatgpt_auth import PLAN_SCOPE, ChatGPTConnections
 from dantetl.translation.cloud.profiles import CloudProfiles
-from dantetl.translation.cloud.protected_store import ProtectedStore
 from dantetl.translation.cloud.state import CloudDraft
 from dantetl.translation.cloud.values import CatalogModel, CloudProfile
-
-
-class Secrets:
-    def __init__(self):
-        self.values = {}
-        self.threads = []
-
-    def read(self, key):
-        return self.values.get(key)
-
-    def write(self, key, secret):
-        self.threads.append(threading.get_ident())
-        self.values[key] = secret
-
-    def delete(self, key):
-        self.values.pop(key, None)
-
-
-def finish(service):
-    deadline = time.monotonic() + 3
-    while service.busy:
-        service.advance()
-        assert time.monotonic() < deadline
-        time.sleep(0.001)
-    return service.snapshot()
-
-
-def create(tmp_path):
-    secrets = Secrets()
-    service = CloudServices(
-        CloudProfiles(tmp_path / "cloud.json"),
-        lambda: secrets,
-        ChatGPTConnections(ProtectedStore(tmp_path / "accounts")),
-    )
-    service.start()
-    finish(service)
-    return service, secrets
 
 
 def test_save_remove_and_usage_are_application_owned_without_a_view(tmp_path):

@@ -6,16 +6,14 @@ from dataclasses import replace
 from unittest.mock import Mock
 
 import pytest
-from ownership_fixtures import Replay
-from test_live_session import Capture, Ocr, Visual, frame
+from live_fixtures import Capture, Ocr, Visual, frame
+from ownership_fixtures import Replay, observe
 
 from dantetl.application.model_inventory import InventoryData
 from dantetl.application.preference_values import Preferences
-from dantetl.domain import CaptureSnapshot, CaptureState, Rect
+from dantetl.domain import CaptureState, Rect
 from dantetl.languages.target import ENGLISH, TargetLanguage
-from dantetl.ocr.observation import CandidateReview
-from dantetl.ocr.values import OcrResult, OcrSnapshot, OcrState, TextRegion
-from dantetl.ocr.visual_values import VisualState
+from dantetl.ocr.values import OcrSnapshot, OcrState, TextRegion
 from dantetl.ocr.worker import OcrChoice
 from dantetl.runtime.restart import RestartSnapshot
 from dantetl.runtime.setup_values import RuntimeTarget
@@ -32,21 +30,6 @@ def replay(tmp_path):
     )
     yield value
     value.close()
-
-
-def observe(replay, sequence=1, *, regions=None):
-    source = frame(sequence, sequence)
-    if regions is None:
-        regions = (TextRegion("設定", Rect(50, 40, 100, 30)),)
-    result = OcrResult(source, regions, 25, sequence)
-    replay.capture.current = CaptureSnapshot(CaptureState.RUNNING, source)
-    replay.ocr.current = OcrSnapshot(OcrState.READY, result)
-    replay.visual.current = VisualState(
-        review=CandidateReview(sequence=sequence), frame=source, ocr_sequence=sequence
-    )
-    replay.app.advance(sequence + 0.1)
-    replay.app.advance(sequence + 0.7)
-    return result
 
 
 def publish(replay):

@@ -5,8 +5,8 @@ import time
 from unittest.mock import Mock
 
 import pytest
+from live_fixtures import Capture, Ocr
 from PySide6.QtCore import QTimer
-from test_live_session import Capture, Ocr
 
 from dantetl.application.live_session import LiveSession
 from dantetl.domain import CapturedFrame, Rect, WindowGeometry

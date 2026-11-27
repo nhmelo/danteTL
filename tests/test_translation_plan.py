@@ -1,59 +1,24 @@
 """Category assignments preserve bounded work, ownership and exact-source publication."""
 
 import threading
-import time
 from collections.abc import Callable
 from dataclasses import replace
 from unittest.mock import Mock
 
 import pytest
+from translation_fixtures import Engine, block, until
 
 from dantetl.application.live_session import LiveSession
 from dantetl.application.model_inventory import ModelInventory
 from dantetl.application.model_lifecycle import ModelLifecycle, RouteModel, RouteSelection
 from dantetl.application.preference_values import Preferences
 from dantetl.application.preferences import decode_preferences
-from dantetl.domain import Rect
-from dantetl.languages.target import ENGLISH
-from dantetl.ocr.observation import TextTrack
 from dantetl.translation.backend import BackendChoice, TranslationBackend
 from dantetl.translation.grouping import TextBlock
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.routing import RoutedTranslationSession
 from dantetl.translation.values import TranslationState
 from dantetl.translation.worker import TranslationSession
-
-
-def until(predicate):
-    deadline = time.monotonic() + 3
-    while not predicate():
-        assert time.monotonic() < deadline
-        time.sleep(0.005)
-
-
-def block(key, text, *, dialogue=False):
-    return TextBlock((TextTrack(key, text, Rect(0, key * 40, 200, 30)),), dialogue=dialogue)
-
-
-class Engine:
-    batch_size = 1
-
-    def __init__(self, identity, release=None):
-        self.cache_identity = identity
-        self.release = release
-        self.entered = threading.Event()
-        self.closed = threading.Event()
-        self.calls = []
-
-    def translate(self, texts, *, target=ENGLISH):
-        self.calls.append(texts)
-        self.entered.set()
-        if self.release:
-            assert self.release.wait(3)
-        return tuple(self.cache_identity + ": " + text for text in texts)
-
-    def close(self):
-        self.closed.set()
 
 
 @pytest.mark.parametrize(

@@ -31,10 +31,7 @@ from dantetl.translation.cloud.backend import CloudBackend  # noqa: E402
 from dantetl.translation.cloud.chatgpt_auth import PLAN_SCOPE, ChatGPTConnections  # noqa: E402
 from dantetl.translation.cloud.profiles import CloudProfiles  # noqa: E402
 from dantetl.translation.cloud.protected_store import ProtectedStore  # noqa: E402
-from dantetl.translation.cloud.values import (
-    CatalogModel,  # noqa: E402
-    CloudProfile,  # noqa: E402
-)
+from dantetl.translation.cloud.values import CatalogModel, CloudProfile  # noqa: E402
 from dantetl.translation.grouping import TextBlock  # noqa: E402
 from dantetl.translation.plan import TranslationPlan  # noqa: E402
 from dantetl.translation.routing import RoutedTranslationSession  # noqa: E402
@@ -242,10 +239,12 @@ def test_cloud_tab_saves_on_next_and_reviews_only_selected_downloads(
     app, tmp_path, monkeypatch, local
 ):
     from PySide6.QtCore import Qt
-    from test_ollama import MODEL, OllamaConfig, OllamaServices, Server
+    from remote_fixtures import MODEL, Server
 
+    from dantetl.application.ollama_services import OllamaServices
     from dantetl.runtime.hardware_values import Adapter, CudaDevice, HardwareStatus
     from dantetl.runtime.model_store import model_catalog
+    from dantetl.translation.ollama.values import OllamaConfig
 
     entered, release = threading.Event(), threading.Event()
 

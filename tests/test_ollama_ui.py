@@ -3,14 +3,15 @@
 from dataclasses import replace
 
 import pytest
+from ownership_fixtures import configured
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget
-from test_ollama import DEFAULT_SERVER, MODEL, REMOTE, OllamaConfig, OllamaServices, Server, settle
-from test_setup_ownership import configured
-from test_translation_plan import until
+from remote_fixtures import MODEL, REMOTE, Server, settle
+from translation_fixtures import until
 
+from dantetl.application.ollama_services import OllamaServices
 from dantetl.application.preference_values import Preferences
-from dantetl.translation.ollama.values import OllamaListing
+from dantetl.translation.ollama.values import DEFAULT_SERVER, OllamaConfig, OllamaListing
 from dantetl.translation.plan import TranslationPlan
 from dantetl.translation.selection import AssignmentChange
 from dantetl.ui.cloud_settings import CloudSettings

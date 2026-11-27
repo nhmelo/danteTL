@@ -4,7 +4,7 @@ from dataclasses import replace
 from unittest.mock import Mock
 
 import pytest
-from test_live_session import Replay
+from live_fixtures import Replay
 
 from dantetl.domain import CapturedFrame, Rect, WindowGeometry
 from dantetl.languages.selection import source_language

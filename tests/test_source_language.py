@@ -1,8 +1,8 @@
 import threading
 
 import pytest
-from test_live_session import Replay, frame
-from test_translation import Backend, until
+from live_fixtures import Replay, frame
+from translation_fixtures import Backend, until
 
 from dantetl.domain import Rect
 from dantetl.languages.paddle import PaddleOCRLanguage

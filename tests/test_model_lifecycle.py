@@ -2,35 +2,7 @@ from unittest.mock import Mock
 
 from dantetl.application.model_lifecycle import ModelPhase
 from dantetl.translation.backend import BackendChoice
-from dantetl.translation.values import TranslationSnapshot, TranslationState
-from dantetl.translation.worker import TranslationSession
-
-
-class Worker(TranslationSession):
-    def __init__(self, choice):
-        self.choice = choice
-        self.state = TranslationState.LOADING
-        self.ended = False
-        self.stops = 0
-        self.started = False
-
-    @property
-    def finished(self):
-        return self.ended
-
-    def start(self):
-        self.started = True
-
-    def request_stop(self):
-        self.stops += 1
-
-    def snapshot(self):
-        return TranslationSnapshot(
-            self.state, message="fixture failure" if self.state == TranslationState.FAILED else ""
-        )
-
-    def switch_backend(self, factory):
-        self.state = TranslationState.LOADING
+from dantetl.translation.values import TranslationState
 
 
 def setup(tmp_path):

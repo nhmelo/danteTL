@@ -5,10 +5,10 @@ from dataclasses import replace
 import cv2
 import numpy as np
 import pytest
+from visual_fixtures import Replay
 
 from dantetl.domain import CapturedFrame, Rect, WindowGeometry
 from dantetl.ocr.observation import CandidateReview, TextTrack
-from dantetl.ocr.presence import prepare_evidence
 from dantetl.ocr.tracking import TextTracker
 from dantetl.ocr.values import OcrResult, TextCharacter, TextRegion
 from dantetl.ocr.visual import VisualAnalyzer
@@ -107,46 +107,6 @@ def result(sequence, text="攻撃力", score=0.96, **kwargs):
         250,
         frame.captured_at + 0.25,
     )
-
-
-class Replay:
-    def __init__(self, first):
-        self.visual = VisualAnalyzer()
-        self.tracker = TextTracker()
-        self.result = first
-        self.ids = self.tracker.observe(
-            first, review=CandidateReview(pixels=prepare_evidence(first))
-        )
-        self.tracks = self.tracker.advance(first.frame, first.completed_at + 0.5).confirmed
-        self.visual.observe(first.frame, first, self.tracks, self.ids, candidate=first)
-
-    def step(self, incoming):
-        state = self.visual.observe(
-            incoming.frame,
-            self.result,
-            self.tracks,
-            self.ids,
-            self.tracker.snapshot().activity,
-            incoming,
-        )
-        self.ids = self.tracker.observe(
-            incoming,
-            review=replace(
-                state.review, pixels=prepare_evidence(incoming, self.tracker.evidence_bounds())
-            ),
-            presence=state.presence,
-        )
-        self.tracks = self.tracker.advance(incoming.frame, incoming.completed_at + 0.5).confirmed
-        self.result = incoming
-        self.visual.observe(
-            incoming.frame,
-            incoming,
-            self.tracks,
-            self.ids,
-            self.tracker.snapshot().activity,
-            incoming,
-        )
-        return state
 
 
 @pytest.mark.parametrize(
