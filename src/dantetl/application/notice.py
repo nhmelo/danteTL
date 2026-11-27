@@ -1,6 +1,7 @@
 """Pure, cached presentation policy. Inputs are values, never widgets or workers."""
 
 from dataclasses import dataclass, replace
+from enum import StrEnum
 from functools import lru_cache
 
 from dantetl.application.setup_status import SetupAdvice, acceleration_advice
@@ -93,17 +94,30 @@ def _language_advice(
     return LanguageAdvice(message, action, AssignmentChange(updated, gemma.reference))
 
 
+class NoticeDestination(StrEnum):
+    """Where a notice's action takes the user."""
+
+    MODELS = "models"
+    SELECTION = "selection"
+    OLLAMA = "ollama"
+    CLOUD = "cloud"
+    RUNTIME = "runtime"
+    PREPARE = "prepare"
+    SETTINGS = "settings"
+    USAGE = "usage"
+
+
 @dataclass(frozen=True)
 class Notices:
     message: str = ""
     action: str = mark("Open settings")
     tone: str = "warning"
-    destination: str = "models"
+    destination: NoticeDestination = NoticeDestination.MODELS
     model_warning: str = ""
     model_action: str = "Models"
     save_note: str = ""
     acceleration: SetupAdvice = SetupAdvice()
-    model_destination: str = "models"
+    model_destination: NoticeDestination = NoticeDestination.MODELS
     language: LanguageAdvice = LanguageAdvice()
     prepare_reference: str = ""
 
@@ -114,7 +128,7 @@ def project_notices(value: NoticeInput) -> Notices:
     active = tuple(options[k] for k in value.plan.active_models if k in options)
     cloud = tuple(c for c in active if not c.local)
     missing = []
-    model_action, model_destination, prepare_reference = tr("Models"), "models", ""
+    model_action, model_destination, prepare_reference = tr("Models"), NoticeDestination.MODELS, ""
     if not value.ocr_ready:
         missing.append(tr("{ocr_model} is not downloaded", ocr_model=value.ocr_model))
     for label, key, enabled in (
@@ -125,31 +139,31 @@ def project_notices(value: NoticeInput) -> Notices:
             continue
         choice = options.get(key)
         first_issue = not missing
-        action, destination = tr("Choose model"), "selection"
+        action, destination = tr("Choose model"), NoticeDestination.SELECTION
         if not key:
             missing.append(tr("No translation model is selected for {label}", label=label))
         elif choice is None:
             missing.append(tr("The model for {label} is unavailable", label=label))
             if reference_kind(key) is ModelKind.OLLAMA:
-                action, destination = "Ollama API", "ollama"
+                action, destination = "Ollama API", NoticeDestination.OLLAMA
             elif reference_kind(key) is ModelKind.CLOUD:
-                action, destination = tr("Cloud models"), "cloud"
+                action, destination = tr("Cloud models"), NoticeDestination.CLOUD
         elif choice.provider == "ollama" and not choice.prepared:
             missing.append(
                 tr("The model for {label} is unavailable", label=label) + f" ({choice.name})"
             )
-            action, destination = "Ollama API", "ollama"
+            action, destination = "Ollama API", NoticeDestination.OLLAMA
         elif not choice.local and not choice.prepared:
             missing.append(tr("Connect the cloud model for {label} in Models", label=label))
-            action, destination = tr("Cloud models"), "cloud"
+            action, destination = tr("Cloud models"), NoticeDestination.CLOUD
         elif choice.unavailable_reason:
             reason = display(choice.unavailable_reason).rstrip(".")
             if reason not in missing:
                 missing.append(reason)
             action, destination = (
-                (tr("Models"), "models")
+                (tr("Models"), NoticeDestination.MODELS)
                 if is_imported(choice.key)
-                else (tr("Acceleration options"), "runtime")
+                else (tr("Acceleration options"), NoticeDestination.RUNTIME)
             )
         elif choice.local and not choice.prepared:
             message = tr(
@@ -158,22 +172,31 @@ def project_notices(value: NoticeInput) -> Notices:
             )
             if message not in missing:
                 missing.append(message)
-            action, destination = tr("Prepare model"), "prepare"
+            action, destination = tr("Prepare model"), NoticeDestination.PREPARE
         else:
             continue
         if first_issue:
             model_action, model_destination = action, destination
-            if destination == "prepare":
+            if destination is NoticeDestination.PREPARE:
                 prepare_reference = key
-    if not options and not value.discovering and model_destination not in ("cloud", "ollama"):
+    if (
+        not options
+        and not value.discovering
+        and model_destination not in (NoticeDestination.CLOUD, NoticeDestination.OLLAMA)
+    ):
         missing.append(tr("No translation model is downloaded or configured"))
-        model_action, model_destination = tr("Download models"), "models"
+        model_action, model_destination = tr("Download models"), NoticeDestination.MODELS
     warning = ". ".join(missing)
     if warning and not any(c.prepared for c in active):
         warning += tr(". Capture can continue, but translation needs setup.")
-    message, action, tone, destination = "", tr("Open settings"), "warning", "models"
+    message, action, tone, destination = (
+        "",
+        tr("Open settings"),
+        "warning",
+        NoticeDestination.MODELS,
+    )
     if value.saving_error:
-        message, tone, destination = value.saving_error, "error", "settings"
+        message, tone, destination = value.saving_error, "error", NoticeDestination.SETTINGS
     elif value.setup_error:
         message, tone = tr("Setup needs attention: ") + value.setup_error, "error"
     elif value.setup_busy:
@@ -198,7 +221,7 @@ def project_notices(value: NoticeInput) -> Notices:
     elif value.rejected:
         message, action = value.translation_message, ""
         if any(p.provider == "chatgpt" for p in cloud):
-            action, destination = tr("Manage usage"), "usage"
+            action, destination = tr("Manage usage"), NoticeDestination.USAGE
     advice = acceleration_advice(
         value.hardware, value.ocr_device, actual_provider=value.provider, fallback=value.fallback
     )

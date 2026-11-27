@@ -29,7 +29,7 @@ from PySide6.QtWidgets import (
 
 from dantetl.application.api import ApplicationCommands
 from dantetl.application.hotkeys import HotkeyAction, Hotkeys
-from dantetl.application.notice import Notices
+from dantetl.application.notice import NoticeDestination, Notices
 from dantetl.application.preference_values import SettingsEdit
 from dantetl.application.updates import Updates
 from dantetl.application.values import ApplicationControls, ModelConsent, ShutdownPhase
@@ -89,7 +89,7 @@ class MainWindow(QMainWindow):
         self.about = AboutDialog(version("dantetl"), updates, self)
         self.about.restart.connect(self.close)
         self._windows, self._hardware, self._hotkeys = windows, hardware, hotkeys
-        self._notice_destination = "models"
+        self._notice_destination = NoticeDestination.MODELS
         self._last_notices: Notices | None = None
         self._model_manager: ModelManager | None = None
         self._runtime_dialog: RuntimeSetupDialog | None = None
@@ -665,25 +665,25 @@ class MainWindow(QMainWindow):
             self.resize(self._compact_size)
 
     def _show_setup_status(self) -> None:
-        if self._notice_destination == "usage":
+        if self._notice_destination is NoticeDestination.USAGE:
             QDesktopServices.openUrl(QUrl("https://chatgpt.com/settings/usage"))
-        elif self._notice_destination in ("ollama", "cloud"):
+        elif self._notice_destination in (NoticeDestination.OLLAMA, NoticeDestination.CLOUD):
             self._settings.show_models()
             self._settings.models.category.setCurrentIndex(
-                self._settings.models.category.findData(self._notice_destination)
+                self._settings.models.category.findData(self._notice_destination.value)
             )
-        elif self._notice_destination == "prepare":
+        elif self._notice_destination is NoticeDestination.PREPARE:
             notice = self.application.notices()
             if notice.prepare_reference:
                 self._request_assignment(
                     AssignmentChange(self.application.controls.assignment, notice.prepare_reference)
                 )
-        elif self._notice_destination == "selection":
+        elif self._notice_destination is NoticeDestination.SELECTION:
             self._settings.hide()
             self.routing.focus_model()
-        elif self._notice_destination == "settings":
+        elif self._notice_destination is NoticeDestination.SETTINGS:
             self._show_settings()
-        elif self._notice_destination == "runtime" or (
+        elif self._notice_destination is NoticeDestination.RUNTIME or (
             self._settings.runtime
             and (self._settings.runtime.busy or self._settings.runtime.error_message)
         ):
