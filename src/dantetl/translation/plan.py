@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from dantetl.ocr.observation import TextTrack
 from dantetl.translation.grouping import TextBlock
+from dantetl.translation.references import ModelKind, format_reference, reference_kind
 
 SHORT_TEXT_LIMIT = 40
 
@@ -42,12 +43,12 @@ class TranslationPlan:
 
     @property
     def two_local_models(self) -> bool:
-        return sum(key.startswith("local:") for key in self.active_models) == 2
+        return sum(reference_kind(key) is ModelKind.LOCAL for key in self.active_models) == 2
 
     @classmethod
     def legacy(cls, mode: str, local: str, cloud: str) -> "TranslationPlan":
-        local = "local:" + local if local and local != "none" else ""
-        cloud = "cloud:" + cloud if cloud else ""
+        local = format_reference(ModelKind.LOCAL, local) if local and local != "none" else ""
+        cloud = format_reference(ModelKind.CLOUD, cloud) if cloud else ""
         return cls(
             cloud if mode in ("cloud", "short") else local,
             cloud if mode in ("cloud", "long") else local,

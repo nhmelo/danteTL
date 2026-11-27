@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from dantetl.translation.cloud.values import CloudProfile
 from dantetl.translation.plan import TranslationPlan
+from dantetl.translation.references import ModelKind, reference_key, reference_kind
 
 
 @dataclass(frozen=True)
@@ -35,7 +36,9 @@ class ModelOption:
 
     @property
     def preference_key(self) -> str:
-        return self.reference.removeprefix("local:").removeprefix("cloud:")
+        if reference_kind(self.reference) in (ModelKind.LOCAL, ModelKind.CLOUD):
+            return reference_key(self.reference)
+        return self.reference
 
 
 @dataclass(frozen=True)

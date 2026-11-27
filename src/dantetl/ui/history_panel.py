@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
 
 from dantetl.i18n import mark, tr
 from dantetl.translation.dialogue.values import HistoryTurn
+from dantetl.translation.references import ModelKind, reference_kind
 from dantetl.ui.controls import CopyTextButton, add_combo_section
 from dantetl.ui.localization import localized, on_language_change
 
@@ -249,7 +250,9 @@ class HistoryPanel(QDialog):
         group = ""
         for key, label, available in choices:
             section = (
-                tr("Local instruction models") if key.startswith("local:") else tr("Cloud models")
+                tr("Local instruction models")
+                if reference_kind(key) is ModelKind.LOCAL
+                else tr("Cloud models")
             )
             if section != group:
                 group = section
@@ -270,12 +273,12 @@ class HistoryPanel(QDialog):
                 "Loads a separate local model. Uses extra RAM/VRAM and can compete "
                 "with translation for hardware."
             )
-            if key.startswith("local:")
+            if reference_kind(key) is ModelKind.LOCAL
             else tr(
                 "Sends candidate text and nearby labels to this provider. Uses your plan/API "
                 "allowance. No screenshots or transcript are sent."
             )
-            if key.startswith("cloud:")
+            if reference_kind(key) is ModelKind.CLOUD
             else tr(
                 "Classification runs independently of translation. Choose a configured "
                 "cloud model or a prepared instruction model."

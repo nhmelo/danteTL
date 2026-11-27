@@ -30,6 +30,7 @@ from dantetl.translation.cloud.values import CloudProfile
 from dantetl.translation.ollama.backend import OllamaBackend
 from dantetl.translation.ollama.values import OllamaConfig, OllamaIdentity, OllamaModel
 from dantetl.translation.plan import TranslationPlan
+from dantetl.translation.references import ModelKind, format_reference, is_imported, reference_kind
 from dantetl.translation.routing import ModelIdentity, RoutedTranslationSession
 from dantetl.translation.selection import (
     AssignmentChange,
@@ -43,8 +44,8 @@ from dantetl.translation.worker import TranslationSession
 
 def model_reference(choice: BackendChoice | CloudProfile | None) -> str:
     if isinstance(choice, BackendChoice):
-        return "local:" + choice.preference_key
-    return "cloud:" + choice.key if choice else ""
+        return format_reference(ModelKind.LOCAL, choice.preference_key)
+    return format_reference(ModelKind.CLOUD, choice.key) if choice else ""
 
 
 class TranslationCoordinator:
@@ -120,7 +121,7 @@ class TranslationCoordinator:
         return self._restored
 
     def resolve(self, reference: str) -> BackendChoice | CloudProfile | OllamaModel | None:
-        if reference.startswith("ollama:"):
+        if reference_kind(reference) is ModelKind.OLLAMA:
             return next(
                 (
                     m
@@ -219,7 +220,7 @@ class TranslationCoordinator:
         if change.plan == self.plan and (option is None or option.prepared):
             return "unchanged"
         if option and option.unavailable_reason:
-            return "models" if option.key.startswith("imported-") else "runtime"
+            return "models" if is_imported(option.key) else "runtime"
         choice = self.resolve(change.reference)
         token = self._lifecycle.request_assignment(
             change.plan, choice if isinstance(choice, BackendChoice) else None

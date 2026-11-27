@@ -15,6 +15,7 @@ from dantetl.i18n import tr
 from dantetl.paths import state_root
 from dantetl.runtime.setup_values import Cancelled, ModelProgress, Progress
 from dantetl.translation.models.values import PROFILES, GgufInfo, ImportedModel
+from dantetl.translation.references import imported_key, valid_imported_key
 
 
 class _Reader:
@@ -149,7 +150,7 @@ def describe(
     template_hash = hashlib.sha256(info.template.encode()).hexdigest()
     identity = hashlib.sha256(f"{digest}:{info.profile}:{template_hash}".encode()).hexdigest()
     return ImportedModel(
-        "imported-" + identity,
+        imported_key(identity),
         str(path),
         info.name,
         digest,
@@ -190,7 +191,7 @@ def _decode_registry(payload: bytes) -> tuple[ImportedModel, ...]:
         try:
             model = ImportedModel(**entry)
             if (
-                not re.fullmatch(r"imported-[0-9a-f]{64}", model.key)
+                not valid_imported_key(model.key)
                 or not re.fullmatch(r"[0-9a-f]{64}", model.sha256)
                 or not re.fullmatch(r"[0-9a-f]{64}", model.template_hash)
                 or model.profile not in PROFILES

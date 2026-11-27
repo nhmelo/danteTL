@@ -14,6 +14,7 @@ from dantetl.i18n import INTERFACE_LANGUAGES, tr
 from dantetl.languages.selection import SOURCE_LANGUAGES
 from dantetl.languages.target import TARGET_LANGUAGES
 from dantetl.translation.ollama.values import OllamaConfig
+from dantetl.translation.references import valid_imported_key
 
 _MAX_BYTES = 32_768
 
@@ -68,7 +69,7 @@ def decode_preferences(value: object) -> Preferences:
         if (
             key in choices
             and candidate not in choices[key]
-            and not (key == "model" and re.fullmatch(r"imported-[0-9a-f]{64}", candidate))
+            and not (key == "model" and valid_imported_key(candidate))
         ):
             continue
         if key in ("overlay_hotkey", "capture_hotkey"):

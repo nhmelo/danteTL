@@ -9,6 +9,7 @@ from dantetl.languages.target import ENGLISH, TargetLanguage
 from dantetl.runtime.hardware_values import HardwareStatus
 from dantetl.runtime.setup_values import RuntimeTarget
 from dantetl.translation.plan import TranslationPlan
+from dantetl.translation.references import ModelKind, format_reference, is_imported, reference_kind
 from dantetl.translation.selection import AssignmentChange, ModelOption
 
 
@@ -65,7 +66,7 @@ def _language_advice(
     # Prefer a Gemma already used by another category, then one ready for use.
     candidates = (
         option
-        for key in ("local:gemma", "local:gemma-e4b")
+        for key in (format_reference(ModelKind.LOCAL, k) for k in ("gemma", "gemma-e4b"))
         if (option := options.get(key)) and not option.excludes_output(target.code)
     )
     gemma = min(
@@ -129,9 +130,9 @@ def project_notices(value: NoticeInput) -> Notices:
             missing.append(tr("No translation model is selected for {label}", label=label))
         elif choice is None:
             missing.append(tr("The model for {label} is unavailable", label=label))
-            if key.startswith("ollama:"):
+            if reference_kind(key) is ModelKind.OLLAMA:
                 action, destination = "Ollama API", "ollama"
-            elif key.startswith("cloud:"):
+            elif reference_kind(key) is ModelKind.CLOUD:
                 action, destination = tr("Cloud models"), "cloud"
         elif choice.provider == "ollama" and not choice.prepared:
             missing.append(
@@ -147,7 +148,7 @@ def project_notices(value: NoticeInput) -> Notices:
                 missing.append(reason)
             action, destination = (
                 (tr("Models"), "models")
-                if choice.key.startswith("imported-")
+                if is_imported(choice.key)
                 else (tr("Acceleration options"), "runtime")
             )
         elif choice.local and not choice.prepared:

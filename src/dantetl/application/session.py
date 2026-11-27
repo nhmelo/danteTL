@@ -48,6 +48,7 @@ from dantetl.runtime.hardware_values import HardwareStatus
 from dantetl.runtime.setup_values import RuntimeTarget
 from dantetl.translation.cloud.values import CloudProfile
 from dantetl.translation.dialogue.values import HistoryTurn
+from dantetl.translation.references import ModelKind, format_reference, is_remote
 from dantetl.translation.selection import AssignmentChange, OcrOption
 from dantetl.translation.values import TranslationState
 
@@ -398,15 +399,15 @@ class ApplicationSession:
         ):
             return
         if self.values.setup_model:
-            key = "local:" + self.values.setup_model
+            key = format_reference(ModelKind.LOCAL, self.values.setup_model)
             if not self._can_assign:
                 return
             current = self.translation.plan
             # Completing a local download preserves independently configured cloud routes.
             plan = replace(
                 current,
-                short=current.short if current.short.startswith(("cloud:", "ollama:")) else key,
-                long=current.long if current.long.startswith(("cloud:", "ollama:")) else key,
+                short=current.short if is_remote(current.short) else key,
+                long=current.long if is_remote(current.long) else key,
             )
             if key not in (plan.short, plan.long):
                 self.values = replace(self.values, setup_model="")

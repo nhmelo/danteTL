@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from urllib.parse import urlsplit
 
 from dantetl.i18n import tr
+from dantetl.translation.references import ModelKind, format_reference
 
 DEFAULT_SERVER = "http://127.0.0.1:11434"
 MAX_ENABLED = 32
@@ -75,7 +76,8 @@ class OllamaModel:
         return title
 
     def reference(self, server: str) -> str:
-        return "ollama:" + hashlib.sha256(f"{server}\0{self.name}".encode()).hexdigest()
+        digest = hashlib.sha256(f"{server}\0{self.name}".encode()).hexdigest()
+        return format_reference(ModelKind.OLLAMA, digest)
 
 
 @dataclass(frozen=True, slots=True)
