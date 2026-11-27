@@ -397,6 +397,9 @@ same ink is divided by its icons. Detector fragments without that evidence stay 
 an unchanged full line, and a later merged reading cannot rejoin separated labels.
 Raw OCR rows retain their original indices and content.
 Existing matches precede new admission; truncated input cannot vote for absence.
+New rows are admitted by confidence, then canonical geometry, never detector order. A new row
+overlapping a track by most of its area is the same ink read twice: it waits for that track's
+absence, or loses to the better reading admitted earlier in the same observation.
 Spatially gated bipartite components use optimal
 assignment with explicit unmatched costs, stable IDs and canonical tie ordering. Distant identical labels
 cannot match on text alone. Candidate scores use normalized bit-parallel LCS/Indel with per-source masks

@@ -636,7 +636,14 @@ class TextTracker:
                     and frame.captured_at - track.absence.since >= self._policy.missing_seconds
                 ) or (track.value in presence.absent and presence.sequence >= frame.sequence):
                     del self._tracks[key]
-        for index, region in regions:
+        # Admit new rows by confidence, then canonical geometry, never detector order.
+        # This is greedy non-maximum suppression: a row overlapping one admitted
+        # earlier in this pass is the same ink read twice, and the better reading won.
+        rank = {index: position for position, index in enumerate(order)}
+        admitted: list[Rect] = []
+        for index, region in sorted(
+            regions, key=lambda item: (-(_confidence(item[1]) or 0), rank[item[0]])
+        ):
             # Matches and retirements are final for this observation. No later row
             # can free a slot, and all unassigned raw indices already contain None.
             if len(self._tracks) >= self._policy.max_tracks:
@@ -658,8 +665,9 @@ class TextTracker:
             if any(
                 key not in used and _overlap(track.observed, region.bounds) >= 0.55
                 for key, track in self._tracks.items()
-            ):
+            ) or any(_overlap(bounds, region.bounds) >= 0.55 for bounds in admitted):
                 continue
+            admitted.append(region.bounds)
             key = self._next_id
             self._next_id += 1
             value = TextTrack(key, region.text, region.bounds, region.vertical)

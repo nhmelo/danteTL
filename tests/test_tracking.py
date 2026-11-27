@@ -266,12 +266,16 @@ def test_icon_variants_do_not_absorb_nearby_choices_or_edit_numeric_values():
         region("10%", x=700, y=200, width=90, height=32),
     )
     original = replay.step(clean, wide, *others)
-    assert [t.bounds for t in original] == [r.bounds for r in (clean, *others)]
+    assert len(original) == 4 and {t.bounds for t in original} == {
+        r.bounds for r in (clean, *others)
+    }
     changed = replace(others[-1], text="110%", bounds=Rect(670, 200, 120, 32))
     assert replay.step(changed, *others[:2], wide, clean) == original
-    current = replay.step(changed, *others[:2], wide, clean)
-    assert current[:3] == original[:3]
-    assert current[-1].text == "110%" and current[-1].track_id == original[-1].track_id
+    current = {t.track_id: t for t in replay.step(changed, *others[:2], wide, clean)}
+    (percent,) = (t for t in original if t.text == "10%")
+    assert current.keys() == {t.track_id for t in original}
+    assert all(current[t.track_id] == t for t in original if t is not percent)
+    assert current[percent.track_id].text == "110%"
 
 
 @pytest.mark.parametrize("reverse", (False, True))
@@ -706,6 +710,16 @@ def test_one_orientation_error_cannot_erase_the_existing_box() -> None:
     original = replay.step(region())
     assert replay.step(region(vertical=True)) == original
     assert replay.step(region()) == original
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+def test_two_new_readings_of_the_same_ink_admit_only_the_more_confident(reverse) -> None:
+    weaker = region("新しい冒険がここから始まる", x=104, y=702, width=396, confidence=0.8)
+    stronger = region("新しい冒険が、ここから始まる。", confidence=0.9)
+    readings = (weaker, stronger)[::-1] if reverse else (weaker, stronger)
+    replay = Replay()
+    assert [track.text for track in replay.step(*readings)] == [stronger.text]
+    assert replay.ids.count(None) == 1
 
 
 @pytest.mark.parametrize("revealing", [True, False])
