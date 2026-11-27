@@ -18,6 +18,7 @@ from meikiocr.ocr import INPUT_DET_HEIGHT, INPUT_DET_WIDTH
 from dantetl.domain import CapturedFrame, Rect
 from dantetl.i18n import tr
 from dantetl.ocr.crop_recovery import recovery_preserves_lines, split_glyphs
+from dantetl.ocr.edge_icons import trim_edge_icons
 from dantetl.ocr.models import local_model_paths
 from dantetl.ocr.scan_plan import ScanCosts
 from dantetl.ocr.values import TextCharacter, TextRegion
@@ -256,12 +257,13 @@ class MeikiRecognizer:
             # the same coordinate system as the clipped regions.
             x, y = origin
             source = bgr[y : y + height, x : x + width]
-            return recover_wide_lines(
-                regions,
-                lambda boxes: run_inference(
+
+            def reread(boxes: list[Rect]) -> tuple[TextRegion, ...]:
+                return run_inference(
                     lambda: self._engine.read_pieces(source, boxes), recoverable=recoverable
-                ),
-            )
+                )
+
+            return trim_edge_icons(source, recover_wide_lines(regions, reread), reread)
 
         try:
             return read()
