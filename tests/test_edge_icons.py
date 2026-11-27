@@ -111,6 +111,35 @@ def test_displaced_glyph_is_recovered_by_one_verified_reread() -> None:
     assert 39 < box.x < 70  # Between the icon and the displaced glyph.
 
 
+def ring(image: np.ndarray, x: int) -> None:
+    """An outlined emblem at glyph height, heavier than the glyphs but not much taller."""
+    cv2.circle(image, (x + 15, TOP + 15), 14, (90, 200, 240), 5)
+
+
+SPACED = (70, 104, 138)
+
+
+@pytest.mark.parametrize(
+    ("x", "score", "glyphs", "dropped"),
+    [
+        (20, 0.35, SPACED, True),  # Weakly read and set apart from the label: an icon.
+        (20, 0.6, SPACED, False),  # Read with word confidence: pixels alone are not enough.
+        (35, 0.35, SPACED, False),  # As close as the label's glyphs: it may be one of them.
+        (20, 0.35, (70, 120, 170), False),  # The label is spaced at least as widely.
+    ],
+)
+def test_a_weakly_read_heavier_unit_set_apart_from_the_label_is_an_icon(
+    x, score, glyphs, dropped
+) -> None:
+    image = canvas()
+    ring(image, x)
+    for g in glyphs:
+        glyph(image, g)
+    raw = line("#戻るよ", (score, 0.93, 0.93, 0.9), (x, *glyphs))
+    (trimmed,) = trim_edge_icons(image, (raw,), Reader())
+    assert trimmed.text == ("戻るよ" if dropped else raw.text)
+
+
 @pytest.mark.parametrize(
     "answer",
     [

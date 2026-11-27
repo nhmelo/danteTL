@@ -327,7 +327,8 @@ work per line and per scan.
 Meiki separates an icon at either end of a horizontal line from the lettering beside it
 (`edge_icons`). Ink units at that edge are measured against the line's own glyphs. An icon is
 taller and heavier, or at glyph height much heavier, and may have one touching part of the same
-height. Its one or two characters are dropped only when the line keeps a letter read at word
+height. A unit OCR read only weakly needs less evidence: at glyph height and heavier, set apart
+from the lettering by a gap wider than twice the spacing between its glyphs. Its one or two characters are dropped only when the line keeps a letter read at word
 confidence. They must not be list bullets, letters read with high confidence, or brackets that
 are confident or paired in the line: pixels alone never remove a bold word, a number's digits or
 structure. Detector bounds stay;

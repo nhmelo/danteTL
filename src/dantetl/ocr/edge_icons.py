@@ -2,8 +2,10 @@
 
 OCR reads an icon beside a label as extra characters (み軌跡, 8通常攻撃, 〇戻る) and can lose the
 neighbouring glyph. Measured against the line's own glyphs, an icon is taller and heavier, or at
-glyph height much heavier. Its characters are dropped and the line is re-read without it. The
-re-read is accepted only if it keeps every character on the text side.
+glyph height much heavier. A unit OCR read only weakly needs less: at glyph height and heavier,
+set apart from the lettering by at least twice the spacing between its glyphs. Its characters
+are dropped and the line is re-read without it. The re-read is accepted only if it keeps every
+character on the text side.
 """
 
 import unicodedata
@@ -95,11 +97,27 @@ def _pictorial(unit: _Unit, height: float, stroke: float) -> bool:
     )
 
 
-def _icon(units: Sequence[_Unit], line_height: int) -> int:
+def _gap(a: _Unit, b: _Unit) -> float:
+    return max(b.left - a.right, a.left - b.right)
+
+
+def _set_apart(units: Sequence[_Unit], height: float, stroke: float) -> bool:
+    """A heavier glyph-height unit separated from the lettering by twice its own spacing."""
+    outer = units[0]
+    spacing = max((_gap(a, b) for a, b in zip(units[1:], units[2:], strict=False)), default=0.0)
+    return (
+        outer.height >= 0.95 * height
+        and outer.stroke >= 1.4 * stroke
+        and _gap(outer, units[1]) >= max(0.4 * height, 2 * spacing)
+    )
+
+
+def _icon(units: Sequence[_Unit], line_height: int, weak: bool) -> int:
     """How many outer units (at most two) form an icon against the glyphs inside them.
 
     ``units`` start at the line's edge. A second unit belongs to the icon when it touches the
-    first and shares its extra height; glyphs are never that much taller than their line.
+    first and shares its extra height; glyphs are never that much taller than their line. When
+    OCR read the outer unit only weakly (``weak``), a set-apart heavier unit is an icon too.
     """
     for size in (2, 1):
         reference = [u for u in units[size:] if u.height >= 0.5 * line_height]
@@ -109,13 +127,12 @@ def _icon(units: Sequence[_Unit], line_height: int) -> int:
         stroke = median(u.stroke for u in reference)
         if sum(u.right - u.left for u in reference) < 1.5 * height:
             continue
+        if size == 1:
+            pictorial = _pictorial(units[0], height, stroke)
+            return int(pictorial or (weak and _set_apart(units, height, stroke)))
         if not _pictorial(units[0], height, stroke):
             continue
-        if size == 1:
-            return 1
-        outer, inner = units[0], units[1]
-        gap = max(inner.left - outer.right, outer.left - inner.right)
-        if inner.height >= 1.12 * height and gap <= 0.25 * height:
+        if units[1].height >= 1.12 * height and _gap(units[0], units[1]) <= 0.25 * height:
             return 2
     return 0
 
@@ -151,7 +168,12 @@ def _cut(index: int, region: TextRegion, units: tuple[_Unit, ...], leading: bool
     whole = [u for u in units if not u.partial]
     ordered = whole if leading else whole[::-1]
     b = region.bounds
-    size = _icon(ordered, b.height)
+    if len(ordered) < 2:
+        return None
+    outer = _over(region.characters, (ordered[0].left, ordered[0].right))
+    read = [c for c, inside in zip(region.characters, outer, strict=True) if inside]
+    weak = bool(read) and all(c.confidence < _WORD_LETTER for c in read)
+    size = _icon(ordered, b.height, weak)
     if not size:
         return None
     icon = ordered[:size]
