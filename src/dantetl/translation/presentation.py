@@ -122,6 +122,7 @@ class EnglishPresentation:
             Publication(block, answer)
             for block in blocks
             if (answer := answers.get(TranslationRequest.from_block(block))) is not None
+            and answer.has_words
             and can_preview_cached(block)
             and not any(t in hidden or t.track_id in self._concealed for t in block.lines)
             and not any(intersects(block.bounds, bounds) for bounds in occupied)
@@ -195,10 +196,11 @@ class EnglishPresentation:
                 waiting.update(successors[old])
 
         painted = [prior[i].at_live_bounds(live) for i in sorted(held)]
+        # A reply without words is complete: it releases prior English but paints nothing.
         painted.extend(
             Publication(block, self._ready[key])
             for i, (block, key) in enumerate(zip(blocks, requests, strict=True))
-            if i not in waiting
+            if i not in waiting and self._ready[key].has_words
         )
         self._published = tuple(sorted(painted, key=lambda p: p.painted.lines[0].track_id))
         cleared_ids = {t.track_id for t in cleared if live.get(t.track_id) == t}

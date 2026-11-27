@@ -373,7 +373,9 @@ bounded low-confidence review.
 A very weak divergent reading at an established label needs another matching OCR observation
 before it can resize or replace the label. A quiet image cannot confirm its spelling.
 `EnglishPresentation` owns the painted scene. Each publication keeps its exact translated source
-and follows its live member bounds through edits. Automatic splits and merges swap together when
+and follows its live member bounds through edits. A reply without letters, such as bare numbers,
+symbols or emoji, is complete but paints nothing and releases earlier English for its block.
+Cached previews need letters too. Automatic splits and merges swap together when
 the replacement translations for their shared members are ready. Independent boxes can update
 immediately. Retired members, model changes, source resets and explicit grouping changes clear
 the affected publications. A visually concealed publication can return for the same live content

@@ -537,3 +537,25 @@ def test_fragment_suppression_needs_current_visual_proof_and_allows_outside_cont
     replay.step(incoming)
     assert replay.tracks[0] == track
     assert {t.text for t in replay.tracks} == {track.text, "設定"}
+
+
+def test_replies_without_words_release_prior_english_and_paint_nothing():
+    store = EnglishPresentation()
+    block = TextBlock((TextTrack(1, "攻撃力", BOX),))
+    words = TranslatedText(TranslationRequest.from_block(block), "ATK")
+    assert store.update((block,), (words,))[0].translation == words
+    edited = TextBlock((replace(block.lines[0], text="攻撃力！", text_revision=2),))
+    for english in ("+15%", "⭐", "…", " 3 "):
+        bare = TranslatedText(TranslationRequest.from_block(edited), english)
+        assert not store.update((edited,), (bare,))
+    assert store.update((block,), (words,))[0].translation == words
+
+
+def test_cached_previews_need_words():
+    store = EnglishPresentation()
+    counter = TextBlock((TextTrack(1, "所持金:120/999", BOX),))
+    request = TranslationRequest.from_block(counter)
+    words = TranslatedText(request, "Money: 120/999")
+    assert store.cached_previews((counter,), (words,), frozenset(), ())
+    bare = TranslatedText(request, "120/999")
+    assert not store.cached_previews((counter,), (bare,), frozenset(), ())

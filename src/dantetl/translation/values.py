@@ -38,6 +38,11 @@ class TranslatedText:
     english: str
     target: TargetLanguage = ENGLISH
 
+    @property
+    def has_words(self) -> bool:
+        """Output of bare numbers, symbols or emoji has nothing to paint over the source."""
+        return any(c.isalpha() for c in self.english)
+
 
 @dataclass(frozen=True, slots=True)
 class TranslationRejection:
