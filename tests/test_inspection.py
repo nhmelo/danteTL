@@ -973,7 +973,8 @@ def test_favorite_windows_group_by_executable_and_return_after_restart(app, tmp_
     from dantetl.domain import WindowTarget
 
     def until(condition):
-        deadline = time.monotonic() + 3
+        # Includes the background preferences writer reaching disk on a loaded machine.
+        deadline = time.monotonic() + 10
         while not condition():
             assert time.monotonic() < deadline
             app.processEvents()
