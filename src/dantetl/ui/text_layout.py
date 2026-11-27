@@ -13,7 +13,6 @@ from dantetl.i18n import tr
 
 PAD_X = 10
 PAD_Y = 6
-_LABEL_GLYPHS = 6  # Sources at most this many glyph heights wide are labels.
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,15 +77,12 @@ def layout_english(
         wrap_width=wrap_width,
     )
     box = measured.bounds
-    # English wider than a short label is centered on it, as labels sit centered in menus;
-    # longer text keeps its reading edge.
-    glyph = source_line_height or (source.width if vertical else source.height)
-    label = not vertical and source.width <= _LABEL_GLYPHS * glyph
-    x = source.x - max(0, box.width - source.width) // 2 if label else source.x
+    # English keeps its source's reading edge; placement offers centered and trailing anchors
+    # when the extra width would cover neighbouring text.
     return replace(
         measured,
         bounds=Rect(
-            max(0, min(x, viewport[0] - box.width)),
+            max(0, min(source.x, viewport[0] - box.width)),
             max(0, min(source.y, viewport[1] - box.height)),
             box.width,
             box.height,

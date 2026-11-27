@@ -565,8 +565,9 @@ Otherwise the block with more recognized letters and numbers has first choice, w
 compact source bounds, reading order, source text and the stable block key resolving ties.
 Each label can rewrap or shift within its available anchors. English breaks between words of
 spaced scripts, never inside one, widening while the viewport has room; unspaced scripts wrap
-between characters. English wider than a short label (at most six glyph heights wide) is centered
-on it, as menu labels are, with edge-aligned anchors as alternatives. Longer text keeps its edge.
+between characters. Wider English keeps its source's reading edge, so it extends away from a
+leading icon. Where that would cover neighbouring text, as in a row of menu labels, a centered or
+trailing-edge anchor is used instead.
 A bounded local search can move
 one earlier winner to another anchor with identical wrapping and font, while preserving
 its clearance of reserved source text. Unresolved conflicts omit the lower-priority label for

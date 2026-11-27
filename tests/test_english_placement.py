@@ -162,14 +162,33 @@ def test_one_alternate_anchor_preserves_three_complete_readable_labels():
         assert all(other and not intersects(layout.bounds, other.bounds) for other in placed[:i])
 
 
-def test_short_labels_keep_words_whole_and_stay_centered_on_their_source():
-    source = Rect(3297, 142, 72, 36)  # A two-glyph menu label at 4K.
+def test_short_labels_keep_words_whole_and_their_reading_edge():
+    source = Rect(3297, 142, 72, 36)  # A two-glyph label at 4K, an icon to its left.
     layout = layout_english("Observation", source, (3840, 2160), source_line_height=36)
     assert layout.lines == ("Observation",)
-    middle = layout.bounds.x + layout.bounds.width / 2
-    assert abs(middle - (source.x + source.width / 2)) <= 1
+    assert layout.bounds.x == source.x  # Extra width goes away from a leading icon.
     words = layout_english("Hoshigen no Niwa", Rect(2200, 2000, 60, 30), (3840, 2160))
     assert " ".join(words.lines).split() == ["Hoshigen", "no", "Niwa"]  # No word is broken.
+
+
+def test_a_crowded_label_row_centers_english_to_keep_off_its_neighbours():
+    middle = layout_english("Observation", Rect(0, 0, 72, 36), (3840, 2160), source_line_height=36)
+    width = middle.bounds.width
+    # Neighbours sit where an edge-aligned box would cover one of them, but a centered one fits.
+    pitch = width - 20
+    sources = [Rect(1000 + pitch * i, 142, 72, 36) for i in range(3)]
+    labels = tuple(
+        EnglishLabel(((i, 1, word),), english, box, 36)
+        for i, (word, english, box) in enumerate(
+            zip(("活躍", "観測", "キボ"), ("Go", "Observation", "Ok"), sources, strict=True)
+        )
+    )
+    placed = EnglishPlacement().arrange(labels, (3840, 2160), tuple(sources))
+    assert all(layout is not None for layout in placed)
+    centre = placed[1]
+    assert centre is not None and centre.lines == ("Observation",)
+    assert not any(intersects(centre.bounds, sources[i]) for i in (0, 2))
+    assert abs(centre.bounds.x + centre.bounds.width / 2 - (sources[1].x + 36)) <= 1
 
 
 def test_long_sources_keep_their_reading_edge_and_unspaced_text_wraps_anywhere():
