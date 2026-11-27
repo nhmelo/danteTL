@@ -335,6 +335,17 @@ When the icon displaced an unread glyph, one bounded batch re-reads the line fro
 is accepted only if it keeps every remaining character and adds at most two confident glyphs at
 the cut. Pixels are inspected only at an edge whose recognized character could be removed.
 
+When a 4K frame or a large crop is shrunk for Meiki's fixed detector input, small labels can
+score just under acceptance (`unsure_lines`). Their boxes are often split or cut inside a word.
+Unexplained doubted boxes along one line merge into one box. That box grows along its own ink to
+the line's ends: glyph-sized ink and thin glyph-width strokes (ー) within a glyph gap continue it,
+and accepted lines are barriers. The search re-centres until a clear gap is seen at both ends. A
+line that cannot be completed is not read, so a fragment never passes for a word (クエス for
+クエスト). The completed box is read directly. A reading is kept only with two or more characters,
+none weak, and a firm mean; icons and backgrounds read as weak fragments. Coarse lines are never
+replaced. At most six new lines are read per scan, most confident first. Each result, kept or not,
+is remembered by the box's exact pixels, so an unchanged screen is read once.
+
 After every recognition, once lines are in frame coordinates, the OCR worker splits a line of
 menu labels merged across a row of evenly spaced icons (`icon_grid`). It examines the whole frame,
 so icons outside a regional crop still count, and keeps identical labels from overlapping

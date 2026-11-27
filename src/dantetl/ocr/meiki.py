@@ -21,6 +21,7 @@ from dantetl.ocr.crop_recovery import recovery_preserves_lines, split_glyphs
 from dantetl.ocr.edge_icons import trim_edge_icons
 from dantetl.ocr.models import local_model_paths
 from dantetl.ocr.scan_plan import ScanCosts
+from dantetl.ocr.unsure_lines import UNSURE, Unsure, UnsureReads
 from dantetl.ocr.values import TextCharacter, TextRegion
 from dantetl.ocr.wide_lines import recover_wide_lines
 from dantetl.runtime.ocr import (
@@ -32,6 +33,8 @@ from dantetl.runtime.ocr import (
     run_inference,
 )
 
+_SHRUNK = 0.9  # Below this detector scale, small lines can score just under acceptance.
+
 
 class _LocalMeiki(MeikiOCR):
     def __init__(self, paths: tuple[Path, ...], threads: int, provider: str = CPU) -> None:
@@ -42,6 +45,7 @@ class _LocalMeiki(MeikiOCR):
         self.active_provider = provider
         self.max_batch_size = 4
         self.detected: list[dict[str, Any]] = []
+        self.unsure: tuple[Unsure, ...] = ()
 
     def _run_recognition_inference(self, batch_tensor: Any, is_vertical: bool) -> Any:
         # CUDA/cuDNN on the verified runtime replans when the recognition batch
@@ -56,6 +60,19 @@ class _LocalMeiki(MeikiOCR):
             )
         outputs: Any = super()._run_recognition_inference(batch_tensor, is_vertical)
         return [output[:count] for output in outputs]
+
+    def _postprocess_detection_results(
+        self, raw_outputs: Any, image: Any, conf_threshold: float
+    ) -> list[dict[str, Any]]:
+        # Lines scored just below acceptance, kept for a native-scale reading.
+        _, boxes, scores = raw_outputs
+        height, width = image.shape[:2]
+        mask = (scores[0] >= UNSURE) & (scores[0] < conf_threshold)
+        self.unsure = tuple(
+            Unsure(clipped_box([int(v) for v in box], width, height), float(score))
+            for box, score in zip(boxes[0][mask][:128], scores[0][mask][:128], strict=True)
+        )
+        return super()._postprocess_detection_results(raw_outputs, image, conf_threshold)
 
     def run_detection(self, image: Any, conf_threshold: float = 0.5) -> list[dict[str, Any]]:
         # Public run_ocr omits line bounds, including detections with no recognized chars.
@@ -146,6 +163,7 @@ class MeikiRecognizer:
         cv2.setNumThreads(1)
         self._threads, self._device = threads, device
         self.message = ""
+        self._unsure = UnsureReads()
         try:
             provider = CPU if device == "cpu" else DML if "directml" in device else CUDA
             self._engine = _LocalMeiki(self._paths, threads, provider)
@@ -266,10 +284,25 @@ class MeikiRecognizer:
             return trim_edge_icons(source, recover_wide_lines(regions, reread), reread)
 
         try:
-            return read()
+            regions = read()
         except AcceleratorFailure as failure:
             self._fallback(failure.error)
-            return read()
+            regions = read()
+        if origin != (0, 0) or min(INPUT_DET_WIDTH / width, INPUT_DET_HEIGHT / height) >= _SHRUNK:
+            return regions
+        return regions + self._unsure_lines(bgr, regions)
+
+    def _unsure_lines(self, bgr: Any, regions: tuple[TextRegion, ...]) -> tuple[TextRegion, ...]:
+        """Doubted lines the recognizer reads confidently, with their own edge icons trimmed."""
+        recoverable = self._device.startswith("auto") and self.provider != CPU
+
+        def reread(boxes: list[Rect]) -> tuple[TextRegion, ...]:
+            return run_inference(
+                lambda: self._engine.read_pieces(bgr, boxes), recoverable=recoverable
+            )
+
+        found = self._unsure.lines(bgr, self._engine.unsure, [r.bounds for r in regions], reread)
+        return trim_edge_icons(bgr, found, reread) if found else ()
 
     def close(self) -> None:
         """Release all native ONNX sessions on their owning worker before it completes."""

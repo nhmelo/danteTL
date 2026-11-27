@@ -19,6 +19,7 @@ def test_crop_padding_preserves_pixels_bounds_and_full_scan_behavior(tmp_path, m
         def __init__(self, *args):
             self.active_provider = CPU
             self.detected = []
+            self.unsure = ()
 
         def run_ocr(self, image, **kwargs):
             seen.append(image)
