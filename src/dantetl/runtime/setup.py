@@ -12,6 +12,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from dantetl.atomic_file import replace_file
+from dantetl.file_lock import file_lock
 from dantetl.i18n import tr
 from dantetl.paths import is_standalone, module_command, runtime_project, state_root
 from dantetl.runtime.application import prepare_application
@@ -152,27 +153,13 @@ def install_runtime(
         raise ValueError(tr("Unknown runtime profile."))
     device_env = require_profile(profile.key, cancel, gpu)
     root = root.resolve()
-    # Exclusive across app copies sharing this project. A crash releases the OS lock.
-    import msvcrt
-
-    (root / "data").mkdir(parents=True, exist_ok=True)
-    with (root / "data/runtime-install.lock").open("a+b") as lock:
-        lock.seek(0)
-        if not lock.read(1):
-            lock.write(b"0")
-            lock.flush()
-        lock.seek(0)
-        try:
-            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
-        except OSError as error:
-            raise RuntimeError(
-                tr("Another DanteTL instance is already installing a runtime.")
-            ) from error
-        try:
-            _install(root, profile, progress, cancel, device_env)
-        finally:
-            lock.seek(0)
-            msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+    # Exclusive across app copies sharing this project, without waiting.
+    with file_lock(
+        root / "data/runtime-install.lock",
+        timeout=0,
+        busy_message=tr("Another DanteTL instance is already installing a runtime."),
+    ):
+        _install(root, profile, progress, cancel, device_env)
 
 
 def _install(

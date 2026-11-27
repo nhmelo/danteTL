@@ -10,13 +10,22 @@ from pathlib import Path
 
 @contextmanager
 def file_lock(
-    path: Path, *, check: Callable[[], None] | None = None, busy_message: str = ""
+    path: Path,
+    *,
+    check: Callable[[], None] | None = None,
+    busy_message: str = "",
+    timeout: float = 20,
 ) -> Iterator[None]:
+    """Hold byte 0 of ``path``. ``check`` runs before each attempt and may raise to stop waiting.
+
+    A lock still held by another process after ``timeout`` seconds raises ``OSError``, with
+    ``busy_message`` when given. A crash releases the OS lock.
+    """
     # Keep the sidecar across releases: replacing or deleting it splits the lock identity.
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a+b") as stream:
         stream.seek(0)  # Windows permits byte-range locks beyond EOF.
-        deadline = time.monotonic() + 20
+        deadline = time.monotonic() + timeout
         while True:
             if check:
                 check()

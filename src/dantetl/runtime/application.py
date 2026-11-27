@@ -5,11 +5,11 @@ import os
 import re
 import shutil
 import threading
-import time
-from contextlib import contextmanager
+from contextlib import AbstractContextManager
 from pathlib import Path
 from uuid import uuid4
 
+from dantetl.file_lock import file_lock
 from dantetl.i18n import tr
 from dantetl.paths import is_standalone, module_command, resource_root
 from dantetl.runtime.package import ApplicationWheel, bundled_application
@@ -44,31 +44,17 @@ def _ready(root: Path, wheel: ApplicationWheel) -> Path | None:
     return None
 
 
-@contextmanager
-def _install_lock(root: Path, cancel: threading.Event):
-    import msvcrt
+def _install_lock(root: Path, cancel: threading.Event) -> AbstractContextManager[None]:
+    def check() -> None:
+        if cancel.is_set():
+            raise Cancelled()
 
-    (root / "data").mkdir(parents=True, exist_ok=True)
-    with (root / "data/application-install.lock").open("a+b") as lock:
-        deadline = time.monotonic() + 120
-        while True:
-            if cancel.is_set():
-                raise Cancelled()
-            lock.seek(0)
-            try:
-                msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
-                break
-            except OSError:
-                if time.monotonic() >= deadline:
-                    raise RuntimeError(
-                        tr("Another app update is still running. Try launching again.")
-                    ) from None
-                cancel.wait(0.1)
-        try:
-            yield
-        finally:
-            lock.seek(0)
-            msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+    return file_lock(
+        root / "data/application-install.lock",
+        check=check,
+        timeout=120,
+        busy_message=tr("Another app update is still running. Try launching again."),
+    )
 
 
 def prepare_application(root: Path, python: Path, cancel: threading.Event) -> dict[str, str]:
