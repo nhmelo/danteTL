@@ -274,9 +274,9 @@ class TranslationCoordinator:
         route: RouteSelection,
         local: RouteInput,
     ) -> RoutedTranslationSession:
-        factories = {}
+        factories: dict[str, Callable[[], TranslationBackend]] = {}
         identities: dict[str, ModelIdentity] = {}
-        names = {}
+        names: dict[str, str] = {}
         for model in route.models:
             if not model.available:
                 continue

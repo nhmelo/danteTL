@@ -92,7 +92,9 @@ class LiveSession:
         visual_factory: Callable[[], VisualWorker] | None = None,
         language: SourceLanguage = DEFAULT_SOURCE,
     ) -> None:
-        self._ocr_factory = ocr_factory or (lambda factory: OcrSession(factory, require_ack=True))
+        self._ocr_factory: Callable[[Callable[[], Recognizer]], OcrWorker] = ocr_factory or (
+            lambda factory: OcrSession(factory, require_ack=True)
+        )
         self._language = language
         self._visual_factory = visual_factory or VisualSession
         self.capture: CaptureWorker | None = None
@@ -412,7 +414,7 @@ class LiveSession:
         )
         # Exact current names may gain confidence from partial observations. Unscanned
         # names retain their evidence only while the identical live track remains.
-        scores = {}
+        scores: dict[TextTrack, float] = {}
         if self.accepted:
             by_id = {t.track_id: t for t in tracks}
             for key, region in zip(self.assignments, self.accepted.regions, strict=True):

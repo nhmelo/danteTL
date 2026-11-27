@@ -3,8 +3,10 @@
 import json
 import re
 import threading
+from collections.abc import Sequence
 from dataclasses import asdict
 from pathlib import Path
+from typing import Any, cast
 
 from dantetl.application.hotkeys import parse_shortcut
 from dantetl.application.preference_values import MAX_CAPTURE_RATE, Preferences, valid_executable_id
@@ -20,7 +22,11 @@ _MAX_BYTES = 32_768
 
 
 def decode_preferences(value: object) -> Preferences:
-    if not isinstance(value, dict) or value.get("version") != 1:
+    if not isinstance(value, dict):
+        raise ValueError(tr("Unsupported settings format; defaults are being used."))
+    # Untrusted JSON: every field below is checked for type and range before use.
+    record = cast(dict[str, Any], value)
+    if record.get("version") != 1:
         raise ValueError(tr("Unsupported settings format; defaults are being used."))
     defaults = asdict(Preferences())
     ranges = {"opacity": (20, 100), "text_size": (10, 60), "capture_rate": (0, MAX_CAPTURE_RATE)}
@@ -51,16 +57,15 @@ def decode_preferences(value: object) -> Preferences:
     for key, default in defaults.items():
         if key == "ollama":
             try:
-                defaults[key] = OllamaConfig.decode(value[key])
+                defaults[key] = OllamaConfig.decode(record[key])
             except (KeyError, ValueError, TypeError):
                 defaults[key] = OllamaConfig()
             continue
-        candidate = value.get(key, default)
+        candidate = record.get(key, default)
         if key == "favorite_executables":
             if isinstance(candidate, (list, tuple)):
-                defaults[key] = tuple(
-                    sorted({entry for entry in candidate if valid_executable_id(entry)})
-                )
+                entries = cast(Sequence[object], candidate)
+                defaults[key] = tuple(sorted({e for e in entries if valid_executable_id(e)}))
             continue
         if type(candidate) is not type(default):
             continue

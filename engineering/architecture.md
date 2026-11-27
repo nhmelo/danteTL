@@ -45,8 +45,8 @@ Shared asset validation belongs in `runtime.assets`; OCR owns only its pinned mo
 Views may retain drafts and last-rendered values, never backend factories, credentials or model policy.
 Rendering must not start work or scan files. `ApplicationCommands`, `CloudCommands`, `SetupCommands`
 expose commands and immutable snapshots. Import Linter enforces transitive view/service separation;
-public ports have strict type checks. Model references keep their persisted `kind:key` form;
-`translation.references` alone builds and parses it.
+public ports and application owners have strict type checks. Model references keep their persisted
+`kind:key` form; `translation.references` alone builds and parses it.
 Each settings gesture submits only the editable fields it owns.
 The session applies those fields to current preferences. The settings writer merges changes since its
 last successful save under a cross-process lock, preserving unrelated edits from other instances. Model assignments, source changes and setup

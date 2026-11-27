@@ -3,10 +3,11 @@
 import ctypes
 import json
 import re
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from ctypes import wintypes
 from pathlib import Path
+from typing import Any
 
 from dantetl.atomic_file import replace_file
 from dantetl.file_lock import file_lock
@@ -56,7 +57,7 @@ class ProtectedStore:
             raise ValueError(tr("Invalid protected record ID."))
         return self.directory / (key + ".dat")
 
-    def read(self, key: str) -> dict:
+    def read(self, key: str) -> dict[str, Any]:
         path = self._path(key)
         if not path.exists():
             return {}
@@ -76,7 +77,7 @@ class ProtectedStore:
         # Existing encrypted records are upgraded on their next successful write.
         return value
 
-    def write(self, key: str, value: dict) -> None:
+    def write(self, key: str, value: dict[str, Any]) -> None:
         path = self._path(key)
         data = json.dumps(
             {"_protected_record": 1, "key": key, "value": value}, ensure_ascii=False
@@ -89,7 +90,7 @@ class ProtectedStore:
         return tuple(sorted(p.stem for p in self.directory.glob("account-*.dat")))[:8]
 
     @contextmanager
-    def lock(self, key: str, *, check: Callable[[], None] | None = None) -> Iterator[None]:
+    def lock(self, key: str, *, check: Callable[[], None] | None = None) -> Generator[None]:
         path = self._path(key).with_suffix(".lock")
         with file_lock(
             path,

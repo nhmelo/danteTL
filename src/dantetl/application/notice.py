@@ -129,7 +129,7 @@ def project_notices(value: NoticeInput) -> Notices:
     options = {c.reference: c for c in value.options}
     active = tuple(options[k] for k in value.plan.active_models if k in options)
     cloud = tuple(c for c in active if not c.local)
-    missing = []
+    missing: list[str] = []
     model_action, model_destination, prepare_reference = tr("Models"), NoticeDestination.MODELS, ""
     if not value.ocr_ready:
         missing.append(tr("{ocr_model} is not downloaded", ocr_model=value.ocr_model))

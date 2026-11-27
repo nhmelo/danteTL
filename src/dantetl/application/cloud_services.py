@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 class OperationChanges:
     """Owned by one worker until its complete result is adopted by advance()."""
 
-    credentials: set[tuple[str, str]] = field(default_factory=set)
+    credentials: set[tuple[str, str]] = field(default_factory=set[tuple[str, str]])
     discovered: tuple[CatalogModel, ...] | None = None
     new_account: str = ""
     welcome: str = ""
@@ -53,7 +53,9 @@ class SetupResult:
     message: str
     failed: bool
     changes: OperationChanges
-    catalogs: dict[str, tuple[CatalogModel, ...]] = field(default_factory=dict)
+    catalogs: dict[str, tuple[CatalogModel, ...]] = field(
+        default_factory=dict[str, tuple[CatalogModel, ...]]
+    )
     discovery_problem: str = ""
 
 
@@ -105,7 +107,7 @@ class CloudServices:
         self._closed = False
 
     def start(self) -> None:
-        self._run(lambda *_: "", tr("Reading cloud settings…"))
+        self._run(lambda _secrets, _changes: "", tr("Reading cloud settings…"))
 
     @property
     def busy(self) -> bool:
@@ -159,7 +161,10 @@ class CloudServices:
 
     def acknowledge_welcome(self, account: str) -> None:
         if account:
-            self._run(lambda *_: self._mark_welcome(account), tr("Saving account preferences…"))
+            self._run(
+                lambda _secrets, _changes: self._mark_welcome(account),
+                tr("Saving account preferences…"),
+            )
 
     def discard_draft(self) -> None:
         with self._lock:

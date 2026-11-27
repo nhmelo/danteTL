@@ -3,7 +3,7 @@
 import errno
 import msvcrt
 import time
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -15,7 +15,7 @@ def file_lock(
     check: Callable[[], None] | None = None,
     busy_message: str = "",
     timeout: float = 20,
-) -> Iterator[None]:
+) -> Generator[None]:
     """Hold byte 0 of ``path``. ``check`` runs before each attempt and may raise to stop waiting.
 
     A lock still held by another process after ``timeout`` seconds raises ``OSError``, with

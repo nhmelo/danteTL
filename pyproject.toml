@@ -109,7 +109,34 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 include = ["src", "tests", "tools"]
 pythonVersion = "3.12"
 typeCheckingMode = "standard"
-strict = ["src/dantetl/application/api.py", "src/dantetl/application/values.py", "src/dantetl/translation/selection.py", "src/dantetl/application/services.py", "src/dantetl/application/translation_activity.py", "src/dantetl/application/capture_lifecycle.py", "src/dantetl/application/presentation.py"]
+strict = [
+  # Public ports and values.
+  "src/dantetl/application/api.py",
+  "src/dantetl/application/values.py",
+  "src/dantetl/application/services.py",
+  "src/dantetl/application/translation_activity.py",
+  "src/dantetl/application/capture_lifecycle.py",
+  "src/dantetl/application/presentation.py",
+  "src/dantetl/application/notice.py",
+  "src/dantetl/translation/selection.py",
+  "src/dantetl/translation/references.py",
+  "src/dantetl/translation/limits.py",
+  # Application owners and their persisted state.
+  "src/dantetl/application/session.py",
+  "src/dantetl/application/live_session.py",
+  "src/dantetl/application/translation_coordinator.py",
+  "src/dantetl/application/model_lifecycle.py",
+  "src/dantetl/application/model_inventory.py",
+  "src/dantetl/application/setup_coordinator.py",
+  "src/dantetl/application/cloud_services.py",
+  "src/dantetl/application/ollama_services.py",
+  "src/dantetl/application/cache_management.py",
+  "src/dantetl/application/updates.py",
+  "src/dantetl/application/shutdown.py",
+  "src/dantetl/application/preferences.py",
+  "src/dantetl/atomic_file.py",
+  "src/dantetl/file_lock.py",
+]
 venvPath = "."
 venv = ".venv"
 

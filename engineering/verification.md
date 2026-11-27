@@ -7,8 +7,9 @@ Run checks for the changed boundary. Keep outcomes, environment and limitations 
 
 Run `uv run python tools/check.py` after code changes. It runs Ruff format/lint, Pyright and
 model-free pytest, plus direct/transitive ownership contracts using Import Linter. Public view ports
-have strict Pyright checks. Dependencies must already be installed; no models or provider accounts are
-required. It also checks the bundled UI catalogs against the English source and verifies
+and application owners have strict Pyright checks (the `strict` list in `pyproject.toml`).
+Dependencies must already be installed; no models or provider accounts are required. It also
+checks the bundled UI catalogs against the English source and verifies
 format placeholders and native dialog labels. Tests use temporary SQLite and disposable
 fake credentials/local HTTP transports.
 Qt tests share one session-owned QApplication. Tests stop their workers, and the app fixture releases
