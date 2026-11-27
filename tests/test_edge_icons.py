@@ -80,6 +80,14 @@ def test_icon_drawn_in_two_touching_parts_is_dropped_whole() -> None:
     assert trimmed.text == "戻るよ"
 
 
+def test_a_weak_unpaired_bracket_over_an_icon_is_dropped() -> None:
+    image = canvas()
+    labelled(image)
+    raw = line("(軌跡よ", (0.26, 0.93, 0.95, 0.9), (20, 70, 104, 138))
+    (trimmed,) = trim_edge_icons(image, (raw,), Reader())
+    assert trimmed.text == "軌跡よ"
+
+
 def test_trailing_icon_is_dropped_too() -> None:
     image = canvas()
     for x in (20, 54, 88):
@@ -131,7 +139,8 @@ def test_missing_reread_answers_only_drop_icon_glyphs() -> None:
     ("chars", "scores"),
     [
         ("新着メ", (0.93, 0.94, 0.9)),  # A confidently read letter is never removed by pixels.
-        ("【戻る", (0.4, 0.93, 0.93)),  # Brackets and bullets carry structure.
+        ("【戻る", (0.9, 0.93, 0.93)),  # Confident brackets and bullets carry structure.
+        ("(戻)", (0.3, 0.93, 0.93)),  # So does a paired bracket, however faint.
         ("●戻る", (0.4, 0.93, 0.93)),
         ("85%", (0.4, 0.9, 0.9)),  # A number keeps its digits.
         ("8ツ%", (0.4, 0.2, 0.9)),  # Weak letters are no evidence of a word.

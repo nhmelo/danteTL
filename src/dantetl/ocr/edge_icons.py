@@ -120,13 +120,23 @@ def _icon(units: Sequence[_Unit], line_height: int) -> int:
     return 0
 
 
-def _removable(char: TextCharacter) -> bool:
-    """Pixels alone never remove a confidently read letter, such as a bold word, nor brackets
-    and bullets that carry structure."""
+def _paired(char: TextCharacter, chars: tuple[TextCharacter, ...]) -> bool:
+    """An opening bracket closed later in the line, or a closing one opened earlier."""
+    i = next(i for i, c in enumerate(chars) if c is char)
+    opening = unicodedata.category(char.text[:1]) in ("Ps", "Pi")
+    others = chars[i + 1 :] if opening else chars[:i]
+    closing = ("Pe", "Pf") if opening else ("Ps", "Pi")
+    return any(unicodedata.category(c.text[:1]) in closing for c in others)
+
+
+def _removable(char: TextCharacter, chars: tuple[TextCharacter, ...]) -> bool:
+    """Pixels alone never remove a confidently read letter, such as a bold word, nor bullets
+    and brackets that carry structure. A weak bracket with no partner in its line carries none:
+    OCR reads round icons as ( or ）."""
+    if unicodedata.category(char.text[:1]) in _BRACKETS:
+        return char.confidence < _WORD_LETTER and not _paired(char, chars)
     return not (
-        unicodedata.category(char.text[:1]) in _BRACKETS
-        or char.text in _MARKERS
-        or (char.text.isalpha() and char.confidence >= _CONFIDENT_LETTER)
+        char.text in _MARKERS or (char.text.isalpha() and char.confidence >= _CONFIDENT_LETTER)
     )
 
 
@@ -152,7 +162,7 @@ def _cut(index: int, region: TextRegion, units: tuple[_Unit, ...], leading: bool
     marked = [c for c, inside in zip(region.characters, over, strict=True) if inside]
     kept = [c for c, inside in zip(region.characters, over, strict=True) if not inside]
     # Icons beside words only: a number keeps its digits.
-    if not 1 <= len(marked) <= 2 or not all(_removable(c) for c in marked):
+    if not 1 <= len(marked) <= 2 or not all(_removable(c, region.characters) for c in marked):
         return None
     if not any(c.text.isalpha() and c.confidence >= _WORD_LETTER for c in kept):
         return None
@@ -207,7 +217,7 @@ def trim_edge_icons(
         # An icon's glyphs lead or end the line; inspect pixels only where one could go.
         for leading, edge in ((True, chars[0]), (False, chars[-1])):
             rest = chars[1:] if leading else chars[:-1]
-            if not _removable(edge) or not any(
+            if not _removable(edge, chars) or not any(
                 c.text.isalpha() and c.confidence >= _WORD_LETTER for c in rest
             ):
                 continue

@@ -328,8 +328,9 @@ Meiki separates an icon at either end of a horizontal line from the lettering be
 (`edge_icons`). Ink units at that edge are measured against the line's own glyphs. An icon is
 taller and heavier, or at glyph height much heavier, and may have one touching part of the same
 height. Its one or two characters are dropped only when the line keeps a letter read at word
-confidence. They must not be brackets, list bullets or letters read with high confidence:
-pixels alone never remove a bold word, a number's digits or structure. Detector bounds stay;
+confidence. They must not be list bullets, letters read with high confidence, or brackets that
+are confident or paired in the line: pixels alone never remove a bold word, a number's digits or
+structure. Detector bounds stay;
 the remaining characters set the tracked box, so English no longer covers the icon.
 When the icon displaced an unread glyph, one bounded batch re-reads the line from the cut. A re-read
 is accepted only if it keeps every remaining character and adds at most two confident glyphs at
