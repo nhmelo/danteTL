@@ -222,6 +222,27 @@ class _Canvas:
             p.setPen(QColor(30, 34, 44))
             p.setFont(self.font(size * 0.42, "Segoe UI", bold=True))
             p.drawText(box, Qt.AlignmentFlag.AlignCenter, self.rng.choice(("R1", "L1", "F2")))
+        elif kind in ("keyframe", "keypair"):
+            # Outlined prompts with small key names, alone or joined by a plus sign.
+            names = ("L2", "R2") if kind == "keypair" else (self.rng.choice(("LB", "Esc", "R1")),)
+            p.setFont(self.font(size * 0.42, "Segoe UI", bold=True))
+            x = box.left()
+            for i, name in enumerate(names):
+                if i:
+                    p.setPen(color)
+                    p.setFont(self.font(size * 0.7, "Segoe UI", bold=True))
+                    p.drawText(QRectF(x, box.top(), s * 0.6, s), Qt.AlignmentFlag.AlignCenter, "+")
+                    p.setFont(self.font(size * 0.42, "Segoe UI", bold=True))
+                    x += s * 0.6
+                width = s * (0.5 + 0.3 * len(name))
+                cap = QRectF(x, box.top() + s * 0.1, width, s * 0.8)
+                p.setPen(QPen(GOLD, max(1.5, s * 0.06)))
+                p.setBrush(QColor(12, 14, 20))
+                p.drawRoundedRect(cap, s * 0.25, s * 0.25)
+                p.setPen(color)
+                p.drawText(cap, Qt.AlignmentFlag.AlignCenter, name)
+                x += width
+            box = QRectF(box.left(), box.top() + s * 0.1, x - box.left(), s * 0.8)
         elif kind == "emoji":
             p.setFont(self.font(size * 0.8, "Segoe UI Emoji"))
             p.setPen(color)
@@ -268,7 +289,8 @@ class _Canvas:
             else:
                 raise ValueError(f"Unknown icon kind: {kind}")
         p.restore()
-        item = Icon(kind, _rect(box if kind == "keycap" else QRectF(self.px(x), self.px(y), s, s)))
+        shaped = kind in ("keycap", "keyframe", "keypair")
+        item = Icon(kind, _rect(box if shaped else QRectF(self.px(x), self.px(y), s, s)))
         self.icons.append(item)
         return item
 
@@ -414,6 +436,29 @@ def _negatives(color: QColor) -> Callable[[_Canvas], None]:
     return draw
 
 
+def _key_prompts(c: _Canvas) -> None:
+    """Labels with outlined key prompts after or before them, as menus and HUDs print them."""
+    size = 30.0
+    for i, (text, kind, trailing) in enumerate(
+        (
+            ("状態/効果", "keypair", True),
+            ("マップを開く", "keyframe", True),
+            ("戻る", "keyframe", False),
+            ("前のページ", "keyframe", False),
+            ("ショートカット", "keyframe", False),
+            ("装備を変更", "keypair", True),
+        )
+    ):
+        x, y = 160 + (i % 2) * 860, 160 + (i // 2) * 260
+        if trailing:
+            c.text(text, x, y + size * 0.86, size, WHITE)
+            c.icon(kind, x + c.advance(text, size) + 14, y, size, WHITE)
+        else:
+            icon = c.icon(kind, x, y, size, WHITE)
+            right = (icon.bounds.x + icon.bounds.width) / c.factor
+            c.text(text, right + 14, y + size * 0.86, size, WHITE)
+
+
 def _badges(c: _Canvas) -> None:
     for i, text in enumerate(("通常攻撃", "戦闘スキル", "必殺技", "天賦", "秘技")):
         y, size = 300 + i * 130, 40.0
@@ -457,6 +502,8 @@ SPECS = (
     Spec("marked-dark", "negatives", _marked(WHITE), background="gradient"),
     Spec("marked-light", "negatives", _marked(INK), background="light"),
     Spec("badges-4k", "badges", _badges, size=(3840, 2160), background="textured"),
+    Spec("key-prompts", "prompt", _key_prompts, background="gradient"),
+    Spec("key-prompts-4k", "prompt", _key_prompts, size=(3840, 2160), background="textured"),
 )
 
 

@@ -131,8 +131,9 @@ crop limit. Compare individual target errors and actual coverage as well as tota
 Icon, label-splitting and content-filter changes run `tools/benchmark_icons.py --device cpu
 --output artifacts/<slice>/icons-cpu.json` on the preceding code first, then again with
 `--baseline` on that output, and do the same with strict CUDA. `tools/icon_corpus.py` draws
-owned scenes in generic families (button prompts, silhouettes touching titles, icon grids, tab bars, stat rows,
-icon-only and text-only negatives) with exact ink ground truth. Each recognized character is
+owned scenes in generic families (button prompts, outlined key prompts, silhouettes touching
+titles, icon grids, tab bars, stat rows, icon-only and text-only negatives) with exact ink ground
+truth. Each recognized character is
 attributed to a label or icon. The tool reports per-label edit errors, whether a label is read
 separately, merged, fragmented or missed, icon characters attached to labels, icon-only rows that
 the translation gate would admit, label boxes covering icons and first/warm recognition time.
