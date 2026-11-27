@@ -561,6 +561,17 @@ class TextTracker:
         # accepted revision. Evidence from a newer/older capture is not interchangeable.
         checked = review.checked if review.sequence == frame.sequence else frozenset()
         unchanged = review.unchanged & checked
+        # Labels that layout evidence split from a merged line supersede a retained line holding
+        # two or more of them, even over unchanged pixels: the same ink, divided by its icons.
+        separated = [r.bounds for _, r in regions if r.separated and not r.vertical]
+        if len(separated) >= 2:
+            for key, track in list(self._tracks.items()):
+                if (
+                    not track.value.vertical
+                    and sum(_inside_line(box, track.value.bounds) for box in separated) >= 2
+                ):
+                    del self._tracks[key]
+            candidates = [c for c in candidates if c[1] in self._tracks]
         for track in self._tracks.values():
             track.visual_same = track.value in unchanged
             if track.value in checked and not track.visual_same:

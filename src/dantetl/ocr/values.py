@@ -22,13 +22,18 @@ class TextCharacter:
 
 @dataclass(frozen=True, slots=True)
 class TextRegion:
-    """Client-relative physical pixels; confidence is mean retained-character confidence."""
+    """Client-relative physical pixels; confidence is mean retained-character confidence.
+
+    ``separated`` marks a label that layout evidence (its own icon cell) split from a merged
+    line; tracking lets such labels replace a retained line that holds them.
+    """
 
     text: str
     bounds: Rect
     characters: tuple[TextCharacter, ...] = ()
     vertical: bool = False
     line_confidence: float | None = None
+    separated: bool = False
 
     def translated(self, x: int, y: int) -> "TextRegion":
         def moved(b: Rect) -> Rect:

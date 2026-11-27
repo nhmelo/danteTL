@@ -645,3 +645,49 @@ def test_compatible_source_switch_starts_fresh_history_for_same_visible_line():
             replay.live.publish(backend, scene.requests, scene.blocks)
         (turn,) = replay.live.history.turns
         assert turn.source == "Attention!" and turn.language == source_language(code)
+
+
+def _menu_labels():
+    def label(text, x, width):
+        step = width / len(text)
+        chars = tuple(
+            TextCharacter(c, Rect(round(x + i * step), 142, round(step), 36), 0.95)
+            for i, c in enumerate(text)
+        )
+        return TextRegion(text, Rect(x, 142, width, 36), chars)
+
+    split = tuple(
+        label(*row) for row in (("クエスト", 2504, 124), ("チーム", 2641, 106), ("記録", 2785, 73))
+    )
+    merged = TextRegion(
+        "".join(r.text for r in split),
+        Rect(2504, 142, 2858 - 2504, 36),
+        tuple(c for r in split for c in r.characters),
+    )
+    return split, merged
+
+
+def _menu_frame(sequence):
+    bounds = Rect(0, 0, 3840, 2160)
+    return CapturedFrame(
+        sequence, 1.0 + sequence * 0.5, WindowGeometry(bounds, bounds, bounds, 96), b""
+    )
+
+
+@pytest.mark.parametrize("proven", [False, True])
+def test_icon_proven_labels_replace_a_retained_merged_line_over_unchanged_pixels(proven):
+    split, merged = _menu_labels()
+    later = tuple(replace(r, separated=proven) for r in split)
+    replay = Replay()
+    texts = []
+    for sequence, regions in enumerate([(merged,)] * 3 + [later] * 3 + [(merged,)] * 2, 1):
+        tracks = frozenset(replay.live.tracking.visible if replay.live.tracking else ())
+        scene = replay.observe(_menu_frame(sequence), regions, checked=tracks, unchanged=tracks)
+        texts.append([b.text for b in scene.blocks])
+    assert texts[2] == ["クエストチーム記録"]
+    if proven:
+        # The icon row divides the same unchanged ink; a later merged read cannot rejoin it.
+        assert texts[3] == texts[-1] == ["クエスト", "チーム", "記録"]
+    else:
+        # Detector fragments of an unchanged line stay suppressed beside the full line.
+        assert texts[-1] == ["クエストチーム記録"]

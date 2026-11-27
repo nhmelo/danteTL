@@ -62,6 +62,7 @@ def test_merged_labels_split_into_their_own_cells_with_their_own_glyphs() -> Non
     merged = menu(image)
     labels = split_icon_grids(image, (merged,))
     assert [label.text for label in labels] == list(WORDS)
+    assert all(label.separated for label in labels) and not merged.separated
     for label, center in zip(labels, CENTERS, strict=True):
         assert abs(label.bounds.x + label.bounds.width / 2 - center) <= 3
         assert label.bounds.y == merged.bounds.y and label.bounds.height == merged.bounds.height

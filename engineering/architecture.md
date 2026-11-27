@@ -380,6 +380,10 @@ ending and space for the icon link these crops. The tighter reading wins when bo
 Across scans, a more confident text-only crop can correct a stationary icon-inclusive reading.
 A later, taller crop with a weak or symbolic prefix outside the established word can retain
 that reading through background changes. Confirmed visual loss allows ordinary edits.
+Labels that the icon grid split from a merged line are marked as separated. Two or more of them
+inside a retained line replace it on that observation, even when its pixels are unchanged: the
+same ink is divided by its icons. Detector fragments without that evidence stay suppressed beside
+an unchanged full line, and a later merged reading cannot rejoin separated labels.
 Raw OCR rows retain their original indices and content.
 Existing matches precede new admission; truncated input cannot vote for absence.
 Spatially gated bipartite components use optimal

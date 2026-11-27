@@ -193,6 +193,7 @@ def _labels(bgr: np.ndarray, line: TextRegion, grid: _Grid) -> tuple[TextRegion,
                 Rect(bounds.x, b.y, bounds.width, b.height),
                 tuple(piece),
                 line_confidence=line.line_confidence,
+                separated=True,
             )
         )
     return tuple(labels)
