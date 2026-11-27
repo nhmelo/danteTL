@@ -13,6 +13,7 @@ from dantetl.languages.source import SourceLanguage
 from dantetl.languages.target import ENGLISH, TargetLanguage
 from dantetl.paths import state_root
 from dantetl.runtime.assets import ModelAsset, validate_asset
+from dantetl.runtime.cuda_cache import use_kernel_cache
 from dantetl.runtime.llama import flash_attention_options, load_runtime, menu_sequence_width
 from dantetl.translation.backend import RequestRejected
 from dantetl.translation.backends.label_decoder import LlamaLabelDecoder
@@ -118,11 +119,7 @@ class GemmaBackend:
             validate_asset(directory / asset.filename, asset, None)
         try:
             if device == "cuda":
-                cache = state_root() / "data/cuda-cache"
-                cache = Path(os.environ.get("CUDA_CACHE_PATH", str(cache)))
-                cache.mkdir(parents=True, exist_ok=True)
-                os.environ.setdefault("CUDA_CACHE_PATH", str(cache))
-                os.environ.setdefault("CUDA_CACHE_MAXSIZE", "536870912")
+                use_kernel_cache()
             runtime = load_runtime(device)
         except (ImportError, OSError, RuntimeError) as error:
             raise RuntimeError(

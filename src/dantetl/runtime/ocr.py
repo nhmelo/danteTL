@@ -3,11 +3,10 @@
 import os
 from collections.abc import Callable
 from importlib.metadata import PackageNotFoundError, distribution
-from pathlib import Path
 from typing import Any
 
 from dantetl.i18n import tr
-from dantetl.paths import state_root
+from dantetl.runtime.cuda_cache import use_kernel_cache
 
 CPU = "CPUExecutionProvider"
 CUDA = "CUDAExecutionProvider"
@@ -43,11 +42,7 @@ def gpu_runtime_installed(name: str = "onnxruntime-gpu") -> bool:
 
 def prepare_cuda(ort: Any) -> None:
     """Expose pip-installed DLLs to cuDNN's lazy loader, only inside this process."""
-    cache = state_root() / "data" / "cuda-cache"
-    cache = Path(os.environ.get("CUDA_CACHE_PATH", str(cache)))
-    cache.mkdir(parents=True, exist_ok=True)
-    os.environ.setdefault("CUDA_CACHE_PATH", str(cache))
-    os.environ.setdefault("CUDA_CACHE_MAXSIZE", "536870912")
+    use_kernel_cache()
     # Blackwell's first PTX compilation can take a minute. Explicit setup warms
     # this bounded, writable cache so later launches reuse the compiled kernels.
     if os.name == "nt" and not _dll_handles:

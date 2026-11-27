@@ -13,7 +13,7 @@ from dantetl.i18n import tr
 from dantetl.languages.selection import DEFAULT_SOURCE
 from dantetl.languages.source import SourceLanguage
 from dantetl.languages.target import ENGLISH, TargetLanguage
-from dantetl.paths import state_root
+from dantetl.runtime.cuda_cache import use_kernel_cache
 from dantetl.runtime.llama import (
     flash_attention_options,
     load_runtime,
@@ -140,10 +140,7 @@ class GgufBackend:
                 )
             )
         if device == "cuda":
-            cache = Path(os.environ.get("CUDA_CACHE_PATH", str(state_root() / "data/cuda-cache")))
-            cache.mkdir(parents=True, exist_ok=True)
-            os.environ.setdefault("CUDA_CACHE_PATH", str(cache))
-            os.environ.setdefault("CUDA_CACHE_MAXSIZE", "536870912")
+            use_kernel_cache()
         runtime = load_runtime(device)
         if device != "cpu" and not runtime.llama_supports_gpu_offload():
             raise RuntimeError(
