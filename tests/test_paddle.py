@@ -114,6 +114,35 @@ def test_failed_cuda_scan_retries_whole_frame_only_in_auto(tmp_path, monkeypatch
         engine.close()
 
 
+def test_auto_cuda_keeps_its_provider_when_python_decoding_fails(tmp_path, monkeypatch):
+    detector, reader = Mock(), Mock()
+    detector.run.return_value = [np.zeros((1, 1, 32, 32), dtype=np.float32)]
+    reader.get_outputs.return_value = [Mock(shape=[1, 32, 838])]
+    for session in (detector, reader):
+        session.get_inputs.return_value = [Mock()]
+    providers = []
+
+    def sessions(paths, threads, provider, *, cuda_arena_bytes=512 * 1024**2):
+        providers.append(provider)
+        return [reader if paths[0].name == "rec.onnx" else detector]
+
+    def decoding_bug(boxes):
+        raise ValueError("decoding bug")
+
+    monkeypatch.setattr(paddle, "validate_asset", lambda *args: None)
+    monkeypatch.setattr(paddle, "create_sessions", sessions)
+    monkeypatch.setattr(paddle, "_line_crops", decoding_bug)
+    engine = paddle.PaddleRecognizer(tmp_path, device="auto")
+    bounds = Rect(0, 0, 32, 32)
+    frame = CapturedFrame(1, 1, WindowGeometry(bounds, bounds, bounds, 96), bytes(32 * 32 * 4))
+    try:
+        with pytest.raises(ValueError, match="decoding bug"):
+            engine.recognize(frame)
+        assert providers == [CUDA, CUDA] and engine.provider == CUDA and not engine.message
+    finally:
+        engine.close()
+
+
 def test_missing_latin_assets_fail_before_trying_any_provider(tmp_path, monkeypatch):
     sessions = Mock()
     monkeypatch.setattr(paddle, "create_sessions", sessions)

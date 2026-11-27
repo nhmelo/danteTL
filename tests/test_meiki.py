@@ -191,6 +191,32 @@ def test_auto_gpu_failure_falls_back_once_and_reports_the_actual_provider(
     assert recognizer.provider == CPU and "using CPU" in recognizer.message
 
 
+def test_auto_gpu_keeps_its_provider_when_python_post_processing_fails(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.setattr("dantetl.ocr.meiki.local_model_paths", lambda path: ())
+    created = []
+
+    class Engine:
+        def __init__(self, paths, threads, provider):
+            created.append(provider)
+            self.active_provider, self.detected = provider, []
+
+        def run_ocr(self, image, **kwargs):
+            return []
+
+    def conversion_bug(*args, **kwargs):
+        raise ValueError("conversion bug")
+
+    monkeypatch.setattr("dantetl.ocr.meiki._LocalMeiki", Engine)
+    monkeypatch.setattr("dantetl.ocr.meiki.convert_regions", conversion_bug)
+    recognizer = MeikiRecognizer(tmp_path, device="auto")
+    box = Rect(0, 0, 2, 2)
+    with pytest.raises(ValueError, match="conversion bug"):
+        recognizer.recognize(CapturedFrame(1, 0, WindowGeometry(box, box, box, 96), bytes(16)))
+    assert created == [CUDA] and recognizer.provider == CUDA and not recognizer.message
+
+
 def test_explicit_cpu_never_initializes_gpu_and_strict_cuda_never_silently_falls_back(
     tmp_path, monkeypatch
 ) -> None:

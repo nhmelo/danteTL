@@ -15,7 +15,7 @@ from dantetl.i18n import tr
 from dantetl.ocr.models import PADDLE_ASSETS
 from dantetl.ocr.values import TextRegion
 from dantetl.runtime.assets import validate_asset
-from dantetl.runtime.ocr import CPU, CUDA, create_sessions
+from dantetl.runtime.ocr import CPU, CUDA, AcceleratorFailure, create_sessions, run_inference
 
 
 def _line_crops(boxes: list[tuple[Rect, Rect]]) -> list[tuple[Rect, Rect]]:
@@ -112,19 +112,19 @@ class PaddleRecognizer:
         image = cv2.cvtColor(bgra, cv2.COLOR_BGRA2BGR)
         try:
             return self._recognize(image, full_size)
-        except Exception as error:
-            if not self._automatic or self.provider != CUDA:
-                raise
-            self._fallback(error)
+        except AcceleratorFailure as failure:
+            self._fallback(failure.error)
         return self._recognize(image, full_size)
 
     def _recognize(
         self, image: np.ndarray, full_size: tuple[int, int] | None
     ) -> tuple[TextRegion, ...]:
+        # Only native inference may move an automatic device to CPU. Decoding bugs raise.
+        recoverable = self._automatic and self.provider == CUDA
         lines = []
-        for sample, bounds in self._boxes(image, full_size):
+        for sample, bounds in self._boxes(image, full_size, recoverable=recoverable):
             crop = image[sample.y : sample.y + sample.height, sample.x : sample.x + sample.width]
-            region = self._read(crop, sample, bounds)
+            region = self._read(crop, sample, bounds, recoverable=recoverable)
             if region is not None:
                 lines.append(region)
         return tuple(sorted(lines, key=lambda line: (line.bounds.y, line.bounds.x)))
@@ -135,7 +135,7 @@ class PaddleRecognizer:
         return self._read(bgr, bounds, bounds)
 
     def _boxes(
-        self, image: np.ndarray, full_size: tuple[int, int] | None
+        self, image: np.ndarray, full_size: tuple[int, int] | None, *, recoverable: bool
     ) -> list[tuple[Rect, Rect]]:
         height, width = image.shape[:2]
         fw, fh = full_size or (width, height)
@@ -148,7 +148,9 @@ class PaddleRecognizer:
         reduced = cv2.copyMakeBorder(reduced, 0, -dh % 32, 0, -dw % 32, cv2.BORDER_REPLICATE)
         reduced = reduced.astype(np.float32) / 255
         tensor = np.ascontiguousarray(((reduced - self._mean) / self._std).transpose(2, 0, 1)[None])
-        prob = self._detector.run(None, {self._detector.get_inputs()[0].name: tensor})[0][0, 0]
+        feed = {self._detector.get_inputs()[0].name: tensor}
+        prob = run_inference(lambda: self._detector.run(None, feed), recoverable=recoverable)
+        prob = prob[0][0, 0]
         contours, _ = cv2.findContours(
             (prob[:dh, :dw] > 0.3).astype(np.uint8), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE
         )
@@ -183,13 +185,17 @@ class PaddleRecognizer:
             boxes.append((sample, Rect(left, top, right - left, bottom - top)))
         return _line_crops(boxes)
 
-    def _read(self, crop: np.ndarray, sample: Rect, bounds: Rect) -> TextRegion | None:
+    def _read(
+        self, crop: np.ndarray, sample: Rect, bounds: Rect, *, recoverable: bool = False
+    ) -> TextRegion | None:
         height, width = crop.shape[:2]
         width = min(3200, max(1, math.ceil(width * 48 / height)))
         resized = cv2.resize(crop, (width, 48)).astype(np.float32) / 127.5 - 1
         feed = np.zeros((1, 3, 48, max(960, width)), np.float32)
         feed[0, :, :, :width] = resized.transpose(2, 0, 1)
-        scores = self._reader.run(None, {self._reader.get_inputs()[0].name: feed})[0][0]
+        inputs = {self._reader.get_inputs()[0].name: feed}
+        scores = run_inference(lambda: self._reader.run(None, inputs), recoverable=recoverable)
+        scores = scores[0][0]
         # Ignore decoder timesteps that describe the input's right-hand padding.
         stride = feed.shape[3] / len(scores)
         scores = scores[: math.ceil(width / stride)]

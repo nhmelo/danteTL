@@ -1,6 +1,7 @@
 """Select and load local OCR execution providers without owning model algorithms."""
 
 import os
+from collections.abc import Callable
 from importlib.metadata import PackageNotFoundError, distribution
 from pathlib import Path
 from typing import Any
@@ -12,6 +13,24 @@ CPU = "CPUExecutionProvider"
 CUDA = "CUDAExecutionProvider"
 DML = "DmlExecutionProvider"
 _dll_handles: list[Any] = []
+
+
+class AcceleratorFailure(Exception):
+    """Native inference failed on an automatically chosen accelerator; CPU may still work."""
+
+    def __init__(self, error: Exception) -> None:
+        super().__init__(str(error))
+        self.error = error
+
+
+def run_inference[T](call: Callable[[], T], *, recoverable: bool) -> T:
+    """Mark failures of one native inference call, never the Python code around it."""
+    try:
+        return call()
+    except Exception as error:
+        if not recoverable:
+            raise
+        raise AcceleratorFailure(error) from error
 
 
 def gpu_runtime_installed(name: str = "onnxruntime-gpu") -> bool:

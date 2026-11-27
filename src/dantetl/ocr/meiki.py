@@ -22,7 +22,14 @@ from dantetl.ocr.models import local_model_paths
 from dantetl.ocr.scan_plan import ScanCosts
 from dantetl.ocr.values import TextCharacter, TextRegion
 from dantetl.ocr.wide_lines import recover_wide_lines
-from dantetl.runtime.ocr import CPU, CUDA, DML, create_sessions
+from dantetl.runtime.ocr import (
+    CPU,
+    CUDA,
+    DML,
+    AcceleratorFailure,
+    create_sessions,
+    run_inference,
+)
 
 
 class _LocalMeiki(MeikiOCR):
@@ -238,22 +245,28 @@ class MeikiRecognizer:
     ) -> tuple[TextRegion, ...]:
         # Meiki scales detection internally and maps both box types back to this image.
         def read() -> tuple[TextRegion, ...]:
-            results = self._engine.run_ocr(bgr, det_threshold=0.5, rec_threshold=0.1)
+            # Only native inference may move an automatic device to CPU. Conversion bugs raise.
+            recoverable = self._device.startswith("auto") and self.provider != CPU
+            results = run_inference(
+                lambda: self._engine.run_ocr(bgr, det_threshold=0.5, rec_threshold=0.1),
+                recoverable=recoverable,
+            )
             regions = convert_regions(self._engine.detected, results, width, height, origin=origin)
             # Padding belongs only to detection. Retry the original source pixels in
             # the same coordinate system as the clipped regions.
             x, y = origin
+            source = bgr[y : y + height, x : x + width]
             return recover_wide_lines(
                 regions,
-                lambda boxes: self._engine.read_pieces(bgr[y : y + height, x : x + width], boxes),
+                lambda boxes: run_inference(
+                    lambda: self._engine.read_pieces(source, boxes), recoverable=recoverable
+                ),
             )
 
         try:
             return read()
-        except Exception as error:
-            if not self._device.startswith("auto") or self.provider == CPU:
-                raise
-            self._fallback(error)
+        except AcceleratorFailure as failure:
+            self._fallback(failure.error)
             return read()
 
     def close(self) -> None:
