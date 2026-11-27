@@ -20,6 +20,7 @@ from dantetl.i18n import tr
 from dantetl.ocr.crop_recovery import recovery_preserves_lines, split_glyphs
 from dantetl.ocr.edge_icons import trim_edge_icons
 from dantetl.ocr.models import local_model_paths
+from dantetl.ocr.read_memory import ReadMemory
 from dantetl.ocr.scan_plan import ScanCosts
 from dantetl.ocr.unsure_lines import UNSURE, Unsure, UnsureReads
 from dantetl.ocr.values import TextCharacter, TextRegion
@@ -164,6 +165,7 @@ class MeikiRecognizer:
         self._threads, self._device = threads, device
         self.message = ""
         self._unsure = UnsureReads()
+        self._reads = ReadMemory()
         try:
             provider = CPU if device == "cpu" else DML if "directml" in device else CUDA
             self._engine = _LocalMeiki(self._paths, threads, provider)
@@ -281,7 +283,8 @@ class MeikiRecognizer:
                     lambda: self._engine.read_pieces(source, boxes), recoverable=recoverable
                 )
 
-            return trim_edge_icons(source, recover_wide_lines(regions, reread), reread)
+            remembered = self._reads.reader(source, reread)
+            return trim_edge_icons(source, recover_wide_lines(regions, remembered), remembered)
 
         try:
             regions = read()
@@ -302,7 +305,7 @@ class MeikiRecognizer:
             )
 
         found = self._unsure.lines(bgr, self._engine.unsure, [r.bounds for r in regions], reread)
-        return trim_edge_icons(bgr, found, reread) if found else ()
+        return trim_edge_icons(bgr, found, self._reads.reader(bgr, reread)) if found else ()
 
     def close(self) -> None:
         """Release all native ONNX sessions on their owning worker before it completes."""

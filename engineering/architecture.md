@@ -334,6 +334,8 @@ the remaining characters set the tracked box, so English no longer covers the ic
 When the icon displaced an unread glyph, one bounded batch re-reads the line from the cut. A re-read
 is accepted only if it keeps every remaining character and adds at most two confident glyphs at
 the cut. Pixels are inspected only at an edge whose recognized character could be removed.
+Edge-icon and wide-line re-reads are remembered by their box's exact pixels (a bounded memory per
+recognizer), so a static screen is not re-read on every scan.
 
 When a 4K frame or a large crop is shrunk for Meiki's fixed detector input, small labels can
 score just under acceptance (`unsure_lines`). Their boxes are often split or cut inside a word.
