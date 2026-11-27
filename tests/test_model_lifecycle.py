@@ -152,6 +152,62 @@ def test_import_probe_waits_for_unload_then_resumes_committed_assignment(tmp_pat
         replay.close()
 
 
+def test_phase_follows_consent_drain_preparation_and_commit(tmp_path):
+    replay, _, candidate = setup(tmp_path)
+    lifecycle = replay.translation.lifecycle
+    try:
+        activate(replay)
+        token = propose(replay, candidate)
+        assert token is not None and lifecycle.assignment_busy
+        assert lifecycle.snapshot().phase == ModelPhase.CONSENT
+        assert lifecycle.snapshot().proposed == candidate and not lifecycle.snapshot().preparing
+        lifecycle.consent(token, True)
+        # The accepted model waits for the previous owner before it gets a worker.
+        assert lifecycle.advance_preparation() is None
+        assert lifecycle.snapshot().phase == ModelPhase.DRAINING and lifecycle.snapshot().preparing
+        replay.route_workers[0].finish()
+        assert lifecycle.advance_preparation() is None
+        assert lifecycle.snapshot().phase == ModelPhase.PREPARING
+        assert lifecycle.preparation_message
+        replay.workers[0].state = TranslationState.READY
+        outcome = lifecycle.advance_preparation()
+        assert outcome and outcome.committed and not lifecycle.assignment_busy
+        assert lifecycle.snapshot().phase == ModelPhase.READY
+        assert lifecycle.preparation_message is None and lifecycle.snapshot().proposed is None
+        # A used token cannot start a second preparation.
+        assert lifecycle.consent(token, True) is None and not lifecycle.assignment_busy
+    finally:
+        replay.close()
+
+
+def test_closing_withdraws_consent_and_outlasts_later_preparation_steps(tmp_path):
+    replay, base, candidate = setup(tmp_path)
+    lifecycle = replay.translation.lifecycle
+    try:
+        token = propose(replay, candidate)
+        assert token is not None
+        lifecycle.shutdown()
+        assert lifecycle.consent(token, True) is None and not lifecycle.assignment_busy
+        assert lifecycle.snapshot().phase == ModelPhase.CLOSING
+        lifecycle.resume_after_failed_restart()
+        token = propose(replay, candidate)
+        assert token is not None
+        lifecycle.consent(token, True)
+        lifecycle.advance_preparation()
+        assert lifecycle.snapshot().phase == ModelPhase.PREPARING
+        lifecycle.shutdown()
+        # An ordinary advance while the prepared owner drains keeps the app closing.
+        assert lifecycle.advance_preparation() is None
+        assert lifecycle.snapshot().phase == ModelPhase.CLOSING
+        replay.workers[0].ended = True
+        outcome = lifecycle.advance_preparation()
+        assert outcome and not outcome.committed
+        assert lifecycle.snapshot().phase == ModelPhase.CLOSING
+        assert lifecycle.snapshot().selected == base and not replay.receipts
+    finally:
+        replay.close()
+
+
 def test_shutdown_during_preparation_never_commits_or_starts_another_owner(tmp_path):
     replay, base, candidate = setup(tmp_path)
     lifecycle = replay.translation.lifecycle

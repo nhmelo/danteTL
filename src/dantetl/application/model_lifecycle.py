@@ -2,7 +2,7 @@
 
 import logging
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import StrEnum
 
 from dantetl.application.model_inventory import ModelInventory
@@ -97,6 +97,31 @@ class PreparedWorker:
 RouteInput = PreparedWorker | RoutedTranslationSession | None
 
 
+@dataclass(frozen=True, slots=True)
+class _Consent:
+    """A staged assignment waiting for the answer to one consent token."""
+
+    token: int
+    choice: BackendChoice
+    plan: TranslationPlan
+
+
+@dataclass(frozen=True, slots=True)
+class _Preparation:
+    """An accepted model being prepared on its own worker.
+
+    ``plan`` becomes None once the choice is revoked or the app closes, and never comes back.
+    ``worker`` is created only after the previous owner has drained.
+    """
+
+    choice: BackendChoice
+    plan: TranslationPlan | None
+    worker: TranslationSession | None = None
+
+
+_Operation = _Consent | _Preparation | None
+
+
 class ModelLifecycle:
     def __init__(
         self,
@@ -105,22 +130,38 @@ class ModelLifecycle:
     ) -> None:
         self._create, self._inventory = create, inventory
         self._session: Worker | None = None
+        self._worker_choice: BackendChoice | None = None
         self._selected: BackendChoice | None = None
-        self._preparing: BackendChoice | None = None
+        self._assignment: TranslationPlan | None = None
+        self._operation: _Operation = None
+        self._consent_serial = 0
+        # Outcome of the last completed operation; an operation or closing overrides it.
+        self._settled = ModelPhase.IDLE
+        self._closing = False
+        self._message = ""
         self._standby = False
-        self._proposal: BackendChoice | None = None
-        self._consent_token = 0
-        self._started = False
+        self._probing = False
         self._prepared_this_run: set[str] = set()
         self._preparation_revision = 0
-        self._worker_choice: BackendChoice | None = None
-        self._phase = ModelPhase.IDLE
-        self._message = ""
-        self._probing = False
-        self._assignment: TranslationPlan | None = None
-        self._pending_assignment: TranslationPlan | None = None
         self._route = RouteSelection()
         self._route_factory: Callable[[RouteInput], RoutedTranslationSession] | None = None
+
+    @property
+    def _phase(self) -> ModelPhase:
+        operation = self._operation
+        if self._closing:
+            return ModelPhase.CLOSING
+        if isinstance(operation, _Consent):
+            return ModelPhase.CONSENT
+        if isinstance(operation, _Preparation):
+            ready = operation.worker is not None and operation.plan is not None
+            return ModelPhase.PREPARING if ready else ModelPhase.DRAINING
+        return self._settled
+
+    @property
+    def _preparing(self) -> BackendChoice | None:
+        operation = self._operation
+        return operation.choice if isinstance(operation, _Preparation) else None
 
     def snapshot(self) -> ModelSnapshot:
         phase, message = self._phase, self._message
@@ -135,7 +176,7 @@ class ModelLifecycle:
         return ModelSnapshot(
             phase,
             self._selected,
-            self._preparing or self._proposal,
+            self._operation.choice if self._operation else None,
             self._route,
             self._standby,
             message,
@@ -187,7 +228,7 @@ class ModelLifecycle:
             raise ValueError(tr("Initial selection can only be restored before loading a worker."))
         self._assignment = assignment
         self._selected = choice if choice and self.is_prepared(choice) else None
-        self._phase = ModelPhase.READY if self._selected else ModelPhase.IDLE
+        self._settled = ModelPhase.READY if self._selected else ModelPhase.IDLE
 
     def refresh_choices(self, choices: tuple[BackendChoice, ...]) -> None:
         if self._selected:
@@ -200,87 +241,83 @@ class ModelLifecycle:
             and any(m.available for m in self._route.models)
             and not self._preparing
             and not self._probing
-            and self._phase != ModelPhase.CLOSING
+            and not self._closing
         )
 
     @property
     def assignment_busy(self) -> bool:
-        return self._proposal is not None or self._preparing is not None
+        return self._operation is not None
 
     def request_assignment(self, plan: TranslationPlan, choice: BackendChoice | None) -> int | None:
         """Stage assignments for consent without touching the committed route/worker."""
-        if self.assignment_busy or self._probing or self._phase == ModelPhase.CLOSING:
+        if self.assignment_busy or self._probing or self._closing:
             raise ValueError(tr("Wait for the current model operation to finish."))
         if choice and choice.unavailable_reason:
             raise ValueError(choice.unavailable_reason)
         if choice and not self.is_prepared(choice):
-            self._pending_assignment, self._proposal = plan, choice
-            self._phase = ModelPhase.CONSENT
-            self._consent_token += 1
-            return self._consent_token
-        self._assignment, self._pending_assignment = plan, None
-        self._proposal = None
+            self._consent_serial += 1
+            self._operation = _Consent(self._consent_serial, choice, plan)
+            return self._consent_serial
+        self._assignment = plan
         if choice:
             self._selected, self._standby = choice, True
-            self._phase, self._message = ModelPhase.READY, ""
+            self._settled, self._message = ModelPhase.READY, ""
         elif not plan.active_models:
             self._selected, self._standby = None, False
         return None
 
     def consent(self, token: int, accepted: bool) -> BackendChoice | None:
-        choice = self._proposal
-        if choice is None or token != self._consent_token or self._phase != ModelPhase.CONSENT:
+        operation = self._operation
+        if not isinstance(operation, _Consent) or token != operation.token or self._closing:
             return None
-        self._proposal = None
+        choice = operation.choice
         if not accepted:
-            self._pending_assignment = None
-            self._phase = ModelPhase.READY if self._selected else ModelPhase.IDLE
+            self._operation = None
+            self._settled = ModelPhase.READY if self._selected else ModelPhase.IDLE
             return choice
-        self._preparing = choice
-        self._started = False
+        self._operation = _Preparation(choice, operation.plan)
         self._standby = True
-        self._phase = ModelPhase.DRAINING
         self._message = tr("Finishing the previous model…")
         if self._session:
             self._session.request_stop()
         return choice
 
     def advance_preparation(self, *, closing: bool = False) -> PreparationOutcome | None:
-        if self._preparing is None:
+        operation = self._operation
+        if not isinstance(operation, _Preparation):
             return None
-        choice = self._inventory.current_preparation(self._preparing)
+        choice = self._inventory.current_preparation(operation.choice)
         session = self._session
         committed, error = False, ""
         if closing:
             self.shutdown()
             if session and not session.finished:
                 return None
-        elif choice is None or self._pending_assignment is None:
+        elif choice is None or operation.plan is None:
             # Revocation survives a later rediscovery while the stale owner drains.
-            self._pending_assignment = None
+            self._operation = replace(operation, plan=None)
             self._standby = False
             self.drain()
             if self._session is not None:
-                self._phase = ModelPhase.DRAINING
                 self._message = tr("Finishing the previous model…")
                 return None
-            self._phase = ModelPhase.FAILED
+            self._settled = ModelPhase.FAILED
             error = tr("Model unavailable · open Settings")
-        elif not self._started:
+        elif operation.worker is None:
             if session and not session.finished:
                 return None
-            self._session = self._create(choice)
-            self._worker_choice = choice
-            self._started = True
-            self._session.start()
-            self._phase = ModelPhase.PREPARING
+            worker = self._create(choice)
+            self._session, self._worker_choice = worker, choice
+            self._operation = replace(operation, worker=worker)
+            worker.start()
             self._message = tr("Checking model files and running a test translation…")
             return None
-        elif session:
-            result = session.snapshot()
+        else:
+            # Until revocation or closing, nothing else may drain the preparation's own worker.
+            result = operation.worker.snapshot()
             if result.state not in (TranslationState.READY, TranslationState.FAILED):
                 return None
-            if result.state == TranslationState.FAILED and not session.finished:
+            if result.state == TranslationState.FAILED and not operation.worker.finished:
                 return None
             if result.state == TranslationState.READY:
                 committed = True
@@ -292,17 +329,15 @@ class ModelLifecycle:
                 except OSError as error_record:
                     logger.warning("Could not save preparation receipt: %s", error_record)
                 self._selected, self._standby = choice, True
-                self._phase = ModelPhase.READY
-                self._assignment = self._pending_assignment
+                self._settled = ModelPhase.READY
+                self._assignment = operation.plan
             else:
                 self._session, self._standby = None, False
                 error = result.message
-                self._phase = ModelPhase.FAILED
+                self._settled = ModelPhase.FAILED
         self._message = error
-        self._preparing, self._started = None, False
-        self._pending_assignment = None
-        outcome = PreparationOutcome(committed, error)
-        return outcome
+        self._operation = None
+        return PreparationOutcome(committed, error)
 
     def configure_route(
         self,
@@ -353,9 +388,13 @@ class ModelLifecycle:
             self.drain()
 
     def shutdown(self) -> None:
-        self._phase = ModelPhase.CLOSING
-        self._proposal = None
-        self._pending_assignment = None
+        self._closing = True
+        operation = self._operation
+        # Closing withdraws a pending consent and the plan a preparation would commit.
+        if isinstance(operation, _Consent):
+            self._operation = None
+        elif isinstance(operation, _Preparation):
+            self._operation = replace(operation, plan=None)
         self._standby = False
         self.drain()
 
@@ -368,7 +407,7 @@ class ModelLifecycle:
     def suspend_for_probe(self, active: bool) -> bool:
         """Keep committed selection; grant a probe only after inference has drained."""
         self._probing = active
-        if not active or self._preparing or self._phase == ModelPhase.CLOSING:
+        if not active or self._preparing or self._closing:
             return False
         self._standby = False
         self.drain()
@@ -379,7 +418,8 @@ class ModelLifecycle:
         return self._session is None or bool(self._preparing) or self._standby
 
     def resume_after_failed_restart(self) -> None:
-        self._phase = ModelPhase.READY if self._selected else ModelPhase.IDLE
+        self._closing = False
+        self._settled = ModelPhase.READY if self._selected else ModelPhase.IDLE
 
     def advance_activity(
         self, *, running: bool, enabled: bool, probing: bool = False
@@ -390,7 +430,7 @@ class ModelLifecycle:
         private until their native cleanup completes, even if their snapshot has failed.
         """
         probe_ready = self.suspend_for_probe(probing)
-        if self._phase == ModelPhase.CLOSING:
+        if self._closing:
             self.drain()
             return TranslationActivity(TranslationMode.INACTIVE)
         if probing:
