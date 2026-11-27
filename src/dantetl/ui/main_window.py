@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
 
 from dantetl.application.api import ApplicationCommands
 from dantetl.application.hotkeys import HotkeyAction, Hotkeys
+from dantetl.application.notice import Notices
 from dantetl.application.preference_values import SettingsEdit
 from dantetl.application.updates import Updates
 from dantetl.application.values import ApplicationControls, ModelConsent, ShutdownPhase
@@ -89,6 +90,7 @@ class MainWindow(QMainWindow):
         self.about.restart.connect(self.close)
         self._windows, self._hardware, self._hotkeys = windows, hardware, hotkeys
         self._notice_destination = "models"
+        self._last_notices: Notices | None = None
         self._model_manager: ModelManager | None = None
         self._runtime_dialog: RuntimeSetupDialog | None = None
         self._setup_assistant: SetupAssistant | None = None
@@ -691,7 +693,7 @@ class MainWindow(QMainWindow):
 
     def _show_acceleration_advice(self) -> None:
         advice = self.application.notices().acceleration
-        if advice != self._last_notices.acceleration:
+        if self._last_notices is None or advice != self._last_notices.acceleration:
             self._update_notice()
             return
         if target := advice.restart_target:
@@ -731,7 +733,7 @@ class MainWindow(QMainWindow):
             )
         value = self.application.notices()
         self._notice_destination = value.destination
-        if value == getattr(self, "_last_notices", None):
+        if value == self._last_notices:
             return
         self._last_notices = value
         for banner in (self.language_notice, self._settings.language_notice):
