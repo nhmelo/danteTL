@@ -218,6 +218,11 @@ interrupted; `finished` requires owner cleanup/exit. Failure leaves capture avai
 retains its exact frame, text/character bounds, scores, coverage and timing. Never overlay old raw rows
 on new pixels. `text_content` derives character-bounded tracking input without changing raw OCR;
 only isolated weak edge glyphs beside strong Japanese runs may be filtered, never low confidence globally.
+One or two weak letters that are a row's only letter evidence are also dropped when they sit beside
+a confidently read number or make up the whole row. OCR reads value operators and icons this way
+(`396ツ%`, `十`). A word with one confident letter, faint letters without a number and unread
+numbers keep their text. A row left empty does not become a track. Japanese letter evidence is kana
+or kanji; sound marks, `・` and `ー` alone are not letters.
 
 `LiveSession` waits for source-matched visual evidence, reconciles each completed OCR sequence once,
 then acknowledges and publishes. The worker cannot overwrite unconsumed observations. Accepted OCR

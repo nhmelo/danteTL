@@ -47,17 +47,45 @@ def _isolated_icon(
     return gap >= max(3, glyph * 0.45, usual_gap * 3)
 
 
+_WEAK_LETTER = 0.5
+_READ_NUMBER = 0.6
+
+
+def _unsupported_letters(
+    language: SourceLanguage, characters: tuple[TextCharacter, ...]
+) -> tuple[TextCharacter, ...]:
+    """Weak letters that are a row's only letter evidence, beside a confident number or alone.
+
+    OCR reads a value's operator or an icon as a letter, e.g. 396ツ% for 396% or 十 for a
+    crosshair. Words keep at least one confident letter, so any such row is untouched.
+    """
+    letters = tuple(c for c in characters if language.contains_text(c.text))
+    if not letters or len(letters) > 2 or any(c.confidence >= _WEAK_LETTER for c in letters):
+        return ()
+    if len(characters) == 1:
+        return letters
+    digits = [c.confidence for c in characters if c.text.isdecimal()]
+    return letters if digits and median(digits) >= _READ_NUMBER else ()
+
+
 def content_region(region: TextRegion, language: SourceLanguage = DEFAULT_SOURCE) -> TextRegion:
-    """Use character extents, dropping only isolated weak edge glyphs by strong text.
+    """Use character extents, dropping only isolated weak edge glyphs by strong text and
+    weak letters that are a row's only letter evidence beside a confident number or alone.
 
     No global confidence threshold is raised. Quotes, punctuation, numbers, interior
-    characters, and incomplete character metadata retain their recognized content.
+    characters of words, and incomplete character metadata retain their recognized content.
+    A row left without characters keeps its bounds and empty text, which tracking ignores.
     """
     characters = region.characters
     if not characters or "".join(c.text for c in characters) != region.text:
         return region
     if any(min(c.bounds.size) <= 0 for c in characters):
         return region
+    scored = all(isfinite(c.confidence) and 0 <= c.confidence <= 1 for c in characters)
+    if scored and (unsupported := _unsupported_letters(language, characters)):
+        characters = tuple(c for c in characters if all(c is not u for u in unsupported))
+        if not characters:
+            return replace(region, text="", characters=())
     ordered = all(
         a.bounds.x <= b.bounds.x for a, b in zip(characters, characters[1:], strict=False)
     )
