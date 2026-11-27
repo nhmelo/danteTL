@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-import os
 import re
 import threading
 from functools import partial
@@ -14,15 +13,12 @@ from dantetl.languages.selection import DEFAULT_SOURCE
 from dantetl.languages.source import SourceLanguage
 from dantetl.languages.target import ENGLISH, TargetLanguage
 from dantetl.runtime.cuda_cache import use_kernel_cache
-from dantetl.runtime.llama import (
-    flash_attention_options,
-    load_runtime,
-    menu_sequence_width,
-    supports_plamo,
-)
+from dantetl.runtime.llama import load_runtime, menu_sequence_width, supports_plamo
 from dantetl.translation.backend import RequestRejected
+from dantetl.translation.backends import plamo
+from dantetl.translation.backends.gemma import translation_prompt as gemma_translation_prompt
 from dantetl.translation.backends.label_decoder import LlamaLabelDecoder, Sampling
-from dantetl.translation.backends.prompt_budget import fit_prompt
+from dantetl.translation.backends.llama_engine import CONTEXT, OUTPUT_LIMIT, LlamaEngine
 from dantetl.translation.dialogue.classifier import (
     Classification,
     ClassificationInput,
@@ -35,8 +31,6 @@ from dantetl.translation.limits import MAX_ENGLISH_CHARACTERS
 from dantetl.translation.models.gguf import fingerprint, inspect_gguf
 from dantetl.translation.models.values import ImportedModel
 
-CONTEXT = 2048
-OUTPUT_LIMIT = 384
 INSTRUCTION = (
     "Translate {source_language} video game text into natural, concise {target_language}. "
     "Preserve meaning, names, numbers, and tone. Use standard game UI terminology for labels. "
@@ -119,7 +113,7 @@ class GgufBackend:
     ) -> None:
         if device not in ("cpu", "cuda", "vulkan"):
             raise ValueError(tr("Unknown language-model device."))
-        self._model: Any = None
+        self._engine: LlamaEngine | None = None
         self.registration = registration
         self._device = device
         path = Path(registration.path)
@@ -154,19 +148,9 @@ class GgufBackend:
         )
         self._gemma = info.profile == "gemma4"
         self._plamo = info.profile == "plamo3"
-        batch = 128 if device == "cpu" else 1
         try:
-            self._model = runtime.Llama(
-                model_path=str(path),
-                n_ctx=CONTEXT,
-                n_batch=batch,
-                n_ubatch=batch,
-                n_threads=min(4, max(1, (os.cpu_count() or 2) // 2)) if device == "cpu" else 2,
-                n_gpu_layers=0 if device == "cpu" else -1,
-                split_mode=0,
-                main_gpu=0,
-                **flash_attention_options(runtime, device),
-                verbose=verbose,
+            self._engine = engine = LlamaEngine(
+                runtime, path, device, verbose=verbose, bound_batch_threads=False
             )
             from llama_cpp.llama_chat_format import (  # pyright: ignore[reportMissingImports]
                 CHATML_CHAT_TEMPLATE,
@@ -178,8 +162,8 @@ class GgufBackend:
                 "chatml": CHATML_CHAT_TEMPLATE,
                 "llama3": LLAMA3_INSTRUCT_CHAT_TEMPLATE,
             }.get(info.profile, info.template)
-            eos = self._token_text(self._model.token_eos())
-            bos = self._token_text(self._model.token_bos())
+            eos = self._token_text(engine.model.token_eos())
+            bos = self._token_text(engine.model.token_bos())
             self._formatter: Any = (
                 None
                 if self._gemma or self._plamo
@@ -194,9 +178,7 @@ class GgufBackend:
                 self._formatter.strftime_now = lambda _: ""
             self._stops = [s for s in (eos, "<|im_end|>", "<|eot_id|>", "<turn|>", "<|turn>") if s]
             if self._plamo:
-                from dantetl.translation.backends.plamo import STOPS
-
-                self._stops = list(STOPS)
+                self._stops = list(plamo.STOPS)
             self._model_identity = (
                 "gguf-v1",
                 registration.sha256,
@@ -205,7 +187,7 @@ class GgufBackend:
                 runtime.__version__,
                 device,
             )
-            self._generation_identity = (CONTEXT, OUTPUT_LIMIT, batch, template)
+            self._generation_identity = (CONTEXT, OUTPUT_LIMIT, engine.batch, template)
             self.set_source(language)
             self.translate((language.warmup_text,))
         except Exception:
@@ -213,13 +195,10 @@ class GgufBackend:
             raise
 
     def set_source(self, language: SourceLanguage) -> None:
-        from dantetl.translation.backends.gemma import translation_prompt
-        from dantetl.translation.backends.plamo import translation_prompt as plamo_prompt
-
         prompt = (
-            plamo_prompt("", (), language=language)
+            plamo.translation_prompt("", (), language=language)
             if self._plamo
-            else translation_prompt("", (), language=language)
+            else gemma_translation_prompt("", (), language=language)
             if self._gemma
             else INSTRUCTION.format(source_language=language.name, target_language=ENGLISH.name)
         )
@@ -237,8 +216,14 @@ class GgufBackend:
         )
         self._language = language
 
+    def _open(self) -> LlamaEngine:
+        if self._engine is None:
+            raise RuntimeError(tr("Imported model is closed."))
+        return self._engine
+
     def _token_text(self, token: int) -> str:
-        return self._model.detokenize([token], special=True).decode("utf-8") if token >= 0 else ""
+        model = self._open().model
+        return model.detokenize([token], special=True).decode("utf-8") if token >= 0 else ""
 
     def translate(
         self, texts: tuple[str, ...], *, target: TargetLanguage = ENGLISH
@@ -249,13 +234,9 @@ class GgufBackend:
 
     def _prompt(self, text: str, context: tuple[DialogueTurn, ...], target: TargetLanguage) -> str:
         if self._plamo:
-            from dantetl.translation.backends.plamo import translation_prompt
-
-            prompt = translation_prompt(text, context, language=self._language, target=target)
+            prompt = plamo.translation_prompt(text, context, language=self._language, target=target)
         elif self._gemma:
-            from dantetl.translation.backends.gemma import translation_prompt
-
-            prompt = translation_prompt(text, context, language=self._language, target=target)
+            prompt = gemma_translation_prompt(text, context, language=self._language, target=target)
         else:
             # A single user turn works with templates that disallow system roles.
             formatted = self._formatter(
@@ -277,46 +258,24 @@ class GgufBackend:
     def translate_with_context(
         self, text: str, context: tuple[DialogueTurn, ...], *, target: TargetLanguage = ENGLISH
     ) -> str:
-        if self._model is None:
-            raise RuntimeError(tr("Imported model is closed."))
-        tokens = fit_prompt(
-            self._model,
-            text,
-            context,
-            partial(self._prompt, target=target),
-            max_tokens=CONTEXT - OUTPUT_LIMIT,
-        )
-        response = self._model.create_completion(
-            prompt=tokens,
-            max_tokens=OUTPUT_LIMIT,
-            temperature=self._sampling.temperature,
-            top_p=self._sampling.top_p,
-            top_k=self._sampling.top_k,
-            seed=self._sampling.seed,
-            repeat_penalty=1.0,
-            stop=self._stops,
-            stream=False,
-        )
-        return completed_answer(response)
+        engine = self._open()
+        tokens = engine.fit(text, context, partial(self._prompt, target=target))
+        return completed_answer(engine.complete(tokens, self._stops, self._sampling))
 
     def close(self) -> None:
-        if self._model is not None:
-            self._model.close()
-            self._model = None
+        if self._engine is not None:
+            self._engine.close()
+            self._engine = None
 
     @property
     def label_width(self) -> int:
         return menu_sequence_width(self._device)
 
     def prepare_labels(self, target: TargetLanguage) -> LlamaLabelDecoder:
-        return LlamaLabelDecoder(
-            load_runtime(self._device),
-            self._model,
-            self.label_width,
+        return self._open().label_decoder(
             lambda text, target: self._prompt(text, (), target),
             completed_answer,
             self._stops,
-            OUTPUT_LIMIT,
             target,
             self._sampling,
         )
@@ -339,4 +298,4 @@ class GgufBackend:
                 enable_thinking=False,
             ).prompt
         )
-        return local_classification(self._model, prompt, self._stops, cancelled)
+        return local_classification(self._open().model, prompt, self._stops, cancelled)

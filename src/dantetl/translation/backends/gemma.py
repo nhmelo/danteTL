@@ -14,10 +14,10 @@ from dantetl.languages.target import ENGLISH, TargetLanguage
 from dantetl.paths import state_root
 from dantetl.runtime.assets import ModelAsset, validate_asset
 from dantetl.runtime.cuda_cache import use_kernel_cache
-from dantetl.runtime.llama import flash_attention_options, load_runtime, menu_sequence_width
+from dantetl.runtime.llama import load_runtime, menu_sequence_width
 from dantetl.translation.backend import RequestRejected
-from dantetl.translation.backends.label_decoder import LlamaLabelDecoder
-from dantetl.translation.backends.prompt_budget import fit_prompt
+from dantetl.translation.backends.label_decoder import LlamaLabelDecoder, Sampling
+from dantetl.translation.backends.llama_engine import CONTEXT, OUTPUT_LIMIT, LlamaEngine
 from dantetl.translation.dialogue.classifier import (
     Classification,
     ClassificationInput,
@@ -44,8 +44,7 @@ ASSETS = (
         29260,
     ),
 )
-CONTEXT = 2048
-OUTPUT_LIMIT = 384
+STOPS = ["<turn|>", "<|turn>", "<eos>"]
 INSTRUCTION = (
     "Translate {source_language} video game text into natural, concise {target_language}. "
     "Preserve meaning, names, numbers, and tone. Use standard game UI terminology for labels. "
@@ -127,28 +126,11 @@ class GemmaBackend:
             ) from error
         if device != "cpu" and not runtime.llama_supports_gpu_offload():
             raise RuntimeError(tr("Gemma GPU runtime unavailable. Open Settings → Acceleration."))
-        # CPU prompt evaluation benefits from batching; keep GPU's tested kernel shape.
-        batch = 128 if device == "cpu" else 1
-        threads = min(4, max(1, (os.cpu_count() or 2) // 2)) if device == "cpu" else 2
-        self._model: Any = None
-        self._model = runtime.Llama(
-            model_path=str(directory / ASSETS[0].filename),
-            n_ctx=CONTEXT,
-            # Short, changing prompts otherwise repeatedly compile shape-specific
-            # CUDA kernels on Blackwell with this wheel. Single-token prefill keeps
-            # one shape and bounded scratch memory; prefix reuse amortizes instructions.
-            n_batch=batch,
-            n_ubatch=batch,
-            n_threads=threads,
-            n_threads_batch=threads,
-            n_gpu_layers=0 if device == "cpu" else -1,
-            # Keep one model on one adapter, including PCs with a discrete GPU + iGPU.
-            split_mode=0,  # LLAMA_SPLIT_MODE_NONE
-            main_gpu=0,
-            **flash_attention_options(runtime, device),
-            verbose=False,
+        self._engine: LlamaEngine | None = LlamaEngine(
+            runtime, directory / ASSETS[0].filename, device
         )
-        self._device, self._runtime_version, self._batch = device, runtime.__version__, batch
+        self._device, self._runtime_version = device, runtime.__version__
+        self._batch = self._engine.batch
         self.set_source(language)
         try:
             # Report first-use CUDA preparation as loading, not as a stalled game
@@ -179,55 +161,43 @@ class GemmaBackend:
             raise ValueError(tr("Gemma accepts at most four sources per call."))
         return tuple(self.translate_with_context(text, (), target=target) for text in texts)
 
+    def _open(self) -> LlamaEngine:
+        if self._engine is None:
+            raise RuntimeError(tr("Gemma is closed."))
+        return self._engine
+
     def translate_with_context(
         self, text: str, context: tuple[DialogueTurn, ...], *, target: TargetLanguage = ENGLISH
     ) -> str:
-        if self._model is None:
-            raise RuntimeError(tr("Gemma is closed."))
-        tokens = fit_prompt(
-            self._model,
+        engine = self._open()
+        tokens = engine.fit(
             text,
             context,
             partial(translation_prompt, language=self._language, target=target),
-            max_tokens=CONTEXT - OUTPUT_LIMIT,
             invalid_source=mark("Gemma source must contain 1–512 characters."),
             overflow=mark("Gemma source exceeds its allocated context; refusing truncation."),
         )
-        response = self._model.create_completion(
-            prompt=tokens,
-            max_tokens=OUTPUT_LIMIT,
-            temperature=0,
-            repeat_penalty=1.0,
-            stop=["<turn|>", "<|turn>", "<eos>"],
-            stream=False,
-        )
-        return completed_translation(response)
+        return completed_translation(engine.complete(tokens, STOPS, Sampling()))
 
     def close(self) -> None:
-        if self._model is not None:
-            self._model.close()
-            self._model = None
+        if self._engine is not None:
+            self._engine.close()
+            self._engine = None
 
     @property
     def label_width(self) -> int:
         return menu_sequence_width(self._device)
 
     def prepare_labels(self, target: TargetLanguage) -> LlamaLabelDecoder:
-        return LlamaLabelDecoder(
-            load_runtime(self._device),
-            self._model,
-            self.label_width,
+        return self._open().label_decoder(
             lambda text, target: translation_prompt(text, language=self._language, target=target),
             completed_translation,
-            ["<turn|>", "<|turn>", "<eos>"],
-            OUTPUT_LIMIT,
+            STOPS,
             target,
+            Sampling(),
         )
 
     def classify(self, value: ClassificationInput, cancelled: threading.Event) -> Classification:
         return local_classification(
-            self._model,
-            gemma_prompt(value, language=self._language),
-            ["<turn|>", "<|turn>", "<eos>"],
-            cancelled,
+            self._open().model, gemma_prompt(value, language=self._language), STOPS, cancelled
         )

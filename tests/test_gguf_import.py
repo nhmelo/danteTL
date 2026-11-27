@@ -16,6 +16,7 @@ from dantetl.runtime import llama as llama_runtime
 from dantetl.runtime.setup_values import Cancelled
 from dantetl.translation.backend import RequestRejected
 from dantetl.translation.backends import gguf as gguf_backend
+from dantetl.translation.backends import llama_engine
 from dantetl.translation.dialogue.context import DialogueTurn
 from dantetl.translation.models import gguf as gguf_models
 from dantetl.translation.models import probe as gguf_probe
@@ -322,7 +323,7 @@ def test_imported_label_decoder_uses_the_selected_prompt_and_sampling(
 
     monkeypatch.setattr(gguf_backend, "supports_plamo", lambda: True)
     create = Mock()
-    monkeypatch.setattr(gguf_backend, "LlamaLabelDecoder", create)
+    monkeypatch.setattr(llama_engine, "LlamaLabelDecoder", create)
     registration_ = replace(registration(tmp_path, architecture=architecture), profile=profile)
     backend = gguf_backend.GgufBackend(registration_, device="cpu")
     model = fake_runtime.Llama.return_value
