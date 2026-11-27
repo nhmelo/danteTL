@@ -160,3 +160,23 @@ def test_one_alternate_anchor_preserves_three_complete_readable_labels():
         assert " ".join(layout.lines) == label.text
         assert layout.bounds.contains(label.source)
         assert all(other and not intersects(layout.bounds, other.bounds) for other in placed[:i])
+
+
+def test_short_labels_keep_words_whole_and_stay_centered_on_their_source():
+    source = Rect(3297, 142, 72, 36)  # A two-glyph menu label at 4K.
+    layout = layout_english("Observation", source, (3840, 2160), source_line_height=36)
+    assert layout.lines == ("Observation",)
+    middle = layout.bounds.x + layout.bounds.width / 2
+    assert abs(middle - (source.x + source.width / 2)) <= 1
+    words = layout_english("Hoshigen no Niwa", Rect(2200, 2000, 60, 30), (3840, 2160))
+    assert " ".join(words.lines).split() == ["Hoshigen", "no", "Niwa"]  # No word is broken.
+
+
+def test_long_sources_keep_their_reading_edge_and_unspaced_text_wraps_anywhere():
+    dialogue = Rect(100, 1500, 900, 80)
+    sentence = "A long sentence of ordinary dialogue that should wrap at its words."
+    assert layout_english(sentence, dialogue, (3840, 2160)).bounds.x == dialogue.x
+    narrow = Rect(100, 100, 60, 30)
+    japanese = layout_english("見出しのテキストです", narrow, (3840, 2160))
+    assert len(japanese.lines) > 1 and "".join(japanese.lines) == "見出しのテキストです"
+    assert japanese.bounds.width < 160  # Not widened to the whole unspaced text.

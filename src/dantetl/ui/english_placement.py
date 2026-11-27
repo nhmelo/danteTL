@@ -113,8 +113,9 @@ def _anchors(
     source: Rect, viewport: tuple[int, int], layout: EnglishLayout
 ) -> Iterator[EnglishLayout]:
     width, height = layout.bounds.size
+    centered = source.x + (source.width - width) // 2
     for y in (source.y, source.y + source.height - height):
-        for x in (source.x, source.x + source.width - width):
+        for x in dict.fromkeys((centered, source.x, source.x + source.width - width)):
             yield replace(
                 layout,
                 bounds=Rect(

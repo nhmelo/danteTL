@@ -559,7 +559,11 @@ assigns nonintersecting, source-anchored rectangles to ready translations. Live 
 menu previews. A text-only menu reading takes precedence over its icon-inclusive alternative.
 Otherwise the block with more recognized letters and numbers has first choice, with line count,
 compact source bounds, reading order, source text and the stable block key resolving ties.
-Each label can rewrap or shift within its available anchors. A bounded local search can move
+Each label can rewrap or shift within its available anchors. English breaks between words of
+spaced scripts, never inside one, widening while the viewport has room; unspaced scripts wrap
+between characters. English wider than a short label (at most six glyph heights wide) is centered
+on it, as menu labels are, with edge-aligned anchors as alternatives. Longer text keeps its edge.
+A bounded local search can move
 one earlier winner to another anchor with identical wrapping and font, while preserving
 its clearance of reserved source text. Unresolved conflicts omit the lower-priority label for
 this scene. A fragment can remain visible until its paragraph has a translation.

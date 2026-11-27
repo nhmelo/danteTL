@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, replace
 from functools import lru_cache
+from math import ceil
 from unicodedata import bidirectional
 
 from PySide6.QtCore import Qt
@@ -12,6 +13,7 @@ from dantetl.i18n import tr
 
 PAD_X = 10
 PAD_Y = 6
+_LABEL_GLYPHS = 6  # Sources at most this many glyph heights wide are labels.
 
 
 @dataclass(frozen=True, slots=True)
@@ -43,6 +45,15 @@ def _wrap(text: str, font: QFont, width: int) -> tuple[str, ...]:
     return tuple(lines)
 
 
+def _spaced(word: str) -> bool:
+    """Words of scripts written with spaces; unspaced scripts may wrap between any characters."""
+    return not any(0x0E00 <= ord(c) <= 0x0EFF or ord(c) >= 0x2E80 for c in word)
+
+
+def _longest_word(text: str, metrics: QFontMetricsF) -> float:
+    return max((metrics.horizontalAdvance(w) for w in text.split() if _spaced(w)), default=0.0)
+
+
 def layout_english(
     text: str,
     source: Rect,
@@ -67,10 +78,15 @@ def layout_english(
         wrap_width=wrap_width,
     )
     box = measured.bounds
+    # English wider than a short label is centered on it, as labels sit centered in menus;
+    # longer text keeps its reading edge.
+    glyph = source_line_height or (source.width if vertical else source.height)
+    label = not vertical and source.width <= _LABEL_GLYPHS * glyph
+    x = source.x - max(0, box.width - source.width) // 2 if label else source.x
     return replace(
         measured,
         bounds=Rect(
-            max(0, min(source.x, viewport[0] - box.width)),
+            max(0, min(x, viewport[0] - box.width)),
             max(0, min(source.y, viewport[1] - box.height)),
             box.width,
             box.height,
@@ -103,10 +119,13 @@ def _measure_english(
     font = QFont("Segoe UI")
     lines: tuple[str, ...] = ()
     pixels = preferred
+    requested = width
     while True:
         font.setPixelSize(pixels)
         metrics = QFontMetricsF(font)
         line_height = max(1, round(metrics.lineSpacing()))
+        # Break between words, never inside one, while the viewport has room.
+        width = min(view_width, max(requested, ceil(_longest_word(text, metrics)) + 1 + PAD_X * 2))
         lines = _wrap(text, font, max(1, width - PAD_X * 2))
         if len(lines) * line_height + PAD_Y * 2 <= source.height:
             break
