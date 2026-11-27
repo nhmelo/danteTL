@@ -21,6 +21,7 @@ from dantetl.runtime.setup_values import (
     Progress,
     RuntimeStatus,
     RuntimeTarget,
+    SetupAction,
     SetupJob,
     SetupLane,
     SetupReview,
@@ -110,7 +111,7 @@ class SetupCoordinator:
     def _start(
         self,
         lane: SetupLane,
-        action: str,
+        action: SetupAction,
         key: str,
         work: Callable[[Progress, threading.Event], None],
         gpu: str = "",
@@ -135,7 +136,7 @@ class SetupCoordinator:
             return False
         return self._start(
             SetupLane.MODELS,
-            "download",
+            SetupAction.DOWNLOAD,
             key,
             lambda progress, cancel: self._dependencies.install_model(bundle, progress, cancel),
         )
@@ -146,7 +147,7 @@ class SetupCoordinator:
             return False
         return self._start(
             SetupLane.MODELS,
-            "remove",
+            SetupAction.REMOVE,
             key,
             lambda progress, cancel: self._dependencies.remove_import(model),
         )
@@ -170,7 +171,7 @@ class SetupCoordinator:
     @property
     def probing(self) -> bool:
         job = self.job(SetupLane.MODELS)
-        return job.busy and job.action == "probe"
+        return job.busy and job.action == SetupAction.PROBE
 
     def permit_probe(self) -> None:
         if self.probing:
@@ -184,7 +185,7 @@ class SetupCoordinator:
             self._serial += 1
             self._jobs[SetupLane.MODELS] = SetupJob(
                 self._serial,
-                "probe",
+                SetupAction.PROBE,
                 progress=ModelProgress(
                     done=True,
                     error=tr(
@@ -197,7 +198,7 @@ class SetupCoordinator:
         self._gate.clear()
         self._probe_result = None
         self._probe = self._dependencies.probe(Path(path), profile, device, self._gate)
-        return self._start(SetupLane.MODELS, "probe", path, self._probe.run)
+        return self._start(SetupLane.MODELS, SetupAction.PROBE, path, self._probe.run)
 
     def save_import(self, name: str) -> bool:
         result = self._probe_result
@@ -208,7 +209,7 @@ class SetupCoordinator:
         )
         return self._start(
             SetupLane.MODELS,
-            "register",
+            SetupAction.REGISTER,
             model.key,
             lambda progress, cancel: self._dependencies.save_import(model),
         )
@@ -226,7 +227,7 @@ class SetupCoordinator:
             self._runtime_result = self._dependencies.runtime_status()
             progress(ModelProgress(tr("Hardware check complete. Nothing has been installed.")))
 
-        return self._start(SetupLane.RUNTIME, "detect", "", work)
+        return self._start(SetupLane.RUNTIME, SetupAction.DETECT, "", work)
 
     def install_runtime(self, key: str, gpu: str = "") -> bool:
         if key not in {p.key for p in self.profiles} or (
@@ -238,7 +239,7 @@ class SetupCoordinator:
             self._dependencies.install_runtime(key, gpu, progress, cancel)
             self._runtime_result = self._dependencies.runtime_status()
 
-        return self._start(SetupLane.RUNTIME, "install", key, work, gpu)
+        return self._start(SetupLane.RUNTIME, SetupAction.INSTALL, key, work, gpu)
 
     def use_next_launch(self, key: str, gpu: str = "") -> bool:
         target = self._runtime.target(key, gpu)
@@ -252,7 +253,7 @@ class SetupCoordinator:
                 ModelProgress(tr("Selected for next launch. This session continues unchanged."))
             )
 
-        return self._start(SetupLane.RUNTIME, "select", key, work, gpu)
+        return self._start(SetupLane.RUNTIME, SetupAction.SELECT, key, work, gpu)
 
     def review(
         self, model_key: str, runtime_key: str, hardware: HardwareStatus, gpu: str = ""
@@ -326,7 +327,7 @@ class SetupCoordinator:
             path = self._dependencies.run_setup(plan, progress, cancel)
             self._guide_target = RuntimeTarget(path, plan.gpu) if path else None
 
-        return self._start(SetupLane.GUIDE, "setup", self._review.model, work)
+        return self._start(SetupLane.GUIDE, SetupAction.SETUP, self._review.model, work)
 
     @property
     def reviewed(self) -> SetupReview | None:
@@ -379,7 +380,7 @@ class SetupCoordinator:
                 continue
             job = self._jobs[lane]
             succeeded = not (value.error or value.cancelled)
-            if lane == SetupLane.MODELS and job.action == "probe":
+            if lane == SetupLane.MODELS and job.action == SetupAction.PROBE:
                 result = self._probe.result if self._probe and succeeded else None
                 if result and self._expected and result.model.key != self._expected.key:
                     value = replace(
@@ -403,16 +404,22 @@ class SetupCoordinator:
                     profile = next(p for p in self.profiles if p.key == self._review.runtime)
                     self._installed_runtime = profile.name, self._guide_target
             if succeeded and lane == SetupLane.RUNTIME:
-                if job.action == "install":
+                if job.action == SetupAction.INSTALL:
                     target = self._runtime.target(job.key, job.gpu)
                     if target and not self._runtime.in_use(job.key, job.gpu):
                         profile = next(p for p in self.profiles if p.key == job.key)
                         self._installed_runtime = profile.name, target
-                elif job.action == "select":
+                elif job.action == SetupAction.SELECT:
                     self._installed_runtime = None
-            if succeeded and lane == SetupLane.MODELS and job.action == "register":
+            if succeeded and lane == SetupLane.MODELS and job.action == SetupAction.REGISTER:
                 self._probe_result = None
             # Multi-file downloads and setup can commit verified files before a later
             # step fails or is cancelled. Discovery reports what actually reached disk.
-            if job.action in {"download", "remove", "register", "install", "setup"}:
+            if job.action in {
+                SetupAction.DOWNLOAD,
+                SetupAction.REMOVE,
+                SetupAction.REGISTER,
+                SetupAction.INSTALL,
+                SetupAction.SETUP,
+            }:
                 self.inventory.invalidate()

@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
 from dantetl.application.services import SetupCommands
 from dantetl.i18n import mark, tr
 from dantetl.runtime.hardware_values import compatibility_issue
-from dantetl.runtime.setup_values import RuntimeTarget, SetupLane
+from dantetl.runtime.setup_values import RuntimeTarget, SetupAction, SetupLane
 from dantetl.ui.localization import localized, localized_item, on_language_change
 from dantetl.ui.runtime_gpus import RuntimeFields
 from dantetl.ui.runtime_restart_prompt import ask_restart
@@ -107,7 +107,7 @@ class RuntimeSetupDialog(QDialog):
 
     def start_install(self, key: str) -> None:
         job = self.service.job(SetupLane.RUNTIME)
-        if job.action == "detect" and job.token != self._completion:
+        if job.action == SetupAction.DETECT and job.token != self._completion:
             self._select_profile(key)
             self._install_after_detection = key
             self.refresh_view()
@@ -121,7 +121,7 @@ class RuntimeSetupDialog(QDialog):
         self.hardware.set_adapters(
             adapters,
             tr("Checking graphics hardware…")
-            if checking.action == "detect" and checking.busy
+            if checking.action == SetupAction.DETECT and checking.busy
             else tr("No supported GPU detected. CPU is available."),
         )
 
@@ -180,7 +180,7 @@ class RuntimeSetupDialog(QDialog):
         if self._embedded:
             self.cancel_button.setEnabled(not idle)
             self.cancel_button.setVisible(
-                not idle and self.service.job(SetupLane.RUNTIME).action != "detect"
+                not idle and self.service.job(SetupLane.RUNTIME).action != SetupAction.DETECT
             )
         if idle:
             self.status.setText(
@@ -239,7 +239,7 @@ class RuntimeSetupDialog(QDialog):
         self.choice.setEnabled(True)
         self._show_hardware()
         self._profile_changed()
-        if job.action == "detect":
+        if job.action == SetupAction.DETECT:
             requested = self._install_after_detection
             self._install_after_detection = None
             runtime = self.service.runtime
@@ -252,7 +252,7 @@ class RuntimeSetupDialog(QDialog):
                 if self.busy:
                     return
         self._selected()
-        if value.error or value.cancelled or job.action == "select":
+        if value.error or value.cancelled or job.action == SetupAction.SELECT:
             self.status.setText(
                 (
                     value.error

@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
 
 from dantetl.application.services import SetupCommands
 from dantetl.i18n import mark, tr
-from dantetl.runtime.setup_values import SetupLane
+from dantetl.runtime.setup_values import SetupAction, SetupLane
 from dantetl.translation.models.values import PROFILES, ImportedModel
 from dantetl.ui.localization import localized, localized_item
 
@@ -200,9 +200,9 @@ class ModelImportDialog(QDialog):
         self._completion = job.token
         self._set_busy(False)
         succeeded = not value.error and not value.cancelled
-        if job.action == "register" and succeeded:
+        if job.action == SetupAction.REGISTER and succeeded:
             self.accept()
-        elif job.action == "probe" and succeeded and self.service.probe_result:
+        elif job.action == SetupAction.PROBE and succeeded and self.service.probe_result:
             result = self.service.probe_result
             self.results.setPlainText(
                 tr(

@@ -43,10 +43,21 @@ class SetupLane(StrEnum):
     GUIDE = "guide"
 
 
+class SetupAction(StrEnum):
+    DOWNLOAD = "download"
+    REMOVE = "remove"
+    PROBE = "probe"
+    REGISTER = "register"
+    DETECT = "detect"
+    INSTALL = "install"
+    SELECT = "select"
+    SETUP = "setup"
+
+
 @dataclass(frozen=True)
 class SetupJob:
     token: int = 0
-    action: str = ""
+    action: SetupAction | None = None
     key: str = ""
     busy: bool = False
     cancelling: bool = False

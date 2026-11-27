@@ -20,7 +20,7 @@ from dantetl.application.model_advice import ADVICE, COMPARISON_NOTE
 from dantetl.application.model_values import ModelFile
 from dantetl.application.services import CloudCommands, OllamaCommands, SetupCommands
 from dantetl.i18n import display, mark, tr
-from dantetl.runtime.setup_values import SetupLane
+from dantetl.runtime.setup_values import SetupAction, SetupLane
 from dantetl.translation.models.values import ImportedModel
 from dantetl.ui.cloud_settings import CloudSettings
 from dantetl.ui.controls import InfoButton, set_tone
@@ -398,7 +398,7 @@ class ModelManager(QDialog):
         self.download.setEnabled(not busy and isinstance(value, ModelFile) and not value.imported)
         self.choice.setEnabled(not busy)
         self.ocr.set_busy(busy)
-        if job.action in ("download", "remove") and job.token:
+        if job.action in (SetupAction.DOWNLOAD, SetupAction.REMOVE) and job.token:
             progress = job.progress
             self.operation_status.setText(
                 tr("Cancelling… finishing the current network read.")
