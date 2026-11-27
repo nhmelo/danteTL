@@ -1029,7 +1029,11 @@ class VisualAnalyzer:
         started = time.perf_counter()
         pixels = _pixels(frame)
         if pixels is None:
-            return VisualState(frame, True, message=tr("Visual evidence unavailable; using OCR."))
+            return VisualState(
+                frame=frame,
+                request_ocr=True,
+                message=tr("Visual evidence unavailable; using OCR."),
+            )
         if self._size != frame.geometry.client.size or self._dpi != frame.geometry.dpi:
             self.__init__(self._language)
             self._size = frame.geometry.client.size
@@ -1144,14 +1148,14 @@ class VisualAnalyzer:
             self._sequence = frame.sequence
             self._captured_at = now
         return VisualState(
-            frame,
-            decision.request,
-            hidden,
-            frozenset(blocked),
-            tuple(stable),
-            self._ocr_sequence,
-            (time.perf_counter() - started) * 1000,
-            self._cadence.avoided,
+            frame=frame,
+            request_ocr=decision.request,
+            hidden=hidden,
+            blocked=frozenset(blocked),
+            stable_regions=tuple(stable),
+            ocr_sequence=self._ocr_sequence,
+            duration_ms=(time.perf_counter() - started) * 1000,
+            avoided=self._cadence.avoided,
             presence=TrackPresence(
                 sequence=frame.sequence,
                 absent=frozenset(t for t, a in self._anchors.items() if a.hidden and a.misses >= 2),
@@ -1397,7 +1401,11 @@ class VisualSession:
                     if analyzer is None and not failed:
                         analyzer = VisualAnalyzer(language)
                     state = (
-                        VisualState(job.frame, True, message=tr("Visual checks failed; using OCR."))
+                        VisualState(
+                            frame=job.frame,
+                            request_ocr=True,
+                            message=tr("Visual checks failed; using OCR."),
+                        )
                         if analyzer is None or failed
                         else analyzer.observe(
                             job.frame,
@@ -1413,7 +1421,9 @@ class VisualSession:
                     logger.exception("Visual checks failed; using ordinary OCR")
                     failed = True
                     state = VisualState(
-                        job.frame, True, message=tr("Visual checks failed; using OCR.")
+                        frame=job.frame,
+                        request_ocr=True,
+                        message=tr("Visual checks failed; using OCR."),
                     )
                 # Independent of visual pattern-analysis success. Always hash the OCR
                 # source, never the latest capture, and discard cached evidence on reset.

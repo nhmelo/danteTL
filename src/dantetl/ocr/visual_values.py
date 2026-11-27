@@ -19,7 +19,7 @@ class SettledScan:
     areas: tuple[Rect, ...] | None
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class VisualState:
     frame: CapturedFrame | None = None
     request_ocr: bool = False

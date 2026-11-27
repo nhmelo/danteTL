@@ -595,7 +595,7 @@ def test_worker_coalesces_frames_and_rejects_evidence_after_invalidation(monkeyp
             if frame.sequence == 1:
                 entered.set()
                 assert release.wait(3)
-            return VisualState(frame, True)
+            return VisualState(frame=frame, request_ocr=True)
 
     monkeypatch.setattr("dantetl.ocr.visual.VisualAnalyzer", lambda language: Analyzer())
     notified = []

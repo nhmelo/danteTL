@@ -82,7 +82,7 @@ def test_completed_dense_ocr_waits_off_qt_and_retains_english(app, monkeypatch):
 
     class Analyzer:
         def observe(self, frame, *args):
-            return VisualState(frame, ocr_sequence=args[0].frame.sequence if args[0] else 0)
+            return VisualState(frame=frame, ocr_sequence=args[0].frame.sequence if args[0] else 0)
 
     monkeypatch.setattr(visual, "VisualAnalyzer", lambda language: Analyzer())
     monkeypatch.setattr(visual, "prepare_matching", score)

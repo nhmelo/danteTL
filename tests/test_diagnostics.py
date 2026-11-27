@@ -15,7 +15,7 @@ def source():
 def test_debug_distinguishes_changes_from_actual_scanned_coverage_and_model_wait():
     frame = source()
     changed, scanned = Rect(800, 400, 40, 40), Rect(700, 300, 200, 100)
-    visual = VisualState(frame, changed_areas=(changed,), scan_areas=None)
+    visual = VisualState(frame=frame, changed_areas=(changed,), scan_areas=None)
     ocr = OcrSnapshot(OcrState.READY, OcrResult(frame, (), 25, 10.1, (scanned,)), queue_ms=80)
     translation = TranslationSnapshot(
         TranslationState.READY,
@@ -46,8 +46,8 @@ def test_debug_distinguishes_changes_from_actual_scanned_coverage_and_model_wait
 def test_full_scan_is_explicit_and_resize_discards_old_coverage():
     frame = source()
     ocr = OcrSnapshot(OcrState.READY, OcrResult(frame, (), 100, 10.1))
-    display = debug_display(VisualState(frame), ocr, None, 10.2)
+    display = debug_display(VisualState(frame=frame), ocr, None, 10.2)
     assert display.scanned == (Rect(0, 0, 1280, 720),)
     assert "full, 100%" in display.text
     changed = replace(frame, geometry=replace(frame.geometry, client=Rect(0, 0, 640, 480)))
-    assert debug_display(VisualState(changed), ocr, None, 10.2).scanned == ()
+    assert debug_display(VisualState(frame=changed), ocr, None, 10.2).scanned == ()
