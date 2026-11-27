@@ -133,7 +133,8 @@ def stage_release(
         (work / "previous.sha256").write_text(current.sha256, "ascii")
         return work
     except BaseException:
-        shutil.rmtree(work)
+        # A cleanup failure must not replace the original error; staging names are unique.
+        shutil.rmtree(work, ignore_errors=True)
         raise
 
 

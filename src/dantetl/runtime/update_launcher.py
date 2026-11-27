@@ -69,5 +69,6 @@ def install_release(
             process.close()
             raise
     except BaseException:
-        shutil.rmtree(work)
+        # A cleanup failure must not replace the original error; staging names are unique.
+        shutil.rmtree(work, ignore_errors=True)
         raise

@@ -6,6 +6,7 @@ import os
 import shutil
 import sys
 import time
+import traceback
 from collections.abc import Callable
 from contextlib import contextmanager, suppress
 from pathlib import Path
@@ -170,7 +171,8 @@ def main() -> None:
         # Never remove a backup after an incomplete rollback.
         log = state / "logs/update-error.log"
         log.parent.mkdir(parents=True, exist_ok=True)
-        log.write_text(f"{error}\nStaging directory: {work}\n", "utf-8")
+        details = traceback.format_exc()
+        log.write_text(f"{error}\nStaging directory: {work}\n\n{details}", "utf-8")
         message = f"DanteTL could not finish updating.\n{error}\n\n{log}"
         if departed and install.is_dir() and not (work / "previous").exists():
             if (work / "new").is_dir() and (work / "previous.sha256").is_file():
