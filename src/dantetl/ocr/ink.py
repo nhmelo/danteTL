@@ -58,7 +58,9 @@ def ink(bgr: np.ndarray, area: Rect, scale: float) -> Ink | None:
         crop = cv2.cvtColor(crop, cv2.COLOR_BGRA2BGR)
     if scale < 1:
         size = (max(4, round((x1 - x0) * scale)), max(4, round((y1 - y0) * scale)))
-        crop = cv2.resize(crop, size, interpolation=cv2.INTER_LINEAR)
+        # Area averaging keeps every source pixel's ink; linear sampling skips pixels
+        # past a 2x reduction, so thin strokes would come and go with their position.
+        crop = cv2.resize(crop, size, interpolation=cv2.INTER_AREA)
         scale = size[0] / (x1 - x0)
     else:
         scale = 1.0
