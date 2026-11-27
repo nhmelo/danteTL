@@ -35,6 +35,7 @@ from dantetl.translation.models.values import ImportedModel, ProbeResult
 class SetupDependencies:
     operation: Callable[[Callable[[Progress, threading.Event], None]], ModelOperation]
     install_model: Callable[[ModelBundle, Progress, threading.Event], None]
+    delete_model: Callable[[ModelBundle, Progress, threading.Event], None]
     remove_import: Callable[[ImportedModel], None]
     save_import: Callable[[ImportedModel], None]
     probe: Callable[[Path, str, str, threading.Event], ImportTest]
@@ -139,6 +140,19 @@ class SetupCoordinator:
             SetupAction.DOWNLOAD,
             key,
             lambda progress, cancel: self._dependencies.install_model(bundle, progress, cancel),
+        )
+
+    def delete(self, key: str) -> bool:
+        """Delete a downloaded translation bundle's files; included and imported files stay."""
+        bundle = self._models.get(key)
+        file = next((f for f in self.files if f.key == key), None)
+        if bundle is None or bundle.category != "translation" or file is None or file.included:
+            return False
+        return self._start(
+            SetupLane.MODELS,
+            SetupAction.DELETE,
+            key,
+            lambda progress, cancel: self._dependencies.delete_model(bundle, progress, cancel),
         )
 
     def remove(self, key: str) -> bool:
@@ -417,6 +431,7 @@ class SetupCoordinator:
             # step fails or is cancelled. Discovery reports what actually reached disk.
             if job.action in {
                 SetupAction.DOWNLOAD,
+                SetupAction.DELETE,
                 SetupAction.REMOVE,
                 SetupAction.REGISTER,
                 SetupAction.INSTALL,

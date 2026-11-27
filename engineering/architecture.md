@@ -788,7 +788,9 @@ probe; successful provider initialization is not validation.
 Imported GGUFs use a separate bounded adapter/profile and explicit review/register. Inspect/hash on a
 worker, test in a contained child after translator/classifier drain. Require actual GPU offload, complete
 outputs, supported templates and empty reasoning. Cache identity includes content/profile/template/device/
-decoding; recheck files on load. Never delete user-owned model files. Curated models reuse the adapter
+decoding; recheck files on load. Never delete user-owned model files. After confirmation, a downloaded
+curated or Gemma translation model can delete its pinned files and partials under its download
+lock. Every file is renamed first; any refused rename restores the rest and reports it in use. Curated models reuse the adapter
 without import registration. Preserve built-in prompts and distinct IDs; separate download size from RAM.
 
 ## Packaging, updates and persistence

@@ -291,6 +291,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>एक अन्य DanteTL इंस्टेंस पहले से रनटाइम इंस्टॉल कर रहा है।</translation>
     </message>
     <message>
+      <source>Another DanteTL instance is downloading this model.</source>
+      <translation>एक अन्य DanteTL इंस्टेंस यह मॉडल डाउनलोड कर रहा है।</translation>
+    </message>
+    <message>
       <source>Another DanteTL instance is updating this ChatGPT account.</source>
       <translation>एक अन्य DanteTL इंस्टेंस इस ChatGPT खाते को अपडेट कर रहा है।</translation>
     </message>
@@ -1233,6 +1237,18 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Delete</source>
       <translation>हटाएँ</translation>
+    </message>
+    <message>
+      <source>Delete model files…</source>
+      <translation>मॉडल फ़ाइलें हटाएँ…</translation>
+    </message>
+    <message>
+      <source>Delete the downloaded files for {name} ({size})? You can download them again later.</source>
+      <translation>{name} की डाउनलोड की गई फ़ाइलें ({size}) हटाएँ? आप इन्हें बाद में फिर से डाउनलोड कर सकते हैं।</translation>
+    </message>
+    <message>
+      <source>Deleting model files…</source>
+      <translation>मॉडल फ़ाइलें हटाई जा रही हैं…</translation>
     </message>
     <message>
       <source>Demo opened. Refresh the window list and select DanteTL Demo.</source>
@@ -2193,6 +2209,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Model files are present. Integrity is checked before use.</source>
       <translation>मॉडल फ़ाइलें मौजूद हैं। उपयोग से पहले अखंडता जाँची जाती है।</translation>
+    </message>
+    <message>
+      <source>Model files deleted.</source>
+      <translation>मॉडल फ़ाइलें हटा दी गईं।</translation>
     </message>
     <message>
       <source>Model files ready and verified.</source>
@@ -4289,6 +4309,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{name} ({value:.0f} MB). Choose a translator:</source>
       <translation>{name} ({value:.0f} MB)। एक अनुवादक चुनें:</translation>
+    </message>
+    <message>
+      <source>{name} is in use. Choose another translation model or stop translation, then try again.</source>
+      <translation>{name} उपयोग में है। कोई अन्य अनुवाद मॉडल चुनें या अनुवाद रोकें, फिर से प्रयास करें।</translation>
     </message>
     <message>
       <source>{name} key</source>

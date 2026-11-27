@@ -291,6 +291,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>Другой экземпляр DanteTL уже устанавливает runtime.</translation>
     </message>
     <message>
+      <source>Another DanteTL instance is downloading this model.</source>
+      <translation>Другой экземпляр DanteTL загружает эту модель.</translation>
+    </message>
+    <message>
       <source>Another DanteTL instance is updating this ChatGPT account.</source>
       <translation>Другой экземпляр DanteTL обновляет этот аккаунт ChatGPT.</translation>
     </message>
@@ -1233,6 +1237,18 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Delete</source>
       <translation>Удалить</translation>
+    </message>
+    <message>
+      <source>Delete model files…</source>
+      <translation>Удалить файлы модели…</translation>
+    </message>
+    <message>
+      <source>Delete the downloaded files for {name} ({size})? You can download them again later.</source>
+      <translation>Удалить загруженные файлы {name} ({size})? Позже их можно будет загрузить снова.</translation>
+    </message>
+    <message>
+      <source>Deleting model files…</source>
+      <translation>Удаление файлов модели…</translation>
     </message>
     <message>
       <source>Demo opened. Refresh the window list and select DanteTL Demo.</source>
@@ -2193,6 +2209,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Model files are present. Integrity is checked before use.</source>
       <translation>Файлы модели присутствуют. Целостность проверяется перед использованием.</translation>
+    </message>
+    <message>
+      <source>Model files deleted.</source>
+      <translation>Файлы модели удалены.</translation>
     </message>
     <message>
       <source>Model files ready and verified.</source>
@@ -4289,6 +4309,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{name} ({value:.0f} MB). Choose a translator:</source>
       <translation>{name} ({value:.0f} МБ). Выберите переводчик:</translation>
+    </message>
+    <message>
+      <source>{name} is in use. Choose another translation model or stop translation, then try again.</source>
+      <translation>{name} используется. Выберите другую модель перевода или остановите перевод, затем повторите попытку.</translation>
     </message>
     <message>
       <source>{name} key</source>

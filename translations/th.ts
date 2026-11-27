@@ -291,6 +291,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>มีอีกอินสแตนซ์ของ DanteTL กำลังติดตั้งรันไทม์อยู่แล้ว</translation>
     </message>
     <message>
+      <source>Another DanteTL instance is downloading this model.</source>
+      <translation>อีกอินสแตนซ์ของ DanteTL กำลังดาวน์โหลดโมเดลนี้</translation>
+    </message>
+    <message>
       <source>Another DanteTL instance is updating this ChatGPT account.</source>
       <translation>มีอีกอินสแตนซ์ของ DanteTL กำลังอัปเดตบัญชี ChatGPT นี้อยู่</translation>
     </message>
@@ -1233,6 +1237,18 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Delete</source>
       <translation>ลบ</translation>
+    </message>
+    <message>
+      <source>Delete model files…</source>
+      <translation>ลบไฟล์โมเดล…</translation>
+    </message>
+    <message>
+      <source>Delete the downloaded files for {name} ({size})? You can download them again later.</source>
+      <translation>ลบไฟล์ที่ดาวน์โหลดของ {name} ({size}) หรือไม่? คุณสามารถดาวน์โหลดอีกครั้งได้ภายหลัง</translation>
+    </message>
+    <message>
+      <source>Deleting model files…</source>
+      <translation>กำลังลบไฟล์โมเดล…</translation>
     </message>
     <message>
       <source>Demo opened. Refresh the window list and select DanteTL Demo.</source>
@@ -2193,6 +2209,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Model files are present. Integrity is checked before use.</source>
       <translation>ไฟล์โมเดลมีอยู่ ระบบจะตรวจสอบความสมบูรณ์ก่อนใช้งาน</translation>
+    </message>
+    <message>
+      <source>Model files deleted.</source>
+      <translation>ลบไฟล์โมเดลแล้ว</translation>
     </message>
     <message>
       <source>Model files ready and verified.</source>
@@ -4289,6 +4309,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{name} ({value:.0f} MB). Choose a translator:</source>
       <translation>{name} ({value:.0f} MB) เลือกตัวแปลภาษา:</translation>
+    </message>
+    <message>
+      <source>{name} is in use. Choose another translation model or stop translation, then try again.</source>
+      <translation>{name} กำลังถูกใช้งาน เลือกโมเดลแปลอื่นหรือหยุดการแปล แล้วลองอีกครั้ง</translation>
     </message>
     <message>
       <source>{name} key</source>

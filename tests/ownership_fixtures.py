@@ -189,7 +189,7 @@ class Replay:
             return value
 
         self.dependencies = SetupDependencies(
-            operation, Mock(), Mock(), Mock(), Mock(), Mock(), Mock(), Mock(), Mock()
+            operation, Mock(), Mock(), Mock(), Mock(), Mock(), Mock(), Mock(), Mock(), Mock()
         )
         self.setup = SetupCoordinator(self.inventory, (), PROFILES, self.dependencies)
 

@@ -291,6 +291,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Một phiên bản DanteTL khác đang cài đặt runtime.</translation>
     </message>
     <message>
+      <source>Another DanteTL instance is downloading this model.</source>
+      <translation>Một phiên bản DanteTL khác đang tải xuống mô hình này.</translation>
+    </message>
+    <message>
       <source>Another DanteTL instance is updating this ChatGPT account.</source>
       <translation>Một phiên bản DanteTL khác đang cập nhật tài khoản ChatGPT này.</translation>
     </message>
@@ -1233,6 +1237,18 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Delete</source>
       <translation>Xóa</translation>
+    </message>
+    <message>
+      <source>Delete model files…</source>
+      <translation>Xóa tệp mô hình…</translation>
+    </message>
+    <message>
+      <source>Delete the downloaded files for {name} ({size})? You can download them again later.</source>
+      <translation>Xóa các tệp đã tải xuống của {name} ({size})? Bạn có thể tải lại sau.</translation>
+    </message>
+    <message>
+      <source>Deleting model files…</source>
+      <translation>Đang xóa tệp mô hình…</translation>
     </message>
     <message>
       <source>Demo opened. Refresh the window list and select DanteTL Demo.</source>
@@ -2193,6 +2209,10 @@ Chi tiết có trong %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Model files are present. Integrity is checked before use.</source>
       <translation>Các tệp mô hình đã có mặt. Tính toàn vẹn được kiểm tra trước khi sử dụng.</translation>
+    </message>
+    <message>
+      <source>Model files deleted.</source>
+      <translation>Đã xóa tệp mô hình.</translation>
     </message>
     <message>
       <source>Model files ready and verified.</source>
@@ -4289,6 +4309,10 @@ Kiến trúc: {architecture} · Định dạng: {value}
     <message>
       <source>{name} ({value:.0f} MB). Choose a translator:</source>
       <translation>{name} ({value:.0f} MB). Chọn trình dịch:</translation>
+    </message>
+    <message>
+      <source>{name} is in use. Choose another translation model or stop translation, then try again.</source>
+      <translation>{name} đang được sử dụng. Hãy chọn mô hình dịch khác hoặc dừng dịch, rồi thử lại.</translation>
     </message>
     <message>
       <source>{name} key</source>

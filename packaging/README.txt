@@ -102,6 +102,7 @@ are preserved. Prior app versions are retained for rollback and running instance
 Settings > Cache > Remove unused runtime files deletes older runtimes and runtime
 downloads no longer needed; the selected runtime, the newest one per acceleration
 type and all models are kept. Installing a runtime also removes them automatically.
+Settings > Local models > Delete model files removes a downloaded translation model.
 Moving the extracted app folder does not move or delete your downloads.
 Uninstall: first use Forget key / Sign out for saved cloud connections. Deleting
 folders does not remove Windows Credential Manager keys or revoke provider access.

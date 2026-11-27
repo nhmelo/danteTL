@@ -3,6 +3,7 @@
 import hashlib
 import json
 import logging
+import os
 import platform
 import threading
 from collections.abc import Callable
@@ -10,10 +11,12 @@ from dataclasses import dataclass, replace
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Literal
+from uuid import uuid4
 
 from dantetl import paths
 from dantetl.atomic_file import replace_file
-from dantetl.i18n import CatalogText, mark, tr
+from dantetl.file_lock import file_lock
+from dantetl.i18n import CatalogText, display, mark, tr
 from dantetl.languages.selection import DEFAULT_SOURCE
 from dantetl.languages.source import SourceLanguage
 from dantetl.paths import is_standalone, state_root
@@ -156,6 +159,60 @@ def install_model(bundle: ModelBundle, progress: Progress, cancel: threading.Eve
         _install_asset(bundle, asset, destination, completed, progress, cancel)
         completed += asset.size
     progress(ModelProgress(tr("Model files ready and verified."), bundle.size, bundle.size))
+
+
+def delete_model(bundle: ModelBundle, progress: Progress, cancel: threading.Event) -> None:
+    """Explicit action only. Removes this bundle's pinned downloads, never other files."""
+    check_cancel(cancel)
+    directory = bundle.directory
+    if is_standalone() and directory.resolve().is_relative_to(paths.resource_root().resolve()):
+        raise RuntimeError(
+            tr("App resources are read-only. Repair models in AppData or a user folder.")
+        )
+    progress(ModelProgress(tr("Deleting model files…")))
+    if directory.is_dir():
+        # The download lock excludes another DanteTL copy writing these files.
+        with file_lock(
+            directory / ".download.lock",
+            timeout=0,
+            busy_message=tr("Another DanteTL instance is downloading this model."),
+        ):
+            _delete_assets(bundle)
+    progress(ModelProgress(tr("Model files deleted.")))
+
+
+def _delete_assets(bundle: ModelBundle) -> None:
+    """Rename every file first, so a model still loaded by a worker is kept whole."""
+    moved: list[tuple[Path, Path]] = []
+
+    def restore(pending: list[tuple[Path, Path]], error: OSError) -> None:
+        for temporary, path in reversed(pending):
+            os.replace(temporary, path)
+        raise RuntimeError(
+            tr(
+                "{name} is in use. Choose another translation model or stop translation, "
+                "then try again.",
+                name=display(bundle.name),
+            )
+        ) from error
+
+    for asset in bundle.assets:
+        for path in (
+            bundle.directory / asset.filename,
+            bundle.directory / f".{asset.sha256}.part",
+        ):
+            if path.is_file() and not path.is_symlink():
+                temporary = path.with_name(f".{uuid4().hex}.deleting")
+                try:
+                    os.replace(path, temporary)
+                except OSError as error:
+                    restore(moved, error)
+                moved.append((temporary, path))
+    for index, (temporary, _) in enumerate(moved):
+        try:
+            temporary.unlink()
+        except OSError as error:
+            restore(moved[index:], error)
 
 
 def _install_asset(

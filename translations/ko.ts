@@ -291,6 +291,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>다른 DanteTL 인스턴스가 이미 런타임을 설치하고 있습니다.</translation>
     </message>
     <message>
+      <source>Another DanteTL instance is downloading this model.</source>
+      <translation>다른 DanteTL 인스턴스가 이 모델을 다운로드하고 있습니다.</translation>
+    </message>
+    <message>
       <source>Another DanteTL instance is updating this ChatGPT account.</source>
       <translation>다른 DanteTL 인스턴스가 이 ChatGPT 계정을 업데이트하고 있습니다.</translation>
     </message>
@@ -1233,6 +1237,18 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Delete</source>
       <translation>삭제</translation>
+    </message>
+    <message>
+      <source>Delete model files…</source>
+      <translation>모델 파일 삭제…</translation>
+    </message>
+    <message>
+      <source>Delete the downloaded files for {name} ({size})? You can download them again later.</source>
+      <translation>{name}의 다운로드된 파일({size})을 삭제할까요? 나중에 다시 다운로드할 수 있습니다.</translation>
+    </message>
+    <message>
+      <source>Deleting model files…</source>
+      <translation>모델 파일 삭제 중…</translation>
     </message>
     <message>
       <source>Demo opened. Refresh the window list and select DanteTL Demo.</source>
@@ -2193,6 +2209,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Model files are present. Integrity is checked before use.</source>
       <translation>모델 파일이 있습니다. 사용 전에 무결성을 확인합니다.</translation>
+    </message>
+    <message>
+      <source>Model files deleted.</source>
+      <translation>모델 파일을 삭제했습니다.</translation>
     </message>
     <message>
       <source>Model files ready and verified.</source>
@@ -4289,6 +4309,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{name} ({value:.0f} MB). Choose a translator:</source>
       <translation>{name} ({value:.0f} MB). 번역기를 선택하세요:</translation>
+    </message>
+    <message>
+      <source>{name} is in use. Choose another translation model or stop translation, then try again.</source>
+      <translation>{name}이(가) 사용 중입니다. 다른 번역 모델을 선택하거나 번역을 중지한 후 다시 시도하세요.</translation>
     </message>
     <message>
       <source>{name} key</source>

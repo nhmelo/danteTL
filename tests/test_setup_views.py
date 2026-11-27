@@ -414,3 +414,57 @@ def test_five_gpu_entries_wrap_on_resize_and_large_inventories_remain_scrollable
         assert not view.verticalScrollBar().maximum()
     finally:
         shiboken6.delete(view)
+
+
+def _answer_prompt(button, response):
+    from PySide6.QtCore import QTimer
+    from PySide6.QtWidgets import QApplication
+
+    prompts = []
+
+    def respond():
+        dialog = QApplication.activeModalWidget()
+        if isinstance(dialog, QMessageBox):
+            prompts.append(dialog.text())
+            dialog.done(response)
+
+    QTimer.singleShot(0, respond)
+    button.click()
+    assert len(prompts) == 1
+    return prompts[0]
+
+
+def test_downloaded_translation_model_is_deleted_only_after_confirmation(app, tmp_path):
+    import hashlib
+
+    from ui_fixtures import model_manager, settle_setup
+
+    from dantetl.runtime.assets import ModelAsset
+    from dantetl.runtime.model_store import ModelBundle
+
+    asset = ModelAsset(
+        "fixture", "revision", "weights.gguf", hashlib.sha256(b"good").hexdigest(), 4
+    )
+    gemma = ModelBundle("gemma", "Gemma fixture", tmp_path / "gemma", (asset,), "Translates")
+    ocr = replace(gemma, key="ocr", directory=tmp_path / "ocr", category="recognition")
+    for directory in (gemma.directory, ocr.directory):
+        directory.mkdir()
+        (directory / "weights.gguf").write_bytes(b"good")
+    (gemma.directory / "notes.txt").write_text("user file")
+    view = model_manager((ocr, gemma))
+    try:
+        assert view.choice.currentData().key == "gemma" and not view.delete_button.isHidden()
+        prompt = _answer_prompt(view.delete_button, QMessageBox.StandardButton.Cancel)
+        assert "Gemma fixture" in prompt and "0 MB" in prompt
+        assert not view.busy and (gemma.directory / "weights.gguf").is_file()
+        _answer_prompt(view.delete_button, QMessageBox.StandardButton.Yes)
+        settle_setup(view.service)
+        view.refresh_view()
+        assert not (gemma.directory / "weights.gguf").exists()
+        assert (gemma.directory / "notes.txt").is_file()
+        assert view.delete_button.isHidden() and view.download.text() == "Download"
+        assert view.operation_status.text() == "Model files deleted."
+        assert not view.service.delete("ocr")  # Recognition files are not offered for deletion.
+        assert (ocr.directory / "weights.gguf").is_file()
+    finally:
+        shiboken6.delete(view)

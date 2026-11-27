@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QDialog,
     QHBoxLayout,
     QLabel,
+    QMessageBox,
     QProgressBar,
     QPushButton,
     QScrollArea,
@@ -26,7 +27,7 @@ from dantetl.ui.cloud_settings import CloudSettings
 from dantetl.ui.controls import InfoButton, set_tone
 from dantetl.ui.localization import localized, localized_item, on_language_change
 from dantetl.ui.model_import_dialog import ModelImportDialog
-from dantetl.ui.model_summary import ModelSummary
+from dantetl.ui.model_summary import ModelSummary, file_size
 from dantetl.ui.ocr_model_settings import OcrModelSettings
 from dantetl.ui.ollama_settings import OllamaSettings
 
@@ -126,7 +127,13 @@ class ModelManager(QDialog):
         self.download = localized(QPushButton(), text=mark("Download"))
         self.download.setEnabled(bool(service.files))
         self.download.clicked.connect(self._download)
-        layout.addWidget(self.download)
+        self.delete_button = localized(QPushButton(), text=mark("Delete model files…"))
+        self.delete_button.clicked.connect(self._delete)
+        downloads = QHBoxLayout()
+        # Equal stretch aligns with the row below; a hidden Delete leaves Download full width.
+        downloads.addWidget(self.download, 1)
+        downloads.addWidget(self.delete_button, 1)
+        layout.addLayout(downloads)
         self.runtime_button = localized(QPushButton(), text=mark("Set up acceleration…"))
         localized(
             self.runtime_button,
@@ -134,10 +141,10 @@ class ModelManager(QDialog):
         )
         self.runtime_button.clicked.connect(self.runtime_requested.emit)
         imports = QHBoxLayout()
-        imports.addWidget(self.runtime_button)
+        imports.addWidget(self.runtime_button, 1)
         self.import_button = localized(QPushButton(), text=mark("Import GGUF…"))
         self.import_button.clicked.connect(lambda: self._import())
-        imports.addWidget(self.import_button)
+        imports.addWidget(self.import_button, 1)
         layout.addLayout(imports)
         imported_actions = QHBoxLayout()
         self.locate_button = localized(QPushButton(), text=mark("Locate file…"))
@@ -266,6 +273,34 @@ class ModelManager(QDialog):
         if isinstance(value, ModelFile) and self.service.remove(value.key):
             self.refresh_view()
 
+    def _delete(self) -> None:
+        value = self.choice.currentData()
+        if not isinstance(value, ModelFile) or self.busy:
+            return
+        prompt = QMessageBox(self)
+        prompt.setWindowTitle(tr("Local models"))
+        prompt.setTextFormat(Qt.TextFormat.PlainText)
+        prompt.setText(
+            tr(
+                "Delete the downloaded files for {name} ({size})? "
+                "You can download them again later.",
+                name=display(value.name),
+                size=file_size(value.size),
+            )
+        )
+        prompt.setStandardButtons(
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel
+        )
+        prompt.setDefaultButton(QMessageBox.StandardButton.Cancel)
+        answer = prompt.exec()
+        prompt.deleteLater()
+        if answer != QMessageBox.StandardButton.Yes or not self.service.delete(value.key):
+            return
+        self.error_message = ""
+        self.operation_status.setText(tr("Deleting model files…"))
+        self.operation_status.show()
+        self.refresh_view()
+
     def _selected(self) -> None:
         self._refresh_badges()
         bundle = self.choice.currentData()
@@ -273,6 +308,12 @@ class ModelManager(QDialog):
         self.locate_button.setVisible(imported)
         self.remove_button.setVisible(imported)
         self.download.setVisible(not imported)
+        self.delete_button.setVisible(
+            isinstance(bundle, ModelFile)
+            and not imported
+            and bundle.present
+            and not bundle.included
+        )
         if isinstance(bundle, ModelFile) and bundle.imported:
             self.summary.set_model(bundle.key, bundle.size, True, imported=True)
             self.license.setText(tr("License: check the imported model's source."))
@@ -394,11 +435,15 @@ class ModelManager(QDialog):
         self.import_button.setEnabled(not busy)
         self.locate_button.setEnabled(not busy)
         self.remove_button.setEnabled(not busy)
+        self.delete_button.setEnabled(not busy)
         value = self.choice.currentData()
         self.download.setEnabled(not busy and isinstance(value, ModelFile) and not value.imported)
         self.choice.setEnabled(not busy)
         self.ocr.set_busy(busy)
-        if job.action in (SetupAction.DOWNLOAD, SetupAction.REMOVE) and job.token:
+        if (
+            job.action in (SetupAction.DOWNLOAD, SetupAction.DELETE, SetupAction.REMOVE)
+            and job.token
+        ):
             progress = job.progress
             self.operation_status.setText(
                 tr("Cancelling… finishing the current network read.")

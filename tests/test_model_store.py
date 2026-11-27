@@ -135,3 +135,28 @@ def test_receipt_is_runtime_and_machine_specific_and_only_written_after_success(
     assert store.is_prepared(cuda) and not store.is_prepared(vulkan)
     monkeypatch.setattr(store, "version", lambda _: "different-runtime")
     assert store.preparation_id(model, "cuda") != cuda
+
+
+def test_delete_removes_only_pinned_downloads_and_keeps_open_files_whole(tmp_path):
+    model = bundle(tmp_path)
+    asset = model.assets[0]
+    (tmp_path / "weights").write_bytes(b"good")
+    (tmp_path / f".{asset.sha256}.part").write_bytes(b"go")
+    (tmp_path / "notes.txt").write_text("user file")
+    with (tmp_path / "weights").open("rb"), pytest.raises(RuntimeError, match="in use"):
+        store.delete_model(model, lambda _: None, threading.Event())
+    assert (tmp_path / "weights").read_bytes() == b"good"
+    assert (tmp_path / f".{asset.sha256}.part").read_bytes() == b"go"
+    progress = []
+    store.delete_model(model, progress.append, threading.Event())
+    assert not model.present() and progress[-1].message == "Model files deleted."
+    assert sorted(p.name for p in tmp_path.iterdir()) == [".download.lock", "notes.txt"]
+    store.delete_model(model, lambda _: None, threading.Event())  # Nothing left to delete.
+
+
+def test_delete_waits_for_no_other_writer(tmp_path):
+    model = bundle(tmp_path)
+    (tmp_path / "weights").write_bytes(b"good")
+    with store.file_lock(tmp_path / ".download.lock"), pytest.raises(OSError, match="downloading"):
+        store.delete_model(model, lambda _: None, threading.Event())
+    assert model.present()

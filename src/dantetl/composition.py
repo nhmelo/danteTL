@@ -139,7 +139,7 @@ def setup_coordinator(inventory: ModelInventory, models: tuple[ModelBundle, ...]
     from dantetl.runtime.hardware import detect_adapters
     from dantetl.runtime.hardware_values import HardwareStatus, recommended_profile
     from dantetl.runtime.llama import installed_device
-    from dantetl.runtime.model_store import ModelOperation, install_model
+    from dantetl.runtime.model_store import ModelOperation, delete_model, install_model
     from dantetl.runtime.ocr import gpu_runtime_installed
     from dantetl.runtime.setup import (
         install_runtime,
@@ -173,6 +173,7 @@ def setup_coordinator(inventory: ModelInventory, models: tuple[ModelBundle, ...]
         SetupDependencies(
             ModelOperation,
             install_model,
+            delete_model,
             partial(save_registration, remove=True),
             save_registration,
             ImportTest,

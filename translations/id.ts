@@ -291,6 +291,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Instance DanteTL lain sedang menginstal runtime.</translation>
     </message>
     <message>
+      <source>Another DanteTL instance is downloading this model.</source>
+      <translation>Instance DanteTL lain sedang mengunduh model ini.</translation>
+    </message>
+    <message>
       <source>Another DanteTL instance is updating this ChatGPT account.</source>
       <translation>Instance DanteTL lain sedang memperbarui akun ChatGPT ini.</translation>
     </message>
@@ -1233,6 +1237,18 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Delete</source>
       <translation>Hapus</translation>
+    </message>
+    <message>
+      <source>Delete model files…</source>
+      <translation>Hapus file model…</translation>
+    </message>
+    <message>
+      <source>Delete the downloaded files for {name} ({size})? You can download them again later.</source>
+      <translation>Hapus file unduhan untuk {name} ({size})? Anda dapat mengunduhnya lagi nanti.</translation>
+    </message>
+    <message>
+      <source>Deleting model files…</source>
+      <translation>Menghapus file model…</translation>
     </message>
     <message>
       <source>Demo opened. Refresh the window list and select DanteTL Demo.</source>
@@ -2193,6 +2209,10 @@ Detail ada di %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Model files are present. Integrity is checked before use.</source>
       <translation>File model tersedia. Integritas diperiksa sebelum digunakan.</translation>
+    </message>
+    <message>
+      <source>Model files deleted.</source>
+      <translation>File model dihapus.</translation>
     </message>
     <message>
       <source>Model files ready and verified.</source>
@@ -4289,6 +4309,10 @@ Arsitektur: {architecture} · Format: {value}
     <message>
       <source>{name} ({value:.0f} MB). Choose a translator:</source>
       <translation>{name} ({value:.0f} MB). Pilih penerjemah:</translation>
+    </message>
+    <message>
+      <source>{name} is in use. Choose another translation model or stop translation, then try again.</source>
+      <translation>{name} sedang digunakan. Pilih model terjemahan lain atau hentikan terjemahan, lalu coba lagi.</translation>
     </message>
     <message>
       <source>{name} key</source>

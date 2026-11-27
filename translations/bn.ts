@@ -291,6 +291,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>অন্য একটি DanteTL ইনস্ট্যান্স ইতিমধ্যে একটি রানটাইম ইনস্টল করছে।</translation>
     </message>
     <message>
+      <source>Another DanteTL instance is downloading this model.</source>
+      <translation>অন্য একটি DanteTL ইনস্ট্যান্স এই মডেলটি ডাউনলোড করছে।</translation>
+    </message>
+    <message>
       <source>Another DanteTL instance is updating this ChatGPT account.</source>
       <translation>অন্য একটি DanteTL ইনস্ট্যান্স এই ChatGPT অ্যাকাউন্ট আপডেট করছে।</translation>
     </message>
@@ -1233,6 +1237,18 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Delete</source>
       <translation>মুছুন</translation>
+    </message>
+    <message>
+      <source>Delete model files…</source>
+      <translation>মডেল ফাইল মুছুন…</translation>
+    </message>
+    <message>
+      <source>Delete the downloaded files for {name} ({size})? You can download them again later.</source>
+      <translation>{name}-এর ডাউনলোড করা ফাইলগুলো ({size}) মুছবেন? পরে আবার ডাউনলোড করতে পারবেন।</translation>
+    </message>
+    <message>
+      <source>Deleting model files…</source>
+      <translation>মডেল ফাইল মোছা হচ্ছে…</translation>
     </message>
     <message>
       <source>Demo opened. Refresh the window list and select DanteTL Demo.</source>
@@ -2193,6 +2209,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Model files are present. Integrity is checked before use.</source>
       <translation>মডেল ফাইল উপস্থিত আছে। ব্যবহারের আগে অখণ্ডতা যাচাই করা হয়।</translation>
+    </message>
+    <message>
+      <source>Model files deleted.</source>
+      <translation>মডেল ফাইল মোছা হয়েছে।</translation>
     </message>
     <message>
       <source>Model files ready and verified.</source>
@@ -4289,6 +4309,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{name} ({value:.0f} MB). Choose a translator:</source>
       <translation>{name} ({value:.0f} MB)। একটি অনুবাদক বেছে নিন:</translation>
+    </message>
+    <message>
+      <source>{name} is in use. Choose another translation model or stop translation, then try again.</source>
+      <translation>{name} ব্যবহৃত হচ্ছে। অন্য একটি অনুবাদ মডেল বেছে নিন বা অনুবাদ বন্ধ করুন, তারপর আবার চেষ্টা করুন।</translation>
     </message>
     <message>
       <source>{name} key</source>

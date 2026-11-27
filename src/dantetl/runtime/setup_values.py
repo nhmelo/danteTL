@@ -45,6 +45,7 @@ class SetupLane(StrEnum):
 
 class SetupAction(StrEnum):
     DOWNLOAD = "download"
+    DELETE = "delete"
     REMOVE = "remove"
     PROBE = "probe"
     REGISTER = "register"

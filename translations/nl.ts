@@ -291,6 +291,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Een andere DanteTL-instantie installeert al een runtime.</translation>
     </message>
     <message>
+      <source>Another DanteTL instance is downloading this model.</source>
+      <translation>Een andere DanteTL-instantie downloadt dit model.</translation>
+    </message>
+    <message>
       <source>Another DanteTL instance is updating this ChatGPT account.</source>
       <translation>Een andere DanteTL-instantie werkt dit ChatGPT-account bij.</translation>
     </message>
@@ -1233,6 +1237,18 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Delete</source>
       <translation>Verwijderen</translation>
+    </message>
+    <message>
+      <source>Delete model files…</source>
+      <translation>Modelbestanden verwijderen…</translation>
+    </message>
+    <message>
+      <source>Delete the downloaded files for {name} ({size})? You can download them again later.</source>
+      <translation>De gedownloade bestanden voor {name} ({size}) verwijderen? Je kunt ze later opnieuw downloaden.</translation>
+    </message>
+    <message>
+      <source>Deleting model files…</source>
+      <translation>Modelbestanden verwijderen…</translation>
     </message>
     <message>
       <source>Demo opened. Refresh the window list and select DanteTL Demo.</source>
@@ -2193,6 +2209,10 @@ Details staan in %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Model files are present. Integrity is checked before use.</source>
       <translation>Modelbestanden zijn aanwezig. Integriteit wordt vóór gebruik gecontroleerd.</translation>
+    </message>
+    <message>
+      <source>Model files deleted.</source>
+      <translation>Modelbestanden verwijderd.</translation>
     </message>
     <message>
       <source>Model files ready and verified.</source>
@@ -4289,6 +4309,10 @@ Architectuur: {architecture} · Formaat: {value}
     <message>
       <source>{name} ({value:.0f} MB). Choose a translator:</source>
       <translation>{name} ({value:.0f} MB). Kies een vertaler:</translation>
+    </message>
+    <message>
+      <source>{name} is in use. Choose another translation model or stop translation, then try again.</source>
+      <translation>{name} is in gebruik. Kies een ander vertaalmodel of stop de vertaling en probeer het opnieuw.</translation>
     </message>
     <message>
       <source>{name} key</source>

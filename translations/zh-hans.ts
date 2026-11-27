@@ -291,6 +291,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
       <translation>另一个 DanteTL 实例正在安装运行时。</translation>
     </message>
     <message>
+      <source>Another DanteTL instance is downloading this model.</source>
+      <translation>另一个 DanteTL 实例正在下载此模型。</translation>
+    </message>
+    <message>
       <source>Another DanteTL instance is updating this ChatGPT account.</source>
       <translation>另一个 DanteTL 实例正在更新此 ChatGPT 账户。</translation>
     </message>
@@ -1233,6 +1237,18 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Delete</source>
       <translation>删除</translation>
+    </message>
+    <message>
+      <source>Delete model files…</source>
+      <translation>删除模型文件…</translation>
+    </message>
+    <message>
+      <source>Delete the downloaded files for {name} ({size})? You can download them again later.</source>
+      <translation>要删除 {name} 已下载的文件（{size}）吗？以后可以重新下载。</translation>
+    </message>
+    <message>
+      <source>Deleting model files…</source>
+      <translation>正在删除模型文件…</translation>
     </message>
     <message>
       <source>Demo opened. Refresh the window list and select DanteTL Demo.</source>
@@ -2193,6 +2209,10 @@ Details are in %LOCALAPPDATA%/DanteTL/logs/app.log.</source>
     <message>
       <source>Model files are present. Integrity is checked before use.</source>
       <translation>模型文件已就位。使用前会检查完整性。</translation>
+    </message>
+    <message>
+      <source>Model files deleted.</source>
+      <translation>模型文件已删除。</translation>
     </message>
     <message>
       <source>Model files ready and verified.</source>
@@ -4289,6 +4309,10 @@ Architecture: {architecture} · Format: {value}
     <message>
       <source>{name} ({value:.0f} MB). Choose a translator:</source>
       <translation>{name} ({value:.0f} MB)。选择翻译器：</translation>
+    </message>
+    <message>
+      <source>{name} is in use. Choose another translation model or stop translation, then try again.</source>
+      <translation>{name} 正在使用中。请选择其他翻译模型或停止翻译，然后重试。</translation>
     </message>
     <message>
       <source>{name} key</source>

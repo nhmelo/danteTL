@@ -291,6 +291,10 @@ Los detalles están en %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
       <translation>Otra instancia de DanteTL ya está instalando un runtime.</translation>
     </message>
     <message>
+      <source>Another DanteTL instance is downloading this model.</source>
+      <translation>Otra instancia de DanteTL está descargando este modelo.</translation>
+    </message>
+    <message>
       <source>Another DanteTL instance is updating this ChatGPT account.</source>
       <translation>Otra instancia de DanteTL está actualizando esta cuenta de ChatGPT.</translation>
     </message>
@@ -1233,6 +1237,18 @@ Los detalles están en %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Delete</source>
       <translation>Eliminar</translation>
+    </message>
+    <message>
+      <source>Delete model files…</source>
+      <translation>Eliminar archivos del modelo…</translation>
+    </message>
+    <message>
+      <source>Delete the downloaded files for {name} ({size})? You can download them again later.</source>
+      <translation>¿Eliminar los archivos descargados de {name} ({size})? Podrás descargarlos de nuevo más adelante.</translation>
+    </message>
+    <message>
+      <source>Deleting model files…</source>
+      <translation>Eliminando archivos del modelo…</translation>
     </message>
     <message>
       <source>Demo opened. Refresh the window list and select DanteTL Demo.</source>
@@ -2193,6 +2209,10 @@ Los detalles están en %LOCALAPPDATA%/DanteTL/logs/app.log.</translation>
     <message>
       <source>Model files are present. Integrity is checked before use.</source>
       <translation>Los archivos del modelo están presentes. La integridad se verifica antes de usarlos.</translation>
+    </message>
+    <message>
+      <source>Model files deleted.</source>
+      <translation>Archivos del modelo eliminados.</translation>
     </message>
     <message>
       <source>Model files ready and verified.</source>
@@ -4289,6 +4309,10 @@ Arquitectura: {architecture} · Formato: {value}
     <message>
       <source>{name} ({value:.0f} MB). Choose a translator:</source>
       <translation>{name} ({value:.0f} MB). Elige un traductor:</translation>
+    </message>
+    <message>
+      <source>{name} is in use. Choose another translation model or stop translation, then try again.</source>
+      <translation>{name} está en uso. Elige otro modelo de traducción o detén la traducción y vuelve a intentarlo.</translation>
     </message>
     <message>
       <source>{name} key</source>
